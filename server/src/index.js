@@ -16,6 +16,8 @@ const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
 const http = require('http');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
 // #endregion
 
 // #region setup boilerplate
@@ -28,17 +30,47 @@ const app = express(); // Creates express app
 const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpServer); // Creates socket.io app
 
-// Setup middlewares
+// Use helmet (from npm install helmet) for setting Content Security Policies.
+// This prevents cross-site scripting among other things.
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    // Only allow things from our own domain to be loaded.
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"],
+    fontSrc: ["'self'"],
+    reportUri: '/report-violation',
+  },
+  // browserSniff: false,
+}));
+
+// JSON parser for logging CSP violations.
+app.use(bodyParser.json({
+  type: ['json', 'application/csp-report'],
+}));
+
+// https://helmetjs.github.io/docs/csp/
+app.post('/report-violation', (req, res) => {
+  if (req.body) {
+    console.log('CSP Violation: ', req.body);
+  } else {
+    console.log('CSP Violation: No data received!');
+  }
+  res.status(204).end();
+});
+
+// Setup middlewares.
 app.use(betterLogging.expressMiddleware(console, {
   ip: { show: true },
   path: { show: true },
   body: { show: true },
 }));
-app.use(express.json()); /*
-This is a middleware that parses the body of the request into a javascript object.
-It's basically just replacing the body property like this:
-req.body = JSON.parse(req.body)
-*/
+
+/* This is a middleware that parses the body of the request into a javascript
+   object. It's basically just replacing the body property like this:
+   req.body = JSON.parse(req.body) */
+app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 // Setup session

@@ -19,3 +19,8 @@ away. This way you wont have to go through fixing hundreds of errors the day bef
 the presentation.
 
 __Note:__ Most common errors can be automatically fixed by running `npm run lint:fix`
+
+Extra external packages used (apart from the ones given in lab 4):
+- sqlite3
+- sequelize
+- helmet
