@@ -1,0 +1,77 @@
+/* #header {
+  padding-left: 5%;
+  padding-right: 5%;
+} */
+
+.btn-group button {
+  display: block;
+  padding: 10px 24px;
+  width: 100%;
+}
+
+
+.btn-group button:hover:before {
+  /* display: block; */
+  content: "Remove?";
+}
+
+/* .btn-group button:hover:after {
+  content: "Remove?";
+  font-size: 0px;
+} */
+
+.btn-group button:hover {
+  background-color: #A9A9A9;
+}
+
+.assistant-container {
+   display: flex;
+   flex-direction: row;
+   justify-content: center;
+}
+
+ .timeslot-container > *:hover {
+   filter: brightness(1.20);
+ }
+
+ .timeslot-container > * {
+   filter: brightness(1.00);
+   width: auto;
+ }
+
+.ts-container {
+  float: left;
+  flex-direction: column;
+  margin: 15px;
+}
+
+button:hover {
+  filter: brightness(1.20);
+}
+
+.booked {
+  background-color: #FFCCCB;
+  pointer-events: none;
+}
+
+.reserved {
+  background-color: #FFED83;
+  pointer-events: none;
+}
+
+.open {
+  background-color: #90EE90;
+}
+
+/* Buttons displayed in the assistant admin page */
+.a-booked {
+  background-color: #FFCCCB;
+}
+
+.a-reserved {
+  background-color: #FFED83;
+}
+
+.a-open {
+  background-color: #90EE90;
+}
