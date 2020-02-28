@@ -39,9 +39,9 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
   console.log('All models were synchronized successfully.');
 
   // Populate tables. The create method combines build() and save().
-  await Assistant.create({ name: 'plutten', password: 'mokonzi' });
-  await Assistant.create({ name: 'fia', password: 'henk' });
-  await Assistant.create({ name: 'apphiah', password: 'henrik' });
+  await Assistant.create({ name: 'assistant1', password: 'password1' });
+  await Assistant.create({ name: 'assistant2', password: 'password2' });
+  await Assistant.create({ name: 'assistant3', password: 'password3' });
 
   // Change bookedBy to null after making sure it works.
   await TimeSlot.create({ assistantId: 1, bookedBy: 'no one', time: '13:00 - 13:20' });

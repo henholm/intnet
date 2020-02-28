@@ -16,7 +16,9 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  mode: 'hash',
+  // mode: 'hash',
+  // Change mode to history, since 'hash' causes autofocus errors in Chrome.
+  mode: 'history',
   base: process.env.BASE_URL,
   routes,
 });
