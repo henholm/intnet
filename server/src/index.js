@@ -18,8 +18,8 @@ const express = require('express');
 // const http = require('http');
 const https = require('https');
 const fs = require('fs');
-// const helmet = require('helmet');
-// const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const bodyParser = require('body-parser');
 // #endregion
 
 // #region setup boilerplate
@@ -38,32 +38,41 @@ const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
 // // Use helmet (from npm install helmet) for setting Content Security Policies.
 // // This prevents cross-site scripting among other things.
-// app.use(helmet.contentSecurityPolicy({
-//   directives: {
-//     // Only allow things from our own domain to be loaded.
-//     defaultSrc: ["'self'"],
-//     scriptSrc: ["'self'"],
-//     styleSrc: ["'self'"],
-//     fontSrc: ["'self'"],
-//     reportUri: '/report-violation',
-//   },
-//   // browserSniff: false,
-// }));
-//
-// // JSON parser for logging CSP violations.
-// app.use(bodyParser.json({
-//   type: ['json', 'application/csp-report'],
-// }));
-//
-// // https://helmetjs.github.io/docs/csp/
-// app.post('/report-violation', (req, res) => {
-//   if (req.body) {
-//     console.log('CSP Violation: ', req.body);
-//   } else {
-//     console.log('CSP Violation: No data received!');
-//   }
-//   res.status(204).end();
-// });
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    // Only allow things from our own domain to be loaded.
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'",
+                'cdnjs.cloudflare.com',
+                'ajax.googleapis.com',
+                'maxcdn.bootstrapcdn.com'],
+    styleSrc: ["'self'",
+               'cdnjs.cloudflare.com',
+               'ajax.googleapis.com',
+               'maxcdn.bootstrapcdn.com'],
+    fontSrc: ["'self'",
+              'cdnjs.cloudflare.com',
+              'ajax.googleapis.com',
+              'maxcdn.bootstrapcdn.com'],
+    reportUri: '/report-violation',
+  },
+  // browserSniff: false,
+}));
+
+// JSON parser for logging CSP violations.
+app.use(bodyParser.json({
+  type: ['json', 'application/csp-report'],
+}));
+
+// https://helmetjs.github.io/docs/csp/
+app.post('/report-violation', (req, res) => {
+  if (req.body) {
+    console.log('CSP Violation: ', req.body);
+  } else {
+    console.log('CSP Violation: No data received!');
+  }
+  res.status(204).end();
+});
 
 // Setup middlewares.
 app.use(betterLogging.expressMiddleware(console, {
