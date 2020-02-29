@@ -15,11 +15,14 @@ const path = require('path'); // helper library for resolving relative paths
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
+
 // const http = require('http');
 const https = require('https');
 const fs = require('fs');
+
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 // #endregion
 
 // #region setup boilerplate
@@ -36,6 +39,11 @@ const httpsServer = https.createServer({
 // const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
+app.use(function (req, res, next) {
+  res.locals.nonce = crypto.randomBytes(16).toString('hex');
+  next();
+});
+
 // // Use helmet (from npm install helmet) for setting Content Security Policies.
 // // This prevents cross-site scripting among other things.
 app.use(helmet.contentSecurityPolicy({
@@ -45,7 +53,8 @@ app.use(helmet.contentSecurityPolicy({
     scriptSrc: ["'self'",
                 'cdnjs.cloudflare.com',
                 'ajax.googleapis.com',
-                'maxcdn.bootstrapcdn.com'],
+                'maxcdn.bootstrapcdn.com',
+                (req, res) => `'nonce-${res.locals.nonce}'`],
     styleSrc: ["'self'",
                'cdnjs.cloudflare.com',
                'ajax.googleapis.com',
