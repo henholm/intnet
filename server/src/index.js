@@ -22,7 +22,6 @@ const fs = require('fs');
 
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const crypto = require('crypto');
 // #endregion
 
 // #region setup boilerplate
@@ -39,12 +38,6 @@ const httpsServer = https.createServer({
 // const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
-app.use((req, res, next) => {
-  // res.locals.nonce = crypto.randomBytes(16).toString('hex');
-  res.locals.styleNonce = crypto.randomBytes(16).toString('hex');
-  next();
-});
-
 // // Use helmet (from npm install helmet) for setting Content Security Policies.
 // // This prevents cross-site scripting among other things.
 app.use(helmet.contentSecurityPolicy({
@@ -59,10 +52,7 @@ app.use(helmet.contentSecurityPolicy({
     styleSrc: ["'self'",
                'cdnjs.cloudflare.com',
                'ajax.googleapis.com',
-               'maxcdn.bootstrapcdn.com',
-               // 'https://localhost:8989/js/chunk-vendors.js',
-               // (req, res) => `'nonce-${res.locals.nonce}'`],
-               (req, res) => `'nonce-${res.locals.styleNonce}'`],
+               'maxcdn.bootstrapcdn.com'],
     fontSrc: ["'self'",
               'cdnjs.cloudflare.com',
               'ajax.googleapis.com',
@@ -119,12 +109,6 @@ app.use(express.static(publicPath));/*
 express.static(absolutePathToPublicDirectory)
 This will serve static files from the public directory, starting with index.html
 */
-
-app.set('view engine', 'ejs');
-
-app.get('/', (req, res) => {
-  res.render('index', { styleNonce: res.locals.styleNonce });
-});
 
 // Bind REST controllers to /api/*
 const chat = require('./controllers/socket.controller.js');
