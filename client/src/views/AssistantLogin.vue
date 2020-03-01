@@ -36,20 +36,15 @@ export default {
   methods: {
     login() {
       // Add authentication. If authenticated, continue to fetching of data.
-      // this.userNotExists = false;
       fetch(`/api/assistantLogin/${this.username}/${this.password}`)
         .then(res => res.json())
         .then((response) => {
           if (response.isAuthenticated) {
-            // this.$router.push(`/bookTimeSlot/${timeSlotId}`);
-            // fetch(`/api/assistantLogin/${this.username}`)
-            console.log(`Redirecting to assistant ${this.username}'s admin page`);
             this.$router.push(`assistantLogin/${this.username}`);
-            // console.log(`Time slots belonging to ${this.username} fetched`);
           } else {
             this.userNotExists = true;
           }
-        }).catch(console.error);
+        });
     },
     checkForm(e) {
       if (this.username && this.password) {

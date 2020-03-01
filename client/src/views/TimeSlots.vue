@@ -39,7 +39,6 @@ export default {
   },
   // Step 1 in lifecycle hooks.
   beforeCreate() {
-    console.log('TimeSlot.vue is being created');
     this.socket = this.$root.socket;
     this.socket.connect();
     fetch('/api/timeSlots')
@@ -57,20 +56,11 @@ export default {
           aTS[currName].push(this.timeSlots[i]);
         }
         this.aTS = aTS;
-      })
-      .catch(console.error);
+      });
   },
-  // Step 2 in lifecycle hooks.
-  created() {
-    console.log('TimeSlot.vue has been created');
-    // console.log(this.$refs);
-  },
-  // Step 3 in lifecycle hooks.
-  beforeMount() {},
   // Step 4 in lifecycle hooks.
   mounted() {
     this.socket.on('update', (data) => {
-      console.log('onUpdate in TimeSlotView');
       this.timeSlots = data.timeSlots;
       // aTS = assistantTimeSlots
       const aTS = {};
@@ -85,14 +75,6 @@ export default {
       this.aTS = aTS;
     });
   },
-  // Step 5 in lifecycle hooks.
-  beforeUpdate() {},
-  // Step 6 in lifecycle hooks.
-  updated() {},
-  // Step 7 in lifecycle hooks.
-  beforeDestroy() {},
-  // Step 8 in lifecycle hooks.
-  destroyed() {},
 };
 
 </script>

@@ -64,26 +64,22 @@ export default {
   },
   // Step 1 in lifecycle hooks.
   beforeCreate() {
-    console.log('AssistantAdmin.vue is being created');
     // The following line is executed before the one in data().
     this.assistantName = this.$route.params.assistantName;
     fetch(`/api/assistantLogin/${this.assistantName}`)
       .then(res => res.json())
       .then((data) => {
         this.timeSlots = data.timeSlots;
-      })
-      .catch(console.error);
+      });
   },
   // Step 2 in lifecycle hooks.
   created() {
-    console.log('AssistantAdmin.vue has been created');
     this.socket = this.$root.socket;
     this.socket.connect();
   },
   // Step 4 in lifecycle hooks.
   mounted() {
     this.socket.on('update', (data) => {
-      console.log('onUpdate in AssistantAdminView');
       this.timeSlots = [];
       for (let i = 0; i < data.timeSlots.length; i += 1) {
         if (data.timeSlots[i].assistantName === this.assistantName) {

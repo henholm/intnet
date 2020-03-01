@@ -49,7 +49,6 @@ export default {
       this.countdownTime = setInterval(() => {
         this.countdownSeconds -= 1;
         if (this.countdownSeconds === 0) {
-          console.log('User idle. Time slot reservation aborted.');
           this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
           this.countdownSeconds = 20;
           clearInterval(this.countdownTime);
@@ -58,38 +57,19 @@ export default {
       }, 1000);
     },
   },
-  // Step 1 in lifecycle hooks.
-  beforeCreate() {},
   // Step 2 in lifecycle hooks.
   created() {
-    console.log('BookTimeSlot.vue is being created');
     this.socket = this.$root.socket;
     this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
     fetch(`/api/timeSlotData/${this.timeSlotId}`)
       .then(res => res.json())
       .then((data) => {
-        console.log('BookTimeSlot created');
         this.countdown();
         this.timeSlotId = data.timeSlotData.id;
         this.timeSlotTime = data.timeSlotData.time;
         this.assistantId = data.timeSlotData.assistantId;
         this.assistantName = data.timeSlotData.assistantName;
-      })
-      .catch(console.error);
+      });
   },
-  // Step 3 in lifecycle hooks.
-  beforeMount() {},
-  // Step 4 in lifecycle hooks.
-  mounted() {},
-  // Step 5 in lifecycle hooks.
-  beforeUpdate() {},
-  // Step 6 in lifecycle hooks.
-  updated() {},
-  // Step 7 in lifecycle hooks.
-  beforeDestroy() {
-    // this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
-  },
-  // Step 8 in lifecycle hooks.
-  destroyed() {},
 };
 </script>
