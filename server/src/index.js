@@ -39,8 +39,9 @@ const httpsServer = https.createServer({
 // const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
-app.use(function (req, res, next) {
-  res.locals.nonce = crypto.randomBytes(16).toString('hex');
+app.use((req, res, next) => {
+  // res.locals.nonce = crypto.randomBytes(16).toString('hex');
+  res.locals.styleNonce = crypto.randomBytes(16).toString('hex');
   next();
 });
 
@@ -48,17 +49,20 @@ app.use(function (req, res, next) {
 // // This prevents cross-site scripting among other things.
 app.use(helmet.contentSecurityPolicy({
   directives: {
-    // Only allow things from our own domain to be loaded.
+    // Upgrades http to https (provided we also serve http requests).
+    upgradeInsecureRequests: true,
     defaultSrc: ["'self'"],
     scriptSrc: ["'self'",
                 'cdnjs.cloudflare.com',
                 'ajax.googleapis.com',
-                'maxcdn.bootstrapcdn.com',
-                (req, res) => `'nonce-${res.locals.nonce}'`],
+                'maxcdn.bootstrapcdn.com'],
     styleSrc: ["'self'",
                'cdnjs.cloudflare.com',
                'ajax.googleapis.com',
-               'maxcdn.bootstrapcdn.com'],
+               'maxcdn.bootstrapcdn.com',
+               // 'https://localhost:8989/js/chunk-vendors.js',
+               // (req, res) => `'nonce-${res.locals.nonce}'`],
+               (req, res) => `'nonce-${res.locals.styleNonce}'`],
     fontSrc: ["'self'",
               'cdnjs.cloudflare.com',
               'ajax.googleapis.com',
@@ -115,6 +119,12 @@ app.use(express.static(publicPath));/*
 express.static(absolutePathToPublicDirectory)
 This will serve static files from the public directory, starting with index.html
 */
+
+app.set('view engine', 'ejs');
+
+app.get('/', (req, res) => {
+  res.render('index', { styleNonce: res.locals.styleNonce });
+});
 
 // Bind REST controllers to /api/*
 const chat = require('./controllers/socket.controller.js');
