@@ -7,14 +7,14 @@ Vue.use(Vuex);
 /* eslint-disable no-param-reassign */
 export default new Vuex.Store({
   state: {
-    // isAuthenticated: false,
-    isAuthenticated: true,
+    isAuthenticated: false,
+    // isAuthenticated: true,
   },
-  // mutations: {
-  //   setIsAuthenticated(store, isAuthenticated) {
-  //     store.isAuthenticated = isAuthenticated;
-  //   },
-  // },
+  mutations: {
+    setIsAuthenticated(store, isAuthenticated) {
+      store.isAuthenticated = isAuthenticated;
+    },
+  },
   actions: {
   },
   modules: {
