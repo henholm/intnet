@@ -25,23 +25,22 @@
 
 <script>
 export default {
-  name: 'TimeSlots',
+  name: 'Queues',
   components: {},
   data: () => ({
-    timeSlots: [],
-    aTS: {},
+    queues: [],
   }),
   methods: {
-    redirect(event, timeSlotId) {
+    redirect(event, queueId) {
       event.preventDefault();
-      this.$router.push(`/bookTimeSlot/${timeSlotId}`);
+      this.$router.push(`/queues/${queueId}`);
     },
   },
   // Step 1 in lifecycle hooks.
   beforeCreate() {
     this.socket = this.$root.socket;
     this.socket.connect();
-    fetch('/api/timeSlots')
+    fetch('/api/queues')
       .then(res => res.json())
       .then((data) => {
         this.timeSlots = data.timeSlots;
