@@ -5,14 +5,11 @@
 const User = require('./models/user.model');
 const Database = require('./sequelize');
 
-/**
- * rooms & users are effectively hash maps with the name of the entry serving as a unique key.
- */
 const users = {};
 
 /**
- * unregisteredSockets is used as a temporary pool of sockets
- * that belonging to users who are yet to login.
+ * unregisteredSockets is used as a temporary pool of sockets belonging to users
+ * who are yet to login.
  */
 let nextUnregisteredSocketID = 0;
 let unregisteredSockets = {};
@@ -22,7 +19,7 @@ exports.io = undefined;
 
 /**
  * Initialize the model
- * @param { { io: SocketIO.Server} } config - The configurations needed to initialize the model.
+ * @param { { io: SocketIO.Server} } config - configs needed to init. the model.
  * @returns {void}
  */
 exports.init = ({ io }) => {

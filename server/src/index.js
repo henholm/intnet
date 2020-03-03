@@ -15,11 +15,8 @@ const path = require('path'); // helper library for resolving relative paths
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
-
-// const http = require('http');
 const https = require('https');
 const fs = require('fs');
-
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 // #endregion
@@ -27,7 +24,7 @@ const bodyParser = require('body-parser');
 // #region setup boilerplate
 console.loglevel = 4; // Enables debug output
 const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
-const port = 8989; // The port that the server will listen to
+const port = 443; // The port that the server will listen to
 const app = express(); // Creates express app
 
 // Express usually does this for us, but socket.io needs the httpServer directly
@@ -111,9 +108,11 @@ This will serve static files from the public directory, starting with index.html
 */
 
 // Bind REST controllers to /api/*
+const auth = require('./controllers/auth.controller.js');
 const chat = require('./controllers/socket.controller.js');
 
 app.use('/api', chat.router);
+app.use('/api', auth.requireAuth, chat.router);
 
 // Init model
 const model = require('./model.js');
