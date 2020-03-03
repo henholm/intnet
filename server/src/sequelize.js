@@ -248,11 +248,14 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
       },
       raw: true,
     }).then((user) => {
-      if (!user) {
-        resolve(false);
-      }
+      // User does not exist.
+      if (!user) resolve(false);
+
+      // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
+        // Resolve with true of false depending on whether the password matched
+        // or not.
         resolve(res);
       }).catch((err) => {
         console.log('Error in bcrypt.compare');
@@ -260,6 +263,42 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
         reject(err);
       });
     }).catch((err) => {
+      console.log('Error in authenticateAllegedAssistant');
+      console.log(err);
+      reject(err);
+    });
+  })
+);
+
+exports.loginAllegedUser = (userName, userPassword) => (
+  new Promise((resolve, reject) => {
+    console.log(userName);
+    console.log(userPassword);
+    console.log('loginAllegedUser');
+    User.findOne({
+      where: {
+        name: userName,
+      },
+      raw: true,
+    }).then((user) => {
+      // User does not exist.
+      if (!user) resolve(false);
+
+      // Check password if user exists.
+      const hashedTruePassword = user.password;
+      bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
+        // Resolve with user.id if passwords matched.
+        if (res) resolve(user.id);
+        // Resolve with false if passwords did not match.
+        resolve(res);
+      }).catch((err) => {
+        console.log('Error in bcrypt.compare');
+        console.log(err);
+        reject(err);
+      });
+    }).catch((err) => {
+      console.log(userName);
+      console.log(userPassword);
       console.log('Error in authenticateAllegedAssistant');
       console.log(err);
       reject(err);

@@ -4,8 +4,10 @@
 
 const express = require('express');
 const model = require('../model.js');
-
+const jwt = require('jsonwebtoken');
 const router = express.Router();
+
+const userMiddleware = require('../middleware/users.js');
 
 /**
  * Authenticate input assistant name and password.
@@ -37,7 +39,6 @@ router.get('/assistantLogin/:assistantName', (req, res) => {
   });
 });
 
-
 /**
  * Fetch the list of existing time slots.
  * @returns {void}
@@ -62,6 +63,39 @@ router.get('/timeSlotData/:timeSlotId', (req, res) => {
     });
   });
   // model.setTimeSlotBookedBy(req.params.timeSlotId, "reserved");
+});
+
+router.post('/login', (req, res, next) => {
+  model.loginUser(req.body.username, req.body.password).then((userId) => {
+    console.log('login userId');
+    console.log(userId);
+    if (userId) {
+      const token = jwt.sign({
+        username: req.body.username,
+        userId: userId
+      },
+      'SECRETKEY', {
+        expiresIn: '10m'
+      });
+
+      // Optionally use database model to set last login of user.
+
+      return res.status(200).send({
+        msg: 'Logged in',
+        token,
+        username: req.body.username,
+        userId: userId
+      });
+    }
+    return res.status(401).send({
+      msg: '/login Username or password incorrect'
+    });
+  });
+});
+
+router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
+  console.log(req.userData);
+  res.send('This is the secret content. Only logged in users can see that!');
 });
 
 module.exports = { router };

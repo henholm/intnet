@@ -38,6 +38,7 @@ exports.addUnregisteredSocket = (socket) => {
   unregisteredSockets[socketID] = socket;
   return socketID;
 };
+
 const assignUnregisteredSocket = (socketID) => {
   const socket = unregisteredSockets[socketID];
   unregisteredSockets = Object.keys(unregisteredSockets)
@@ -134,7 +135,13 @@ exports.authenticateAssistant = (assistantName, assistantPassword) => (
 );
 
 exports.authenticateUser = (userName, userPassword) => (
-  Database.authenticateAllegedAssistant(assistantName, assistantPassword)
+  // Database.authenticateAllegedAssistant(userName, userPassword)
+  Database.authenticateAllegedUser(userName, userPassword)
+);
+
+exports.loginUser = (userName, userPassword) => (
+  // Database.authenticateAllegedAssistant(userName, userPassword)
+  Database.loginAllegedUser(userName, userPassword)
 );
 
 exports.getAssistantTimeSlots = (assistantName) => (

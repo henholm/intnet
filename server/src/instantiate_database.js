@@ -5,7 +5,7 @@
 const path = require('path');
 // const { Sequelize, Model, DataTypes } = require('sequelize');
 const { Sequelize } = require('sequelize');
-const StudentModel = require('./models/student');
+const UserModel = require('./models/user');
 const AssistantModel = require('./models/assistant');
 const TimeSlotModel = require('./models/timeslot');
 const databasePath = path.join(__dirname, 'db.sqlite');
@@ -22,13 +22,13 @@ const sequelize = new Sequelize({
 });
 
 // Instantiate models using our instance of Sequelize.
-const Student = StudentModel(sequelize, Sequelize);
+const User = UserModel(sequelize, Sequelize);
 const Assistant = AssistantModel(sequelize, Sequelize);
 const TimeSlot = TimeSlotModel(sequelize, Sequelize, Assistant);
 
-// All Assistants are Students / some Students are Assistants.
-// Assistant.hasOne(Student);
-Assistant.belongsTo(Student, { foreignKey: 'id' });
+// All Assistants are Users / some Users are Assistants.
+// Assistant.hasOne(User);
+Assistant.belongsTo(User, { foreignKey: 'id' });
 
 // One Assistant has potentially several TimeSlots.
 Assistant.hasMany(TimeSlot);
@@ -41,12 +41,12 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
   console.log('All models were synchronized successfully.');
 
   // Populate tables. The create method combines build() and save().
-  await Student.create({ name: 'assistant1', password: 'password1', isAssistant: 1 });
-  await Student.create({ name: 'assistant2', password: 'password2', isAssistant: 1 });
-  await Student.create({ name: 'assistant3', password: 'password3', isAssistant: 1 });
-  await Student.create({ name: 'student1', password: 'password1', isAssistant: 0 });
-  await Student.create({ name: 'student2', password: 'password2', isAssistant: 0 });
-  await Student.create({ name: 'student3', password: 'password3', isAssistant: 0 });
+  await User.create({ name: 'assistant1', password: 'password1', isAssistant: 1 });
+  await User.create({ name: 'assistant2', password: 'password2', isAssistant: 1 });
+  await User.create({ name: 'assistant3', password: 'password3', isAssistant: 1 });
+  await User.create({ name: 'student1', password: 'password1', isAssistant: 0 });
+  await User.create({ name: 'student2', password: 'password2', isAssistant: 0 });
+  await User.create({ name: 'student3', password: 'password3', isAssistant: 0 });
 
   await Assistant.create({ id: 1, name: 'assistant1' });
   await Assistant.create({ id: 2, name: 'assistant2' });

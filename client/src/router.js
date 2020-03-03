@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import TimeSlotsView from '../views/TimeSlots.vue';
-import BookTimeSlotView from '../views/BookTimeSlot.vue';
-import AssistantLoginView from '../views/AssistantLogin.vue';
-import AssistantAdminView from '../views/AssistantAdmin.vue';
-import LoginView from '../views/Login.vue';
-import store from '../store';
+import TimeSlotsView from './views/TimeSlots.vue';
+import BookTimeSlotView from './views/BookTimeSlot.vue';
+import AssistantLoginView from './views/AssistantLogin.vue';
+import AssistantAdminView from './views/AssistantAdmin.vue';
+import LoginView from './views/Login.vue';
+// import store from './store';
 
 Vue.use(VueRouter);
 
@@ -28,13 +28,13 @@ const router = new VueRouter({
 });
 
 // Setup Authentication guard
-router.beforeEach((to, from, next) => {
-  if (store.state.isAuthenticated || to.path === '/login') {
-    next();
-  } else {
-    console.info('Unauthenticated user. Redirecting to login page.');
-    next('/login');
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   if (store.state.isAuthenticated || to.path === '/login') {
+//     next();
+//   } else {
+//     console.info('Unauthenticated user. Redirecting to login page.');
+//     next('/login');
+//   }
+// });
 
 export default router;

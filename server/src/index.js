@@ -108,11 +108,11 @@ This will serve static files from the public directory, starting with index.html
 */
 
 // Bind REST controllers to /api/*
-const auth = require('./controllers/auth.controller.js');
-const chat = require('./controllers/socket.controller.js');
+// const auth = require('./controllers/auth.controller.js');
+const socketController = require('./controllers/socket.controller.js');
 
-app.use('/api', chat.router);
-app.use('/api', auth.requireAuth, chat.router);
+app.use('/api', socketController.router);
+// app.use('/api', auth.requireAuth, socketController.router);
 
 // Init model
 const model = require('./model.js');

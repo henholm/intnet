@@ -25,6 +25,8 @@
 
 
 <script>
+import AuthService from '@/services/AuthService';
+
 export default {
   name: 'UserLogin',
   components: {},
@@ -42,48 +44,27 @@ export default {
       }
       e.preventDefault();
     },
-    // login() {
-    //  // Add authentication. If authenticated, continue to fetching of data.
-    //   fetch(`/api/assistantLogin/${this.username}/${this.password}`)
-    //     .then(res => res.json())
-    //     .then((response) => {
-    //       if (response.isAuthenticated) {
-    //         this.$router.push(`assistantLogin/${this.username}`);
-    //       } else {
-    //         this.userExists = false;
-    //       }
-    //     });
-    // },
-    login() {
-      console.log(localStorage.getItem('id_token'));
-      fetch('/api/authenticate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    async login() {
+      try {
+        const credentials = {
           username: this.username,
           password: this.password,
-        }),
-      }).then((resp) => {
-        console.log('after resp in authenticate in Login.vue');
-        console.log(resp);
-        if (resp.ok) return resp;
-        this.$store.commit('setIsAuthenticated', false);
-        this.$router.push({
-          path: 'login',
-        });
-        console.log('anus');
-        throw new Error(resp.text);
-      }).then(() => {
-        this.$store.commit('setIsAuthenticated', true);
-        this.$router.push({
-          path: 'timeSlots',
-        });
-      }).catch((error) => {
-        console.error('Authentication failed unexpectedly');
-        throw error;
-      });
+        };
+        const response = await AuthService.login(credentials);
+        // this.msg = response.msg;
+        console.log(response.msg);
+        console.log(response.token);
+        console.log(response.username);
+        console.log(response.userId);
+        const { token } = response.token;
+        const { username } = response.username;
+        const { userId } = response.userId;
+        this.$store.dispatch('login', { token, username, userId });
+        this.$router.push('/timeSlots');
+      } catch (error) {
+        console.log('error.response.data.msg');
+        this.msg = error.response.data.msg;
+      }
     },
   },
 };
