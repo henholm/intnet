@@ -26,7 +26,7 @@
 </template>
 
 <script>
-// import AuthService from '@/services/AuthService';
+import AuthService from '@/services/AuthService';
 
 export default {
   name: 'TimeSlots',
@@ -53,21 +53,18 @@ export default {
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     } else {
-      fetch('/api/timeSlots')
-        .then(res => res.json())
-        .then((data) => {
-          this.timeSlots = data.timeSlots;
-          // aTS = assistantTimeSlots
-          const aTS = {};
-          for (let i = 0; i < this.timeSlots.length; i += 1) {
-            const currName = this.timeSlots[i].assistantName;
-            if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
-              aTS[currName] = [];
-            }
-            aTS[currName].push(this.timeSlots[i]);
-          }
-          this.aTS = aTS;
-        });
+      const response = await AuthService.getTimeSlots();
+      this.timeSlots = response.timeSlots;
+      // "aTS" stands for assistant Time Slots.
+      const aTS = {};
+      for (let i = 0; i < this.timeSlots.length; i += 1) {
+        const currName = this.timeSlots[i].assistantName;
+        if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
+          aTS[currName] = [];
+        }
+        aTS[currName].push(this.timeSlots[i]);
+      }
+      this.aTS = aTS;
     }
   },
   // Step 4 in lifecycle hooks.
