@@ -17,8 +17,9 @@ const socketIOSession = require('express-socket.io-session');
 const express = require('express');
 const https = require('https');
 const fs = require('fs');
-const helmet = require('helmet');
+const helmet = require('helmet'); // For Content-Security-Policy.
 const bodyParser = require('body-parser');
+const history = require('connect-history-api-fallback'); // For page refresh.
 // #endregion
 
 
@@ -27,6 +28,12 @@ console.loglevel = 4; // Enables debug output
 const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
+
+
+// Middleware which allows for page refreshing.
+app.use(history({
+  verbose: true
+}));
 
 
 // Express usually does this for us, but socket.io needs the httpServer directly
