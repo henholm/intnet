@@ -31,16 +31,11 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    login: ({ commit, dispatch }, { token, user }) => {
-      console.log('dispatch');
-      console.log(commit);
-      console.log(dispatch);
-      console.log(token);
-      console.log(user);
+    login: ({ commit }, { token, user }) => {
       commit('SET_TOKEN', token);
       commit('SET_USER', user);
+
       // set auth header
-      // Axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     },
     logout: ({ commit }) => {
