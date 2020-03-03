@@ -94,7 +94,7 @@ exports.getTimeSlots = () => Database.selectAllTimeSlotsClean();
  * Returns all time slots.
  * @returns {TimeSlot[]}
  */
-exports.getTimeSlotById = (timeSlotId) => Database.selectTimeSlotById(timeSlotId);
+exports.getTimeSlotById = (timeSlotId) => Database.selectTimeSlotByIdClean(timeSlotId);
 
 exports.getTimeSlotByIdDirty = (timeSlotId) => Database.selectTimeSlotByIdDirty(timeSlotId);
 
@@ -130,6 +130,10 @@ exports.selectTimeSlot = (timeSlotId) => (
 );
 
 exports.authenticateAssistant = (assistantName, assistantPassword) => (
+  Database.authenticateAllegedAssistant(assistantName, assistantPassword)
+);
+
+exports.authenticateUser = (userName, userPassword) => (
   Database.authenticateAllegedAssistant(assistantName, assistantPassword)
 );
 
