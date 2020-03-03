@@ -7,12 +7,10 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 // const { Sequelize, Model, DataTypes } = require('sequelize');
 const { Sequelize } = require('sequelize');
+const UserModel = require('./models/user');
 const AssistantModel = require('./models/assistant');
 const TimeSlotModel = require('./models/timeslot');
-
 const databasePath = path.join(__dirname, 'db.sqlite');
-
-// Might need to change to 'database_name', 'root', 'root' or whatever.
 const sequelize = new Sequelize({
   // host: 'localhost',
   dialect: 'sqlite',
@@ -26,13 +24,17 @@ const sequelize = new Sequelize({
 });
 
 // Instantiate models using our instance of Sequelize.
+const User = UserModel(sequelize, Sequelize);
 const Assistant = AssistantModel(sequelize, Sequelize);
 const TimeSlot = TimeSlotModel(sequelize, Sequelize, Assistant);
+
+// All Assistants are Users / some Users are Assistants.
+// Assistant.hasOne(User);
+Assistant.belongsTo(User, { foreignKey: 'id' });
 
 // One Assistant has potentially several TimeSlots.
 Assistant.hasMany(TimeSlot);
 // Relate TimeSlots table to Assistants table using foreign key 'assistantId'.
-// TODO: Make sure this leads to the desired behavior.
 TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
 
 exports.Assistant = Assistant;
@@ -129,7 +131,7 @@ exports.selectTimeSlotByIdDirty = (timeSlotId) => (
 );
 
 // Selects time slot as specified by input timeslot id. Inner join with Assistant.
-exports.selectTimeSlotById = (timeSlotId) => (
+exports.selectTimeSlotByIdClean = (timeSlotId) => (
   new Promise((resolve, reject) => {
     TimeSlot.findOne({
       where: {
@@ -235,8 +237,34 @@ exports.authenticateAllegedAssistant = (assistantName, assistantPassword) => (
   })
 );
 
+exports.authenticateAllegedUser = (userName, userPassword) => (
+  new Promise((resolve, reject) => {
+    User.findOne({
+      where: {
+        name: userName,
+      },
+      raw: true,
+    }).then((user) => {
+      if (!user) {
+        resolve(false);
+      }
+      const hashedTruePassword = user.password;
+      bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
+        resolve(res);
+      }).catch((err) => {
+        console.log('Error in bcrypt.compare');
+        console.log(err);
+        reject(err);
+      });
+    }).catch((err) => {
+      console.log('Error in authenticateAllegedAssistant');
+      console.log(err);
+      reject(err);
+    });
+  })
+);
+
 // Add a new TimeSlot for the Assistant specified by the input name.
-// TODO: make async.
 exports.addTimeSlot = (assistantName, time) => (
   new Promise((resolve, reject) => {
     console.log(assistantName);
@@ -267,7 +295,6 @@ exports.addTimeSlot = (assistantName, time) => (
 );
 
 // Remove TimeSlot corresponding to the input ID.
-// TODO: make async.
 exports.removeTimeSlot = (idOfTimeSlot) => (
   new Promise((resolve, reject) => {
     TimeSlot.destroy(
@@ -285,12 +312,3 @@ exports.removeTimeSlot = (idOfTimeSlot) => (
     });
   })
 );
-
-// Tests to see if our methods work (which they do).
-// exports.addTimeSlot('assistant3', '14:00 - 14:20');
-// exports.selectAllTimeSlotsDirty();
-// exports.selectAllTimeSlotsClean();
-// exports.alterTimeSlotState(2, 'henrik');
-// exports.selectAllTimeSlots();
-// exports.removeTimeSlot(1);
-// exports.selectAllTimeSlots();
