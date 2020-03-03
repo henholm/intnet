@@ -42,18 +42,18 @@ export default {
       }
       e.preventDefault();
     },
-    // login() {
-    //   // Add authentication. If authenticated, continue to fetching of data.
-    //   fetch(`/api/assistantLogin/${this.username}/${this.password}`)
-    //     .then(res => res.json())
-    //     .then((response) => {
-    //       if (response.isAuthenticated) {
-    //         this.$router.push(`assistantLogin/${this.username}`);
-    //       } else {
-    //         this.userExists = false;
-    //       }
-    //     });
-    // },
+    login() {
+      // Add authentication. If authenticated, continue to fetching of data.
+      fetch(`/api/assistantLogin/${this.username}/${this.password}`)
+        .then(res => res.json())
+        .then((response) => {
+          if (response.isAuthenticated) {
+            this.$router.push(`assistantLogin/${this.username}`);
+          } else {
+            this.userExists = false;
+          }
+        });
+    },
     login() {
       fetch('/api/authenticate', {
         method: 'POST',
@@ -65,11 +65,14 @@ export default {
           password: this.password,
         }),
       }).then((resp) => {
+        console.log('after resp in authenticate in Login.vue');
+        console.log(resp);
         if (resp.ok) return resp;
         this.$store.commit('setIsAuthenticated', false);
         this.$router.push({
           path: 'login',
         });
+        console.log('anus');
         throw new Error(resp.text);
       }).then(() => {
         this.$store.commit('setIsAuthenticated', true);
