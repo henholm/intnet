@@ -10,9 +10,9 @@ import store from '../store';
 Vue.use(VueRouter);
 
 const routes = [
-  { path: '/', redirect: '/Login' },
+  { path: '/', redirect: '/login' },
   // { path: '/', redirect: '/timeSlots' },
-  { path: '/Login', component: LoginView },
+  { path: '/login', component: LoginView },
   { path: '/timeSlots', component: TimeSlotsView },
   { path: '/bookTimeSlot/:timeSlotId', component: BookTimeSlotView },
   { path: '/assistantLogin', component: AssistantLoginView },
