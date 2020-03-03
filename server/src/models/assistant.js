@@ -11,6 +11,11 @@ module.exports = (sequelize, type) => sequelize.define('Assistant', {
     type: type.INTEGER,
     primaryKey: true,
   },
+  name: {
+    // Defaults to STRING(255).
+    type: type.STRING,
+    allowNull: false,
+  },
 }, {
   // Other settings for the Assistants table in our sqlite database.
   // Skip timestamp attributes updatedAt and createdAt.
