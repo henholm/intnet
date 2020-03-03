@@ -43,7 +43,7 @@ router.get('/assistantLogin/:assistantName', (req, res) => {
  * Fetch the list of existing time slots.
  * @returns {void}
  */
-router.get('/timeSlots', (req, res) => {
+router.post('/timeSlots', (req, res) => {
   model.getTimeSlots().then((resolve) => {
     res.status(200).json({
       timeSlots: resolve,
