@@ -27,14 +27,4 @@ const router = new VueRouter({
   routes,
 });
 
-// Setup Authentication guard
-// router.beforeEach((to, from, next) => {
-//   if (store.state.isAuthenticated || to.path === '/login') {
-//     next();
-//   } else {
-//     console.info('Unauthenticated user. Redirecting to login page.');
-//     next('/login');
-//   }
-// });
-
 export default router;
