@@ -52,26 +52,23 @@ export default {
     console.log(this.$store.getters);
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
-    }
-    // // this.username = this.$store.getters.getUser.username;
-    // const secretMessage = await AuthService.getSecretContent();
-    // console.log(secretMessage);
-
-    fetch('/api/timeSlots')
-      .then(res => res.json())
-      .then((data) => {
-        this.timeSlots = data.timeSlots;
-        // aTS = assistantTimeSlots
-        const aTS = {};
-        for (let i = 0; i < this.timeSlots.length; i += 1) {
-          const currName = this.timeSlots[i].assistantName;
-          if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
-            aTS[currName] = [];
+    } else {
+      fetch('/api/timeSlots')
+        .then(res => res.json())
+        .then((data) => {
+          this.timeSlots = data.timeSlots;
+          // aTS = assistantTimeSlots
+          const aTS = {};
+          for (let i = 0; i < this.timeSlots.length; i += 1) {
+            const currName = this.timeSlots[i].assistantName;
+            if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
+              aTS[currName] = [];
+            }
+            aTS[currName].push(this.timeSlots[i]);
           }
-          aTS[currName].push(this.timeSlots[i]);
-        }
-        this.aTS = aTS;
-      });
+          this.aTS = aTS;
+        });
+    }
   },
   // Step 4 in lifecycle hooks.
   mounted() {

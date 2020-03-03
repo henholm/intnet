@@ -35,7 +35,10 @@
               <a style="cursor: pointer;">Time Slots</a>
             </li>
             <li v-on:click="redirect('/assistantLogin')">
-              <a style="cursor: pointer;">Assistant login</a>
+              <a style="cursor: pointer;">Assistant Login</a>
+            </li>
+            <li v-on:click="logout()">
+              <a style="cursor: pointer;">Log Out</a>
             </li>
           </ul>
         </div>
@@ -52,6 +55,10 @@ export default {
   methods: {
     redirect(target) {
       this.$router.push(target);
+    },
+    logout() {
+      this.$store.dispatch('logout');
+      this.$router.push('/login');
     },
   },
 };
