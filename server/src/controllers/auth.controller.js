@@ -48,6 +48,7 @@ router.get('/isAuthenticated', (req, res) => {
  * @returns {void}
  */
 router.post('/authenticate', (req, res) => {
+  console.log('/authenticate');
   // TODO: distinctions between temporary/persistent storage modules.
   model.authenticateUser(req.body.username, req.body.password).then((resolve) => {
     model.addUser(req.body.username, req.session.socketID);
