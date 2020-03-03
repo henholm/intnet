@@ -50,9 +50,9 @@ export default {
     this.socket.connect();
 
     console.log(this.$store.getters);
-    // if (!this.$store.getters.isLoggedIn) {
-    //   this.$router.push('/login');
-    // }
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login');
+    }
     // // this.username = this.$store.getters.getUser.username;
     // const secretMessage = await AuthService.getSecretContent();
     // console.log(secretMessage);

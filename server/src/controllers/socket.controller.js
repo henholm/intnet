@@ -68,12 +68,14 @@ router.get('/timeSlotData/:timeSlotId', (req, res) => {
 router.post('/login', (req, res, next) => {
   model.loginUser(req.body.username, req.body.password).then((userId) => {
     if (userId) {
+      const user = { username: req.body.username, userId: userId }
+
       const token = jwt.sign({
-        username: req.body.username,
-        userId: userId
+        username: user.username,
+        userId: user.userId
       },
       'SECRETKEY', {
-        expiresIn: '10m'
+        expiresIn: '1d'
       });
 
       // Optionally use database model to set last login of user.
@@ -81,8 +83,7 @@ router.post('/login', (req, res, next) => {
       return res.status(200).send({
         msg: 'Logged in',
         token,
-        username: req.body.username,
-        userId: userId
+        user: user
       });
     }
     return res.status(401).send({

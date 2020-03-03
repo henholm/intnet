@@ -33,6 +33,7 @@ export default new Vuex.Store({
   actions: {
     login: ({ commit, dispatch }, { token, user }) => {
       console.log('dispatch');
+      console.log(commit);
       console.log(dispatch);
       console.log(token);
       console.log(user);

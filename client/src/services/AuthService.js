@@ -1,6 +1,6 @@
 // src/services/AuthService.js
 
-import axios from 'axios';
+import Axios from 'axios';
 
 const url = 'https://localhost:8989/api/';
 
@@ -8,7 +8,7 @@ export default {
   login(credentials) {
     console.log('credentials');
     console.log(credentials);
-    return axios
+    return Axios
       .post(`${url}login/`, credentials)
       .then(response => response.data);
   },

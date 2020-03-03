@@ -1,14 +1,15 @@
 import Vue from 'vue';
 import io from 'socket.io-client';
+import Axios from 'axios';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import Axios from 'axios';
 
 Vue.config.productionTip = false;
 
 // set auth header
-Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`;
+// Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`;
+Axios.defaults.headers.common.Authorization = `Bearer ${store.state.token}`;
 
 (async () => {
   // Find out if the user is already logged in

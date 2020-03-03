@@ -51,16 +51,11 @@ export default {
           password: this.password,
         };
         const response = await AuthService.login(credentials);
-        // this.msg = response.msg;
-        console.log(response.msg);
-        console.log(response.token);
-        console.log(response.username);
-        console.log(response.userId);
-        const { token } = response.token;
-        const { username } = response.username;
-        // const { userId } = response.userId;
-        this.$store.dispatch('login', { token, username });
-        console.log('efter dispatch');
+
+        const { token } = response;
+        const { user } = response;
+
+        this.$store.dispatch('login', { token, user });
         this.$router.push('/timeSlots');
       } catch (error) {
         console.log('error.response.data.msg');
