@@ -67,8 +67,6 @@ router.get('/timeSlotData/:timeSlotId', (req, res) => {
 
 router.post('/login', (req, res, next) => {
   model.loginUser(req.body.username, req.body.password).then((userId) => {
-    console.log('login userId');
-    console.log(userId);
     if (userId) {
       const token = jwt.sign({
         username: req.body.username,

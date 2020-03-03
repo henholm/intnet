@@ -1,4 +1,4 @@
-
+// src/views/Login.vue
 
 <template>
   <div class="text-box col-md-4 col-md-offset-4" style="text-align: center">
@@ -58,8 +58,9 @@ export default {
         console.log(response.userId);
         const { token } = response.token;
         const { username } = response.username;
-        const { userId } = response.userId;
-        this.$store.dispatch('login', { token, username, userId });
+        // const { userId } = response.userId;
+        this.$store.dispatch('login', { token, username });
+        console.log('efter dispatch');
         this.$router.push('/timeSlots');
       } catch (error) {
         console.log('error.response.data.msg');

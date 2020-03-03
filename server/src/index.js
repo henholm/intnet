@@ -21,20 +21,26 @@ const helmet = require('helmet');
 const bodyParser = require('body-parser');
 // #endregion
 
+
 // #region setup boilerplate
 console.loglevel = 4; // Enables debug output
 const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
+
 // Express usually does this for us, but socket.io needs the httpServer directly
 const httpsServer = https.createServer({
   key: fs.readFileSync('./certs/server.key'),
   cert: fs.readFileSync('./certs/server.cert'),
 }, app);
+
+
 // const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
+
+// ------------------------------------ CSP ------------------------------------
 // // Use helmet (from npm install helmet) for setting Content Security Policies.
 // // This prevents cross-site scripting among other things.
 app.use(helmet.contentSecurityPolicy({
@@ -73,7 +79,10 @@ app.post('/report-violation', (req, res) => {
   }
   res.status(204).end();
 });
+// -----------------------------------------------------------------------------
 
+
+// ---------------------------- Parsing and logging ----------------------------
 // Setup middlewares.
 app.use(betterLogging.expressMiddleware(console, {
   ip: { show: true },
@@ -87,7 +96,10 @@ app.use(betterLogging.expressMiddleware(console, {
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+// -----------------------------------------------------------------------------
 
+
+// ------------------------------- Init session --------------------------------
 // Setup session
 const session = expressSession({
   secret: 'Super secret! Shh! Don\'t tell anyone...',
@@ -99,20 +111,20 @@ io.use(socketIOSession(session, {
   autoSave: true,
   saveUninitialized: true,
 }));
-// #endregion
 
-// Serve client
-app.use(express.static(publicPath));/*
-express.static(absolutePathToPublicDirectory)
-This will serve static files from the public directory, starting with index.html
-*/
+// This will serve static files from the public directory, starting with index.html
+app.use(express.static(publicPath));
+// -----------------------------------------------------------------------------
 
+
+// -------------------------------- Middleware ---------------------------------
 // Bind REST controllers to /api/*
-// const auth = require('./controllers/auth.controller.js');
 const socketController = require('./controllers/socket.controller.js');
-
 app.use('/api', socketController.router);
+// const auth = require('./controllers/auth.controller.js');
 // app.use('/api', auth.requireAuth, socketController.router);
+// -----------------------------------------------------------------------------
+
 
 // Init model
 const model = require('./model.js');

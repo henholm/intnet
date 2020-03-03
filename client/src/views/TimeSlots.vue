@@ -1,3 +1,5 @@
+// src/views/TimeSlots.vue
+
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
@@ -24,6 +26,8 @@
 </template>
 
 <script>
+// import AuthService from '@/services/AuthService';
+
 export default {
   name: 'TimeSlots',
   components: {},
@@ -39,8 +43,20 @@ export default {
   },
   // Step 1 in lifecycle hooks.
   beforeCreate() {
+  },
+  // Step 2 in lifecycle hooks.
+  async created() {
     this.socket = this.$root.socket;
     this.socket.connect();
+
+    console.log(this.$store.getters);
+    // if (!this.$store.getters.isLoggedIn) {
+    //   this.$router.push('/login');
+    // }
+    // // this.username = this.$store.getters.getUser.username;
+    // const secretMessage = await AuthService.getSecretContent();
+    // console.log(secretMessage);
+
     fetch('/api/timeSlots')
       .then(res => res.json())
       .then((data) => {
