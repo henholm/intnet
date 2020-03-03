@@ -42,19 +42,20 @@ export default {
       }
       e.preventDefault();
     },
+    // login() {
+    //  // Add authentication. If authenticated, continue to fetching of data.
+    //   fetch(`/api/assistantLogin/${this.username}/${this.password}`)
+    //     .then(res => res.json())
+    //     .then((response) => {
+    //       if (response.isAuthenticated) {
+    //         this.$router.push(`assistantLogin/${this.username}`);
+    //       } else {
+    //         this.userExists = false;
+    //       }
+    //     });
+    // },
     login() {
-      // Add authentication. If authenticated, continue to fetching of data.
-      fetch(`/api/assistantLogin/${this.username}/${this.password}`)
-        .then(res => res.json())
-        .then((response) => {
-          if (response.isAuthenticated) {
-            this.$router.push(`assistantLogin/${this.username}`);
-          } else {
-            this.userExists = false;
-          }
-        });
-    },
-    login() {
+      console.log(localStorage.getItem('id_token'));
       fetch('/api/authenticate', {
         method: 'POST',
         headers: {

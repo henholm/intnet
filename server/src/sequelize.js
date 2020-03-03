@@ -239,6 +239,9 @@ exports.authenticateAllegedAssistant = (assistantName, assistantPassword) => (
 
 exports.authenticateAllegedUser = (userName, userPassword) => (
   new Promise((resolve, reject) => {
+    console.log(userName);
+    console.log(userPassword);
+    console.log('authenticateAllegedUser');
     User.findOne({
       where: {
         name: userName,

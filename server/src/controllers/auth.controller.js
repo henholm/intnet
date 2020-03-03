@@ -17,13 +17,16 @@ const router = express.Router();
  * @returns {void}
  */
 const requireAuth = (req, res, next) => {
+  console.log("AKJSD1");
   const maybeUser = model.findUser(req.session.userID);
+  console.log("AKJSD2");
 
   // "auth" check
   if (maybeUser === undefined) {
     res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
     return;
   }
+  console.log("AKJSD3");
 
   next();
 };
@@ -66,19 +69,5 @@ router.post('/authenticate', (req, res) => {
     console.log(err);
   });
 });
-
-router.get('/assistantLogin/:name/:pword', (req, res) => {
-  model.authenticateAssistant(req.params.name, req.params.pword).then((resolve) => {
-    res.status(200).json({
-      isAuthenticated: resolve,
-    });
-  }).catch((err) => {
-    console.log('Error in router.get assistant login');
-    console.log(err);
-  });
-});
-
-// TODO: Add 'create account' route.
-// The 'authenticate' route is only supposed to check if the user can login.
 
 module.exports = { router, requireAuth };

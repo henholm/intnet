@@ -24,7 +24,7 @@ const bodyParser = require('body-parser');
 // #region setup boilerplate
 console.loglevel = 4; // Enables debug output
 const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
-const port = 443; // The port that the server will listen to
+const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
 // Express usually does this for us, but socket.io needs the httpServer directly
