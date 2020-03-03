@@ -15,4 +15,7 @@ export default {
   // getSecretContent() {
   //   return axios.get(url + 'secret-route/').then(response => response.data);
   // }
+  getTimeSlots() {
+    return Axios.post(`${url}timeSlots/`, '').then(response => response.data);
+  },
 };
