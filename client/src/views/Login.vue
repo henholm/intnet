@@ -3,7 +3,6 @@
 <template>
   <div class="text-box col-md-4 col-md-offset-4" style="text-align: center">
     <h4>To log in, please enter your username and password.</h4>
-    <!-- <form v-on:submit.prevent="login()"> -->
     <form @submit="checkForm">
       <p>
         <label for="username">Username</label>
@@ -13,7 +12,6 @@
         <label for="password">Password</label>
         <input type="text" id="password" v-model="password" required />
       </p>
-      <!-- <input class="btn btn-default" type="submit" value="OK" v-on:click="login()"/> -->
       <input class="btn btn-default" type="submit" value="OK"/>
     </form>
     <div v-if="userExists !== true">
@@ -54,16 +52,12 @@ export default {
 
         const { token } = response;
         const { user } = response;
-        console.log(response);
-        console.log(token);
-        console.log(user);
 
         this.$store.dispatch('login', { token, user });
         this.$router.push('/timeSlots');
       } catch (error) {
         this.userExists = false;
-        console.log('error.response.data.msg');
-        this.msg = error.response.data.msg;
+        // this.msg = error.response.data.msg;
       }
     },
   },
