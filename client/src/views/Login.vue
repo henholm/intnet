@@ -25,7 +25,7 @@
 
 
 <script>
-import AuthService from '@/services/AuthService';
+import RoutingService from '@/services/RoutingService';
 
 export default {
   name: 'UserLogin',
@@ -50,7 +50,7 @@ export default {
           username: this.username,
           password: this.password,
         };
-        const response = await AuthService.login(credentials);
+        const response = await RoutingService.login(credentials);
 
         const { token } = response;
         const { user } = response;

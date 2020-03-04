@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 import Axios from 'axios';
 import createPersistedState from 'vuex-persistedstate';
 
-// import AuthService from '@/services/AuthService';
+// import RoutingService from '@/services/RoutingService';
 
 Vue.use(Vuex);
 

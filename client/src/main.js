@@ -12,12 +12,6 @@ Vue.config.productionTip = false;
 Axios.defaults.headers.common.Authorization = `Bearer ${store.state.token}`;
 
 (async () => {
-  // Find out if the user is already logged in
-  // const { isAuthenticated } = await fetch('/api/isAuthenticated')
-  //   .then(resp => resp.json())
-  //   .catch(console.error);
-  // store.commit('setIsAuthenticated', isAuthenticated);
-
   new Vue({
     router,
     store,

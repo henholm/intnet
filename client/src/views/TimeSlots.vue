@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import AuthService from '@/services/AuthService';
+import RoutingService from '@/services/RoutingService';
 
 export default {
   name: 'TimeSlots',
@@ -49,11 +49,10 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
-    console.log(this.$store.getters);
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     } else {
-      const response = await AuthService.getTimeSlots();
+      const response = await RoutingService.getTimeSlots();
       this.timeSlots = response.timeSlots;
       // "aTS" stands for assistant Time Slots.
       const aTS = {};

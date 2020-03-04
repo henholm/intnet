@@ -58,9 +58,16 @@ export default {
     },
   },
   // Step 2 in lifecycle hooks.
-  created() {
+  async created() {
     this.socket = this.$root.socket;
     this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
+
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login');
+    } else {
+      const response = await RoutingService.getTimeSlots();
+    }
+
     fetch(`/api/timeSlotData/${this.timeSlotId}`)
       .then(res => res.json())
       .then((data) => {
