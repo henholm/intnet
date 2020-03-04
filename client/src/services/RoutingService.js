@@ -10,25 +10,12 @@ export default {
       .post(`${url}login/`, credentials)
       .then(response => response.data);
   },
-  // getSecretContent() {
-  //   return axios.get(url + 'secret-route/').then(response => response.data);
-  // }
   getTimeSlots() {
     return Axios.post(`${url}timeSlots/`, '').then(response => response.data);
   },
-
-  getTimeSlotData(timeSlotId) {
+  getTimeSlotData(payload) {
     return Axios
-      .post(`${url}timeSlotData/`, timeSlotId)
+      .post(`${url}timeSlotData/`, payload)
       .then(response => response.data);
   },
-  // fetch(`/api/timeSlotData/${this.timeSlotId}`)
-  //   .then(res => res.json())
-  //   .then((data) => {
-  //     this.countdown();
-  //     this.timeSlotId = data.timeSlotData.id;
-  //     this.timeSlotTime = data.timeSlotData.time;
-  //     this.assistantId = data.timeSlotData.assistantId;
-  //     this.assistantName = data.timeSlotData.assistantName;
-  //   });
 };

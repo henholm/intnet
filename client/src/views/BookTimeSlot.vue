@@ -67,7 +67,10 @@ export default {
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     } else {
-      const response = await RoutingService.getTimeSlotData(this.timeSlotId);
+      const payload = {
+        timeSlotId: this.timeSlotId,
+      };
+      const response = await RoutingService.getTimeSlotData(payload);
       this.countdown();
       const { timeSlotData } = response;
       this.timeSlotId = timeSlotData.id;
