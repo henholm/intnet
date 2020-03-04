@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import RoutingService from '@/services/RoutingService';
+
 export default {
   name: 'BookTimeSlot',
   components: {},
@@ -65,18 +67,14 @@ export default {
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     } else {
-      const response = await RoutingService.getTimeSlots();
+      const response = await RoutingService.getTimeSlotData(this.timeSlotId);
+      this.countdown();
+      const { timeSlotData } = response;
+      this.timeSlotId = timeSlotData.id;
+      this.timeSlotTime = timeSlotData.time;
+      this.assistantId = timeSlotData.assistantId;
+      this.assistantName = timeSlotData.assistantName;
     }
-
-    fetch(`/api/timeSlotData/${this.timeSlotId}`)
-      .then(res => res.json())
-      .then((data) => {
-        this.countdown();
-        this.timeSlotId = data.timeSlotData.id;
-        this.timeSlotTime = data.timeSlotData.time;
-        this.assistantId = data.timeSlotData.assistantId;
-        this.assistantName = data.timeSlotData.assistantName;
-      });
   },
 };
 </script>

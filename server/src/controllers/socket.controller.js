@@ -51,6 +51,15 @@ router.post('/timeSlots', (req, res) => {
   });
 });
 
+router.post('/timeSlotData', (req, res) => {
+  model.getTimeSlotById(req.body.timeSlotId).then((resolve) => {
+    res.status(200).json({
+      timeSlotData: resolve,
+    });
+  });
+  // model.setTimeSlotBookedBy(req.params.timeSlotId, "reserved");
+});
+
 /**
  * Fetch the data corresponding to the input timeslot id and alter the state of
  * the timeslot. Transmit the change of state to other over the websocket.

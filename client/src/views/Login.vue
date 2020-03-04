@@ -16,7 +16,7 @@
       <!-- <input class="btn btn-default" type="submit" value="OK" v-on:click="login()"/> -->
       <input class="btn btn-default" type="submit" value="OK"/>
     </form>
-    <div v-if="userNotExists">
+    <div v-if="userExists !== true">
       <br>
       <h4>User or password incorrect.</h4>
     </div>
@@ -54,10 +54,14 @@ export default {
 
         const { token } = response;
         const { user } = response;
+        console.log(response);
+        console.log(token);
+        console.log(user);
 
         this.$store.dispatch('login', { token, user });
         this.$router.push('/timeSlots');
       } catch (error) {
+        this.userExists = false;
         console.log('error.response.data.msg');
         this.msg = error.response.data.msg;
       }
