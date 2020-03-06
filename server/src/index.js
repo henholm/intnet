@@ -162,6 +162,11 @@ function resetTimeSlot(message) {
   });
 }
 
+
+// const timeoutHandles = {};
+const timeoutHandlesMap = new Map();
+
+
 // Handle connected socket.io sockets. Add extra listeners.
 io.on('connection', (socket) => {
   // This function serves to bind socket.io connections to user models
@@ -180,10 +185,20 @@ io.on('connection', (socket) => {
 
   socket.on('changeState', (message) => {
     console.log('changeState');
+    console.log(message.bookedBy);
+    console.log(message.id);
+    const timeSlotId = message.id;
     if (message.bookedBy === 'reserved') {
-      // setTimeout(() => socket.disconnect(true), 20000});
-      // payload = { message: message, io: io };
-      setTimeout(resetTimeSlot, 21000, message);
+
+      // If the Timeout object already exists, clear it.
+      if (timeoutHandlesMap.has(timeSlotId)) {
+        let timeoutHandle = timeoutHandlesMap.get(timeSlotId);
+        clearTimeout(timeoutHandle);
+      }
+      // Instantiate a new Timeout object.
+      let timeoutHandle = setTimeout(resetTimeSlot, 21000, message);
+      timeoutHandlesMap.set(timeSlotId, timeoutHandle);
+
     }
     model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
