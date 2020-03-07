@@ -57,12 +57,15 @@ router.post('/timeSlots', (req, res) => {
  * @returns {void}
  */
 router.post('/timeSlotData', (req, res) => {
+  // Handle the case of a non-existent time slot.
   model.getTimeSlotById(req.body.timeSlotId).then((resolve) => {
     res.status(200).json({
       timeSlotData: resolve,
     });
+  }).catch((err) => {
+    console.log('Error in router.get timeSlotData');
+    console.log(err);
   });
-  // model.setTimeSlotBookedBy(req.params.timeSlotId, "reserved");
 });
 
 router.post('/login', (req, res, next) => {
@@ -89,6 +92,19 @@ router.post('/login', (req, res, next) => {
     return res.status(401).send({
       msg: '/login Username or password incorrect'
     });
+  });
+});
+
+router.post('/logout', (req, res, next) => {
+  console.log('req.body.userId');
+  console.log(req.body.userId);
+  model.userLogOut(req.body.userId).then((resolve) => {
+    res.status(200).json({
+      isLoggedOut: resolve,
+    });
+  }).catch((err) => {
+    console.log('Error in router.post(/logout)');
+    console.log(err);
   });
 });
 
