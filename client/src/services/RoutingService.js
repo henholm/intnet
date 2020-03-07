@@ -10,6 +10,11 @@ export default {
       .post(`${url}login/`, credentials)
       .then(response => response.data);
   },
+  // logout(userId) {
+  //   return Axios
+  //     .post(`${url}login/`, credentials)
+  //     .then(response => response.data);
+  // },
   getTimeSlots() {
     return Axios.post(`${url}timeSlots/`, '').then(response => response.data);
   },
