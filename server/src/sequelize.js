@@ -72,14 +72,18 @@ resetLoggedIn();
 
 // Function for toggling the isLoggedIn attribute of a user.
 function setLoggedIn(userId, toggleTo) {
-  User.update(
-    { isLoggedIn: toggleTo },
-    { where: { id: userId } },
-  ).catch((err) => {
-    console.log('Error in setLoggedIn');
-    console.log(err);
-    reject(err);
-  });
+  return new Promise((resolve, reject) => {
+    User.update(
+      { isLoggedIn: toggleTo },
+      { where: { id: userId } },
+    ).then((numUpdatedRows) => {
+      resolve(numUpdatedRows);
+    }).catch((err) => {
+      console.log('Error in setLoggedIn');
+      console.log(err);
+      reject(err);
+    });
+  })
 }
 
 exports.setLoggedIn = setLoggedIn;
