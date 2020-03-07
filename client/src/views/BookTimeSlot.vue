@@ -71,6 +71,7 @@ export default {
         timeSlotId: this.timeSlotId,
       };
       const response = await RoutingService.getTimeSlotData(payload);
+      console.log(response);
       this.countdown();
       const { timeSlotData } = response;
       this.timeSlotId = timeSlotData.id;
