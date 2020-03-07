@@ -61,5 +61,10 @@ export default {
       }
     },
   },
+  async created() {
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login');
+    } else {
+  }
 };
 </script>
