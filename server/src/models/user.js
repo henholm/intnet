@@ -26,6 +26,11 @@ module.exports = (sequelize, type) => sequelize.define('User', {
     type: type.INTEGER,
     allowNull: false,
   },
+  // Emulates a boolean. It will take values of either 1 or 0.
+  isLoggedIn: {
+    type: type.INTEGER,
+    allowNull: false,
+  },
 }, {
   // Additional settings for the Users table in our sqlite database.
   // Skip timestamp attributes updatedAt and createdAt.
