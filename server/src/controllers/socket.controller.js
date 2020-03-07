@@ -96,11 +96,10 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/logout', (req, res, next) => {
-  console.log('req.body.userId');
-  console.log(req.body.userId);
-  model.userLogOut(req.body.userId).then((resolve) => {
-    res.status(200).json({
-      isLoggedOut: resolve,
+  model.userLogOut(req.body.userId)
+  .then((numUpdatedRows) => {
+    return res.status(200).send({
+      msg: `${numUpdatedRows} user, user ${req.body.username}, logged out successfully`
     });
   }).catch((err) => {
     console.log('Error in router.post(/logout)');
