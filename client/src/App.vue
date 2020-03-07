@@ -34,9 +34,9 @@
             <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
             </li>
-            <li v-on:click="redirect('/assistantLogin')">
+            <!-- <li v-on:click="redirect('/assistantLogin')">
               <a style="cursor: pointer;">Assistant Login</a>
-            </li>
+            </li> -->
             <li v-on:click="logout()">
               <a style="cursor: pointer;">Log Out</a>
             </li>
@@ -51,17 +51,46 @@
 </template>
 
 <script>
+import RoutingService from '@/services/RoutingService';
+
 export default {
+  data: () => ({
+    timeSlots: [],
+    aTS: {},
+  }),
   methods: {
     redirect(target) {
       this.$router.push(target);
     },
-    logout() {
-      this.$store.dispatch('logout');
-      // this.$store.dispatch('logout', { token, user });
-      this.$router.push('/login');
+    async logout() {
+      if (this.$store.getters.isLoggedIn) {
+        console.log('inside isLoggedIn');
+        console.log(this.$store.getters.isLoggedIn);
+        const user = this.$store.getters.getUser;
+        // const response = await RoutingService.logout(user);
+        RoutingService.logout(user).then((response) => {
+          console.log('response');
+          console.log(response);
+          this.$store.dispatch('logout');
+          this.$router.push('/login');
+        }).catch((err) => {
+          console.log('err');
+          console.log(err);
+        });
+        console.log('anus');
+      } else {
+        // this.$store.dispatch('logout', { userId });
+        this.$store.dispatch('logout');
+        this.$router.push('/login');
+      }
     },
   },
+  // async updated() {
+  //   if (this.$store.getters.isLoggedIn) {
+  //     const this.userId = this.$store.getters.getUser;
+  //     this.$router.push('/login');
+  //   }
+  // }
 };
 </script>
 

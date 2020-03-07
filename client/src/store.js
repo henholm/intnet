@@ -34,10 +34,10 @@ export default new Vuex.Store({
     login: ({ commit }, { token, user }) => {
       commit('SET_TOKEN', token);
       commit('SET_USER', user);
-
       // set auth header
       Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     },
+    // logout: ({ commit }, { userId }) => {
     logout: ({ commit }) => {
       // Use RoutingService
       commit('RESET', '');
