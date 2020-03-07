@@ -63,7 +63,6 @@ export default {
   async created() {
     this.socket = this.$root.socket;
     this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
-
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login');
     } else {
@@ -71,7 +70,6 @@ export default {
         timeSlotId: this.timeSlotId,
       };
       const response = await RoutingService.getTimeSlotData(payload);
-      console.log(response);
       this.countdown();
       const { timeSlotData } = response;
       this.timeSlotId = timeSlotData.id;
