@@ -11,7 +11,6 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: '/', redirect: '/login' },
-  // { path: '/', redirect: '/timeSlots' },
   { path: '/login', component: LoginView },
   { path: '/timeSlots', component: TimeSlotsView },
   { path: '/bookTimeSlot/:timeSlotId', component: BookTimeSlotView },

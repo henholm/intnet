@@ -39,6 +39,7 @@ export default new Vuex.Store({
       Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     },
     logout: ({ commit }) => {
+      // Use RoutingService
       commit('RESET', '');
     },
   },
