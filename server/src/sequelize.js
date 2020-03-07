@@ -40,6 +40,50 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
 exports.Assistant = Assistant;
 exports.TimeSlot = TimeSlot;
 
+function resetReservedTimeSlots() {
+  TimeSlot.update(
+    { bookedBy: "no one" },
+    { where: { bookedBy: "reserved" } },
+  ).catch((err) => {
+    console.log('Error in resetReservedTimeSlots');
+    console.log(err);
+    reject(err);
+  });
+}
+
+// If the server was shut down before a timeslot booking session was terminated,
+// reset all reserved time slots to be "open".
+resetReservedTimeSlots();
+
+function resetLoggedIn() {
+  User.update(
+    { isLoggedIn: 0 },
+    { where: { isLoggedIn: 1 } },
+  ).catch((err) => {
+    console.log('Error in resetLoggedIn');
+    console.log(err);
+    reject(err);
+  });
+}
+
+// If the server was shut down before a the LoggedIn status of users was reset,
+// reset the isLoggedIn attribute of all Users.
+resetLoggedIn();
+
+// Function for toggling the isLoggedIn attribute of a user.
+function setLoggedIn(userId, toggleTo) {
+  User.update(
+    { isLoggedIn: toggleTo },
+    { where: { id: userId } },
+  ).catch((err) => {
+    console.log('Error in setLoggedIn');
+    console.log(err);
+    reject(err);
+  });
+}
+
+exports.setLoggedIn = setLoggedIn;
+
 // Update TimeSlot table: set the value of booked_by to bookedByWhom in the time
 // slot (i.e. row) where the id = timeSlotId.
 exports.alterTimeSlotState = (timeSlotId, bookedByWhom) => (
@@ -279,13 +323,16 @@ exports.loginAllegedUser = (userName, userPassword) => (
       raw: true,
     }).then((user) => {
       // User does not exist.
-      if (!user) resolve(false);
+      if (!user || user.isLoggedIn === 1) resolve(false);
 
       // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
         // Resolve with user.id if passwords matched.
-        if (res) resolve(user.id);
+        if (res) {
+          setLoggedIn(user.id, 1);
+          resolve(user.id);
+        }
         // Resolve with false if passwords did not match.
         resolve(res);
       }).catch((err) => {

@@ -153,3 +153,5 @@ exports.removeTimeSlot = (timeSlotId) => Database.removeTimeSlot(timeSlotId);
 exports.addTimeSlot = (assistantName, timeSlotId) => (
   Database.addTimeSlot(assistantName, timeSlotId)
 );
+
+exports.userLogOut = (userId) => Database.setLoggedIn(userId, 0);
