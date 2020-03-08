@@ -17,17 +17,12 @@ const router = express.Router();
  * @returns {void}
  */
 const requireAuth = (req, res, next) => {
-  console.log("AKJSD1");
   const maybeUser = model.findUser(req.session.userID);
-  console.log("AKJSD2");
-
   // "auth" check
   if (maybeUser === undefined) {
     res.status(401).send('Unauthorized. Please make sure you are logged in before attempting this action again.');
     return;
   }
-  console.log("AKJSD3");
-
   next();
 };
 
