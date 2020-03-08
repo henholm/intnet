@@ -32,14 +32,14 @@ const app = express(); // Creates express app
 
 // Middleware which allows for page refreshing.
 app.use(history({
-  verbose: true
+  verbose: true,
 }));
 
 
 // Express usually does this for us, but socket.io needs the httpServer directly
 const httpsServer = https.createServer({
-  key: fs.readFileSync('./certs/server.key'),
-  cert: fs.readFileSync('./certs/server.cert'),
+  key: fs.readFileSync('./certs/localhost.key'),
+  cert: fs.readFileSync('./certs/localhost.crt'),
 }, app);
 
 
@@ -55,18 +55,12 @@ app.use(helmet.contentSecurityPolicy({
     // Upgrades http to https (provided we also serve http requests).
     upgradeInsecureRequests: true,
     defaultSrc: ["'self'"],
-    scriptSrc: ["'self'",
-                'cdnjs.cloudflare.com',
-                'ajax.googleapis.com',
-                'maxcdn.bootstrapcdn.com'],
-    styleSrc: ["'self'",
-               'cdnjs.cloudflare.com',
-               'ajax.googleapis.com',
-               'maxcdn.bootstrapcdn.com'],
-    fontSrc: ["'self'",
-              'cdnjs.cloudflare.com',
-              'ajax.googleapis.com',
-              'maxcdn.bootstrapcdn.com'],
+    scriptSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
+      'maxcdn.bootstrapcdn.com'],
+    styleSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
+      'maxcdn.bootstrapcdn.com'],
+    fontSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
+      'maxcdn.bootstrapcdn.com'],
     reportUri: '/report-violation',
   },
   // browserSniff: false,
@@ -127,6 +121,7 @@ app.use(express.static(publicPath));
 // -------------------------------- Middleware ---------------------------------
 // Bind REST controllers to /api/*
 const socketController = require('./controllers/socket.controller.js');
+
 app.use('/api', socketController.router);
 // const auth = require('./controllers/auth.controller.js');
 // app.use('/api', auth.requireAuth, socketController.router);
@@ -182,23 +177,20 @@ io.on('connection', (socket) => {
       else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
     });
   }
-
   socket.on('changeState', (message) => {
     console.log('changeState');
     console.log(message.bookedBy);
     console.log(message.id);
     const timeSlotId = message.id;
     if (message.bookedBy === 'reserved') {
-
       // If the Timeout object already exists, clear it.
       if (timeoutHandlesMap.has(timeSlotId)) {
-        let timeoutHandle = timeoutHandlesMap.get(timeSlotId);
+        const timeoutHandle = timeoutHandlesMap.get(timeSlotId);
         clearTimeout(timeoutHandle);
       }
       // Instantiate a new Timeout object.
-      let timeoutHandle = setTimeout(resetTimeSlot, 21000, message);
+      const timeoutHandle = setTimeout(resetTimeSlot, 21000, message);
       timeoutHandlesMap.set(timeSlotId, timeoutHandle);
-
     }
     model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
