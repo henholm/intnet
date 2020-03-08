@@ -9,8 +9,6 @@ Vue.use(Vuex);
 
 const getDefaultState = () => ({ token: '', user: {} });
 
-// no-param-reassign prevents store.isAuthenticated = isAuthenticated
-/* eslint-disable no-param-reassign */
 export default new Vuex.Store({
   strict: true,
   plugins: [createPersistedState()],

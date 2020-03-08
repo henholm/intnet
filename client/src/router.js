@@ -26,8 +26,4 @@ const router = new VueRouter({
   routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/bookTimeSlot')
-// })
-
 export default router;
