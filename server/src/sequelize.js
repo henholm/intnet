@@ -336,9 +336,14 @@ exports.loginAllegedUser = (userName, userPassword) => (
           const response = { userId: false, msg: `${userName} is already logged in` };
           resolve(response);
         } else if (res && user.isLoggedIn !== 1) {
-          // Resolve with user.id if passwords matched and user is not logged in.
+          // Resolve with userData if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
-          const response = { userId: user.id, msg: `${userName} logged in successfully` };
+          const userData = {
+            userId: user.id,
+            username: user.name,
+            isAssistant: user.isAssistant,
+          };
+          const response = { userData, msg: `${userName} logged in successfully` };
           resolve(response);
         } else {
           // Resolve with false if passwords did not match.

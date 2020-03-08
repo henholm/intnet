@@ -74,17 +74,23 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
 
 router.post('/login', (req, res) => {
   model.loginUser(req.body.username, req.body.password).then((response) => {
-    const { userId } = response;
+    // TODO: CHANGE TO USER INSTEAD OF USERID. Include isAssistant and ID.
+    // SAME FOR TIME SLOTS.
+    const { userData } = response;
     const { msg } = response;
-    if (userId) {
-      const user = { username: req.body.username, userId };
+    if (userData) {
+      const { userId } = userData;
+      const { username } = userData;
+      const { isAssistant } = userData;
+      const user = { username, userId, isAssistant };
 
       const token = jwt.sign({
-        username: user.username,
-        userId: user.userId,
+        username,
+        userId,
+        isAssistant,
       },
       'SECRETKEY', {
-        expiresIn: '10m',
+        expiresIn: '30m',
       });
 
       // Optionally use database model to set last login of user.
