@@ -36,7 +36,6 @@ export default {
     return {
       username: '',
       password: '',
-      // userExists: true,
       msg: '',
     };
   },
@@ -55,7 +54,6 @@ export default {
           this.$store.dispatch('logout');
         }).catch((err) => {
           this.msg = err.response.data.msg;
-          console.log(this.msg);
         });
       }
     },
@@ -73,7 +71,6 @@ export default {
         this.$router.push('/timeSlots');
       }).catch((err) => {
         this.msg = err.response.data.msg;
-        console.log(this.msg);
       });
     },
   },
