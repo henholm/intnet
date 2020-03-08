@@ -29,6 +29,15 @@ button:focus {
   background-color: transparent;
 }
 
+.centered-text {
+  position: absolute;
+  left: 50%;
+  display: block;
+  width: 220px;
+  text-align: center;
+  background-color: transparent;
+}
+
 .navbar > .container .navbar-brand-centered,
 .navbar > .container-fluid .navbar-brand-centered {
   margin-left: -80px;

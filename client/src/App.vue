@@ -15,11 +15,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <!-- <div
-            v-on:click="redirect('/timeSlots')"
-            class="navbar-brand navbar-brand-centered"
+          <!-- v-on:click="redirect('/timeSlots')" -->
+          <div
+            v-if="this.currentUser!==''"
+            class="centered-text"
             style="line-height: 1em; cursor: pointer;"
-          >Home</div> -->
+          >{{this.currentUser}} is logged in</div>
+          <div
+            v-else
+            class="centered-text"
+            style="line-height: 1em; cursor: pointer;"
+          >No one logged in</div>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -55,8 +61,8 @@ import RoutingService from '@/services/RoutingService';
 
 export default {
   data: () => ({
-    timeSlots: [],
-    aTS: {},
+    currentUser: '',
+    socket: null,
   }),
   methods: {
     redirect(target) {
@@ -73,11 +79,31 @@ export default {
           console.log(err);
         });
       } else {
-        // this.$store.dispatch('logout', { userId });
         this.$store.dispatch('logout');
         this.$router.push('/login');
       }
     },
+  },
+  created() {
+    this.socket = this.$root.socket;
+    this.socket.connect();
+    console.log('this.socket');
+    console.log(this.socket);
+    if (this.$store.getters.isLoggedIn) {
+      this.currentUser = this.$store.getters.getUser.username;
+    }
+  },
+  mounted() {
+    this.socket.on('logout', () => {
+      this.currentUser = '';
+      console.log('this.currentUser socket');
+      console.log(this.currentUser);
+    });
+  },
+  updated() {
+    if (this.$store.getters.isLoggedIn) {
+      this.currentUser = this.$store.getters.getUser.username;
+    }
   },
 };
 </script>
