@@ -42,29 +42,38 @@ export default {
       }
       e.preventDefault();
     },
-    async login() {
-      try {
-        const credentials = {
-          username: this.username,
-          password: this.password,
-        };
-        const response = await RoutingService.login(credentials);
-
-        const { token } = response;
-        const { user } = response;
-
-        this.$store.dispatch('login', { token, user });
-        this.$router.push('/timeSlots');
-      } catch (error) {
-        this.userExists = false;
-        // this.msg = error.response.data.msg;
+    // Before logging in, have the current user log out.
+    logout() {
+      if (this.$store.getters.isLoggedIn) {
+        const user = this.$store.getters.getUser;
+        RoutingService.logout(user).then((response) => {
+          console.log(response);
+          this.$store.dispatch('logout');
+        }).catch((err) => {
+          this.msg = err.response.data.msg;
+          console.log(this.msg);
+          this.userExists = false;
+        });
       }
     },
+    login() {
+      // Have the current user log out before logging in with the new user.
+      this.logout();
+      const credentials = {
+        username: this.username,
+        password: this.password,
+      };
+      RoutingService.login(credentials).then((response) => {
+        const { token } = response;
+        const { user } = response;
+        this.$store.dispatch('login', { token, user });
+        this.$router.push('/timeSlots');
+      }).catch((err) => {
+        this.msg = err.response.data.msg;
+        console.log(this.msg);
+        this.userExists = false;
+      });
+    },
   },
-  async created() {
-    if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login');
-    } else {
-  }
 };
 </script>
