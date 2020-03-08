@@ -69,7 +69,9 @@ router.post('/timeSlotData', (req, res) => {
 });
 
 router.post('/login', (req, res, next) => {
-  model.loginUser(req.body.username, req.body.password).then((userId) => {
+  model.loginUser(req.body.username, req.body.password).then((response) => {
+    const { userId } = response;
+    const { msg } = response;
     if (userId) {
       const user = { username: req.body.username, userId: userId }
 
@@ -84,13 +86,15 @@ router.post('/login', (req, res, next) => {
       // Optionally use database model to set last login of user.
 
       return res.status(200).send({
-        msg: 'Logged in',
+        // msg: `User ${user.username} logged in`,
+        msg: msg,
         token,
         user: user
       });
     }
     return res.status(401).send({
-      msg: '/login Username or password incorrect'
+      // msg: 'Username or password incorrect'
+      msg: msg
     });
   });
 });
@@ -99,7 +103,7 @@ router.post('/logout', (req, res, next) => {
   model.userLogOut(req.body.userId)
   .then((numUpdatedRows) => {
     return res.status(200).send({
-      msg: `${numUpdatedRows} user, user ${req.body.username}, logged out successfully`
+      msg: `User ${req.body.username} logged out successfully`
     });
   }).catch((err) => {
     console.log('Error in router.post(/logout)');
