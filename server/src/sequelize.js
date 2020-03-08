@@ -326,29 +326,33 @@ exports.loginAllegedUser = (userName, userPassword) => (
       },
       raw: true,
     }).then((user) => {
-      // if (!user || user.isLoggedIn === 1) resolve(false);
+
       // User does not exist.
       if (!user) {
         const response = { userId: false, msg: 'User or password incorrect' };
-        resolve(response);
-      // User already logged in.
-      } else if (user.isLoggedIn === 1) {
-        const response = { userId: false, msg: `${userName} is already logged in` };
         resolve(response);
       }
 
       // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
-        // Resolve with user.id if passwords matched.
-        if (res) {
+
+        if (res && user.isLoggedIn === 1) {
+          // Passwords matched, but user is already logged in elsewhere.
+          const response = { userId: false, msg: `${userName} is already logged in` };
+          resolve(response);
+
+        } else if (res && user.isLoggedIn !== 1) {
+          // Resolve with user.id if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
           const response = { userId: user.id, msg: `${userName} logged in successfully` };
           resolve(response);
+
+        } else {
+          // Resolve with false if passwords did not match.
+          const response = { userId: false, msg: 'User or password incorrect' };
+          resolve(response);
         }
-        // Resolve with false if passwords did not match.
-        const response = { userId: false, msg: 'User or password incorrect' };
-        resolve(response);
       }).catch((err) => {
         console.log('Error in bcrypt.compare');
         console.log(err);
