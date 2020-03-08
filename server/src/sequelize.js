@@ -10,6 +10,7 @@ const { Sequelize } = require('sequelize');
 const UserModel = require('./models/user');
 const AssistantModel = require('./models/assistant');
 const TimeSlotModel = require('./models/timeslot');
+
 const databasePath = path.join(__dirname, 'db.sqlite');
 const sequelize = new Sequelize({
   // host: 'localhost',
@@ -42,12 +43,10 @@ exports.TimeSlot = TimeSlot;
 
 function resetReservedTimeSlots() {
   TimeSlot.update(
-    { bookedBy: "no one" },
-    { where: { bookedBy: "reserved" } },
+    { bookedBy: 'no one' },
+    { where: { bookedBy: 'reserved' } },
   ).catch((err) => {
-    console.log('Error in resetReservedTimeSlots');
-    console.log(err);
-    reject(err);
+    throw err;
   });
 }
 
@@ -60,9 +59,7 @@ function resetLoggedIn() {
     { isLoggedIn: 0 },
     { where: { isLoggedIn: 1 } },
   ).catch((err) => {
-    console.log('Error in resetLoggedIn');
-    console.log(err);
-    reject(err);
+    throw err;
   });
 }
 
@@ -83,7 +80,7 @@ function setLoggedIn(userId, toggleTo) {
       console.log(err);
       reject(err);
     });
-  })
+  });
 }
 
 exports.setLoggedIn = setLoggedIn;
@@ -326,28 +323,23 @@ exports.loginAllegedUser = (userName, userPassword) => (
       },
       raw: true,
     }).then((user) => {
-
       // User does not exist.
       if (!user) {
         const response = { userId: false, msg: 'User or password incorrect' };
         resolve(response);
       }
-
       // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
-
         if (res && user.isLoggedIn === 1) {
           // Passwords matched, but user is already logged in elsewhere.
           const response = { userId: false, msg: `${userName} is already logged in` };
           resolve(response);
-
         } else if (res && user.isLoggedIn !== 1) {
           // Resolve with user.id if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
           const response = { userId: user.id, msg: `${userName} logged in successfully` };
           resolve(response);
-
         } else {
           // Resolve with false if passwords did not match.
           const response = { userId: false, msg: 'User or password incorrect' };

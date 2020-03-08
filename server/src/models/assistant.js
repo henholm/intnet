@@ -1,7 +1,5 @@
 'use strict';
 
-const bcrypt = require('bcrypt');
-
 console.log('creating Assistant model');
 
 module.exports = (sequelize, type) => sequelize.define('Assistant', {

@@ -8,6 +8,7 @@ const { Sequelize } = require('sequelize');
 const UserModel = require('./models/user');
 const AssistantModel = require('./models/assistant');
 const TimeSlotModel = require('./models/timeslot');
+
 const databasePath = path.join(__dirname, 'db.sqlite');
 const sequelize = new Sequelize({
   // host: 'localhost',
@@ -41,16 +42,17 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
   console.log('All models were synchronized successfully.');
 
   // Populate tables. The create method combines build() and save().
-  await User.create({ name: 'assistant1', password: 'password1', isAssistant: 1, isLoggedIn: 0 });
-  await User.create({ name: 'assistant2', password: 'password2', isAssistant: 1, isLoggedIn: 0 });
-  await User.create({ name: 'assistant3', password: 'password3', isAssistant: 1, isLoggedIn: 0 });
+  /* eslint-disable object-curly-newline */
+  await User.create({ name: 'fia1', password: 'p1', isAssistant: 1, isLoggedIn: 0 });
+  await User.create({ name: 'fia2', password: 'p2', isAssistant: 1, isLoggedIn: 0 });
+  await User.create({ name: 'fia3', password: 'p3', isAssistant: 1, isLoggedIn: 0 });
   await User.create({ name: 'student1', password: 'password1', isAssistant: 0, isLoggedIn: 0 });
   await User.create({ name: 'student2', password: 'password2', isAssistant: 0, isLoggedIn: 0 });
   await User.create({ name: 'student3', password: 'password3', isAssistant: 0, isLoggedIn: 0 });
 
-  await Assistant.create({ id: 1, name: 'assistant1' });
-  await Assistant.create({ id: 2, name: 'assistant2' });
-  await Assistant.create({ id: 3, name: 'assistant3' });
+  await Assistant.create({ id: 1, name: 'fia1' });
+  await Assistant.create({ id: 2, name: 'fia2' });
+  await Assistant.create({ id: 3, name: 'fia3' });
 
   await TimeSlot.create({ assistantId: 1, bookedBy: 'no one', time: '13:00 - 13:20' });
   await TimeSlot.create({ assistantId: 1, bookedBy: 'no one', time: '13:20 - 13:40' });
@@ -61,5 +63,6 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
   await TimeSlot.create({ assistantId: 3, bookedBy: 'no one', time: '13:00 - 13:20' });
   await TimeSlot.create({ assistantId: 3, bookedBy: 'no one', time: '13:20 - 13:40' });
   await TimeSlot.create({ assistantId: 3, bookedBy: 'no one', time: '13:40 - 14:00' });
+  /* eslint-enable object-curly-newline */
   // console.log(timeSlot33.toJSON());
 })();
