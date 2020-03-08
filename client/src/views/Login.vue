@@ -14,10 +14,14 @@
       </p>
       <input class="btn btn-default" type="submit" value="OK"/>
     </form>
-    <div v-if="userExists !== true">
+    <div>
+      <br>
+      <h4>{{this.msg}}</h4>
+    </div>
+    <!-- <div v-if="userExists !== true">
       <br>
       <h4>User or password incorrect.</h4>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -32,7 +36,8 @@ export default {
     return {
       username: '',
       password: '',
-      userExists: true,
+      // userExists: true,
+      msg: '',
     };
   },
   methods: {
@@ -52,7 +57,7 @@ export default {
         }).catch((err) => {
           this.msg = err.response.data.msg;
           console.log(this.msg);
-          this.userExists = false;
+          // this.userExists = false;
         });
       }
     },
@@ -71,7 +76,7 @@ export default {
       }).catch((err) => {
         this.msg = err.response.data.msg;
         console.log(this.msg);
-        this.userExists = false;
+        // this.userExists = false;
       });
     },
   },
