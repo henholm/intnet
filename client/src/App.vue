@@ -80,12 +80,6 @@ export default {
       }
     },
   },
-  // async updated() {
-  //   if (this.$store.getters.isLoggedIn) {
-  //     const this.userId = this.$store.getters.getUser;
-  //     this.$router.push('/login');
-  //   }
-  // }
 };
 </script>
 
