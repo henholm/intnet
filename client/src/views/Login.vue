@@ -57,7 +57,6 @@ export default {
         }).catch((err) => {
           this.msg = err.response.data.msg;
           console.log(this.msg);
-          // this.userExists = false;
         });
       }
     },
@@ -76,7 +75,6 @@ export default {
       }).catch((err) => {
         this.msg = err.response.data.msg;
         console.log(this.msg);
-        // this.userExists = false;
       });
     },
   },
