@@ -65,7 +65,6 @@ export default {
     async logout() {
       if (this.$store.getters.isLoggedIn) {
         const user = this.$store.getters.getUser;
-        // const response = await RoutingService.logout(user);
         RoutingService.logout(user).then((response) => {
           console.log(response.msg);
           this.$store.dispatch('logout');
