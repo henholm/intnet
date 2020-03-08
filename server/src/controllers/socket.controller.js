@@ -57,14 +57,17 @@ router.post('/timeSlots', (req, res) => {
  * @returns {void}
  */
 router.post('/timeSlotData', (req, res) => {
-  // Handle the case of a non-existent time slot.
   model.getTimeSlotById(req.body.timeSlotId).then((resolve) => {
     res.status(200).json({
       timeSlotData: resolve,
     });
+  // A non-existent time slot was requested.
   }).catch((err) => {
     console.log('Error in router.get timeSlotData');
     console.log(err);
+    return res.status(401).send({
+      msg: ''
+    });
   });
 });
 
@@ -86,14 +89,12 @@ router.post('/login', (req, res, next) => {
       // Optionally use database model to set last login of user.
 
       return res.status(200).send({
-        // msg: `User ${user.username} logged in`,
         msg: msg,
         token,
         user: user
       });
     }
     return res.status(401).send({
-      // msg: 'Username or password incorrect'
       msg: msg
     });
   });
