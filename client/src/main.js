@@ -8,7 +8,6 @@ import store from './store';
 Vue.config.productionTip = false;
 
 // set auth header
-// Axios.defaults.headers.common['Authorization'] = `Bearer ${store.state.token}`;
 Axios.defaults.headers.common.Authorization = `Bearer ${store.state.token}`;
 
 (async () => {

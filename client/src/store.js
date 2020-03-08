@@ -3,8 +3,6 @@ import Vuex from 'vuex';
 import Axios from 'axios';
 import createPersistedState from 'vuex-persistedstate';
 
-// import RoutingService from '@/services/RoutingService';
-
 Vue.use(Vuex);
 
 const getDefaultState = () => ({ token: '', user: {} });
