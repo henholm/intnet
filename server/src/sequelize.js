@@ -326,8 +326,16 @@ exports.loginAllegedUser = (userName, userPassword) => (
       },
       raw: true,
     }).then((user) => {
+      // if (!user || user.isLoggedIn === 1) resolve(false);
       // User does not exist.
-      if (!user || user.isLoggedIn === 1) resolve(false);
+      if (!user) {
+        const response = { userId: false, msg: 'User or password incorrect' };
+        resolve(response);
+      // User already logged in.
+      } else if (user.isLoggedIn === 1) {
+        const response = { userId: false, msg: `${userName} is already logged in` };
+        resolve(response);
+      }
 
       // Check password if user exists.
       const hashedTruePassword = user.password;
@@ -335,18 +343,18 @@ exports.loginAllegedUser = (userName, userPassword) => (
         // Resolve with user.id if passwords matched.
         if (res) {
           setLoggedIn(user.id, 1);
-          resolve(user.id);
+          const response = { userId: user.id, msg: `${userName} logged in successfully` };
+          resolve(response);
         }
         // Resolve with false if passwords did not match.
-        resolve(res);
+        const response = { userId: false, msg: 'User or password incorrect' };
+        resolve(response);
       }).catch((err) => {
         console.log('Error in bcrypt.compare');
         console.log(err);
         reject(err);
       });
     }).catch((err) => {
-      console.log(userName);
-      console.log(userPassword);
       console.log('Error in authenticateAllegedAssistant');
       console.log(err);
       reject(err);
