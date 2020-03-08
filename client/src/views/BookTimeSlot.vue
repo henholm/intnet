@@ -59,24 +59,57 @@ export default {
       }, 1000);
     },
   },
-  // Step 2 in lifecycle hooks.
-  async created() {
-    this.socket = this.$root.socket;
-    this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
-    if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login');
-    } else {
-      const payload = {
-        timeSlotId: this.timeSlotId,
-      };
-      const response = await RoutingService.getTimeSlotData(payload);
-      this.countdown();
-      const { timeSlotData } = response;
-      this.timeSlotId = timeSlotData.id;
-      this.timeSlotTime = timeSlotData.time;
-      this.assistantId = timeSlotData.assistantId;
-      this.assistantName = timeSlotData.assistantName;
-    }
+  beforeRouteEnter(to, from, next) {
+    console.log(`beforeRouteEnter: routing from ${from.path} to ${to.path}`);
+    const payload = {
+      timeSlotId: to.params.timeSlotId,
+    };
+    // Check if the requested time slot exists. If not, redirect backwards.
+    RoutingService.getTimeSlotData(payload).then((response) => {
+      console.log(response);
+      /* eslint-disable no-param-reassign */
+      next((vm) => {
+        console.log(vm);
+        const { timeSlotData } = response;
+        vm.timeSlotId = timeSlotData.id;
+        vm.timeSlotTime = timeSlotData.time;
+        vm.assistantId = timeSlotData.assistantId;
+        vm.assistantName = timeSlotData.assistantName;
+        next();
+      });
+      /* eslint-enable no-param-reassign */
+    }).catch((err) => {
+      console.log(err);
+      // this.$router.go(-1);
+      // return next({ path: from.path });
+      return next(from);
+    });
   },
+  // Step 1 in lifecycle hooks.
+  // beforeCreate() {
+  //   this.socket = this.$root.socket;
+  //   console.log(this.socket);
+  //   console.log(this.$store.getters.isLoggedIn);
+  //   if (!this.$store.getters.isLoggedIn) {
+  //     this.$router.push('/login');
+  //   } else {
+  //     const payload = {
+  //       timeSlotId: this.timeSlotId,
+  //     };
+  //     console.log(payload);
+  //     RoutingService.getTimeSlotData(payload).then((response) => {
+  //       this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
+  //       this.countdown();
+  //       const { timeSlotData } = response;
+  //       this.timeSlotId = timeSlotData.id;
+  //       this.timeSlotTime = timeSlotData.time;
+  //       this.assistantId = timeSlotData.assistantId;
+  //       this.assistantName = timeSlotData.assistantName;
+  //     }).catch((err) => {
+  //       this.$router.go(-1);
+  //       console.log(err);
+  //     });
+  //   }
+  // },
 };
 </script>
