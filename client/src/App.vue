@@ -16,15 +16,14 @@
             <span class="icon-bar"></span>
           </button>
 
+          <div
+          class="centered-text"
+          style="line-height: 1em; cursor: pointer;"
+        >{{currentUser}}</div>
+
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-brand-centered">
           <ul class="nav navbar-nav">
-            <!-- <li v-on:click="redirect('/login')">
-              <a style="cursor: pointer;">Login</a>
-            </li>
-            <li v-on:click="redirect('/list')">
-              <a style="cursor: pointer;">Rooms</a>
-            </li> -->
             <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
             </li>
@@ -52,7 +51,6 @@ import RoutingService from '@/services/RoutingService';
 
 export default {
   data: () => ({
-    currentUser: null,
   }),
   methods: {
     redirect(target) {
@@ -86,8 +84,10 @@ export default {
       }
     },
   },
-  created() {
-    this.currentUser = this.$store.getters.getUser;
+  computed: {
+    currentUser() {
+      return this.$store.getters.getUser.username;
+    },
   },
 };
 </script>

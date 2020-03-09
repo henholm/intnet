@@ -3,8 +3,7 @@
 'use strict';
 
 // #region require dependencies
-const betterLogging = require('better-logging');
-// enhances log messages with timestamps etc
+const betterLogging = require('better-logging'); // enhances log messages with timestamps etc
 betterLogging.default(console, {
   stampColor: (Color) => Color.Light_Green,
   typeColors: (Color) => ({
