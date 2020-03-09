@@ -62,13 +62,13 @@ app.use(helmet.contentSecurityPolicy({
   directives: {
     // Upgrades http to https (provided we also serve http requests).
     upgradeInsecureRequests: true,
-    defaultSrc: ["'self'"],
+    defaultSrc: ["'self'", 'https://localhost:8989'],
     scriptSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
-      'maxcdn.bootstrapcdn.com'],
+      'maxcdn.bootstrapcdn.com', 'https://localhost:8989'],
     styleSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
-      'maxcdn.bootstrapcdn.com'],
+      'maxcdn.bootstrapcdn.com', 'https://localhost:8989'],
     fontSrc: ["'self'", 'cdnjs.cloudflare.com', 'ajax.googleapis.com',
-      'maxcdn.bootstrapcdn.com'],
+      'maxcdn.bootstrapcdn.com', 'https://localhost:8989'],
     reportUri: '/report-violation',
   },
   // browserSniff: false,

@@ -195,6 +195,10 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
         assistantId: dirtyTimeSlot['Assistant.id'],
         assistantName: dirtyTimeSlot['Assistant.name'],
       };
+      console.log(dirtyTimeSlot.bookedBy);
+      if (dirtyTimeSlot.bookedBy !== "no one") {
+        reject();
+      }
       resolve(cleanTimeSlot);
     }).catch((err) => {
       console.log('Error in selectTimeSlot');
