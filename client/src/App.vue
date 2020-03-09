@@ -17,7 +17,7 @@
           </button>
 
           <div
-          class="centered-text"
+          class="navbar-brand navbar-brand-centered"
           style="line-height: 1em; cursor: pointer;"
         >{{currentUser}}</div>
 

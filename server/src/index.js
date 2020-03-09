@@ -4,12 +4,14 @@
 
 // #region require dependencies
 const betterLogging = require('better-logging'); // enhances log messages with timestamps etc
+
 betterLogging.default(console, {
   stampColor: (Color) => Color.Light_Green,
   typeColors: (Color) => ({
     log: Color.Light_Green,
   }),
 });
+
 const path = require('path'); // helper library for resolving relative paths
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');

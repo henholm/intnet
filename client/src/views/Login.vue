@@ -30,8 +30,6 @@ export default {
   components: {},
   data() {
     return {
-      loggedInName: '',
-      loggedInMessage: 'To log in, please enter your username and password.',
       username: '',
       password: '',
       msg: '',
@@ -72,25 +70,15 @@ export default {
       });
     },
   },
-  created() {
-    if (this.$store.getters.isLoggedIn) {
-      this.loggedInName = this.$store.getters.getUser.username;
-      // eslint-disable-next-line max-len
-      this.loggedInMessage = `You are logged in as ${this.loggedInName}. Logging in with another user will log you out.`;
-    } else {
-      this.loggedInName = '';
-      this.loggedInMessage = 'To log in, please enter your username and password.';
-    }
-  },
-  updated() {
-    if (this.$store.getters.isLoggedIn) {
-      this.loggedInName = this.$store.getters.getUser.username;
-      // eslint-disable-next-line max-len
-      this.loggedInMessage = `You are logged in as ${this.loggedInName}. Logging in with another user will log you out.`;
-    } else {
-      this.loggedInName = '';
-      this.loggedInMessage = 'To log in, please enter your username and password.';
-    }
+  computed: {
+    loggedInMessage() {
+      let msg = 'To log in, please enter your username and password.';
+      if (this.$store.getters.isLoggedIn) {
+        const { username } = this.$store.getters.getUser;
+        msg = `You are logged in as ${username}. Logging in with another user will log you out.`;
+      }
+      return msg;
+    },
   },
 };
 </script>
