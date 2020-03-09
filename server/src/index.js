@@ -30,6 +30,9 @@ const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
 const port = 8989; // The port that the server will listen to
 const app = express(); // Creates express app
 
+function haltOnTimedout(req, res, next) {
+  if (!req.timedout) next();
+}
 
 app.use(timeout('5s'));
 
@@ -38,7 +41,7 @@ app.use(history({
   verbose: true,
 }));
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 
 // Express usually does this for us, but socket.io needs the httpServer directly
 const httpsServer = https.createServer({
@@ -70,14 +73,14 @@ app.use(helmet.contentSecurityPolicy({
   // browserSniff: false,
 }));
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 
 // JSON parser for logging CSP violations.
 app.use(bodyParser.json({
   type: ['json', 'application/csp-report'],
 }));
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 
 // https://helmetjs.github.io/docs/csp/
 app.post('/report-violation', (req, res) => {
@@ -99,18 +102,18 @@ app.use(betterLogging.expressMiddleware(console, {
   body: { show: true },
 }));
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 
 /* This is a middleware that parses the body of the request into a javascript
    object. It's basically just replacing the body property like this:
    req.body = JSON.parse(req.body) */
 app.use(express.json());
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 // -----------------------------------------------------------------------------
 
 
@@ -126,10 +129,10 @@ const session = expressSession({
     secure: true,
     httpOnly: true,
     maxAge,
-  }
+  },
 });
 app.use(session);
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 io.use(socketIOSession(session, {
   autoSave: true,
   saveUninitialized: true,
@@ -137,7 +140,7 @@ io.use(socketIOSession(session, {
 
 // This will serve static files from the public directory, starting with index.html
 app.use(express.static(publicPath));
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 // -----------------------------------------------------------------------------
 
 
@@ -146,7 +149,7 @@ app.use(haltOnTimedout)
 const authController = require('./controllers/auth.controller.js');
 
 app.use('/api', authController.router);
-app.use(haltOnTimedout)
+app.use(haltOnTimedout);
 // -----------------------------------------------------------------------------
 
 
@@ -155,10 +158,6 @@ const model = require('./model.js');
 
 // Initialize server
 model.init({ io });
-
-function haltOnTimedout (req, res, next) {
-  if (!req.timedout) next()
-}
 
 function resetTimeSlot(message) {
   model.getTimeSlotByIdDirty(message.id).then((timeSlot) => {
