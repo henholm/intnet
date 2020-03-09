@@ -12,7 +12,7 @@
 
 .btn-group button:hover:before {
   /* display: block; */
-  content: "Remove?";
+  content: "Remove? ";
 }
 
 /* .btn-group button:hover:after {
