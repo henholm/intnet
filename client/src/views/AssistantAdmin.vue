@@ -80,7 +80,7 @@ export default {
     const { isAssistant } = this.$store.getters.getUser;
 
     if (!isLoggedIn || isAssistant !== 1) {
-      this.$router.push('/login');
+      this.$router.push('/login').catch(() => {});
     }
 
     this.socket = this.$root.socket;

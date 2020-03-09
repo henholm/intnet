@@ -57,7 +57,7 @@ export default {
   methods: {
     redirect(event, timeSlotId) {
       event.preventDefault();
-      this.$router.push(`/bookTimeSlot/${timeSlotId}`);
+      this.$router.push(`/bookTimeSlot/${timeSlotId}`).catch(() => {});
     },
   },
   // Step 2 in lifecycle hooks.
@@ -71,7 +71,7 @@ export default {
     this.socket.connect();
 
     if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login');
+      this.$router.push('/login').catch(() => {});
     } else {
       const response = await RoutingService.getTimeSlots();
       this.timeSlots = response.timeSlots;

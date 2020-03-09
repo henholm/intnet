@@ -38,12 +38,12 @@ export default {
       const payload = { id: this.timeSlotId, bookedBy: this.$store.getters.getUser.username };
       this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
-      this.$router.push('/timeSlots');
+      this.$router.push('/timeSlots').catch(() => {});
     },
     abort() {
       this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
       clearInterval(this.countdownTime);
-      this.$router.push('/timeSlots');
+      this.$router.push('/timeSlots').catch(() => {});
     },
     countdown() {
       this.countdownTime = setInterval(() => {
@@ -52,7 +52,7 @@ export default {
           this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
           this.countdownSeconds = 20;
           clearInterval(this.countdownTime);
-          this.$router.push('/timeSlots');
+          this.$router.push('/timeSlots').catch(() => {});
         }
       }, 1000);
     },
@@ -61,7 +61,7 @@ export default {
   created() {
     this.socket = this.$root.socket;
     if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login');
+      this.$router.push('/login').catch(() => {});
     } else {
       const payload = {
         timeSlotId: this.timeSlotId,

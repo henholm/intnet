@@ -31,7 +31,7 @@
             <li v-on:click="redirectStudent()">
               <a style="cursor: pointer;">Student Admin</a>
             </li>
-            <li v-on:click="redirectAdmin()">
+            <li v-on:click="redirectAssistant()">
               <a style="cursor: pointer;">Assistant Admin</a>
             </li>
             <li v-on:click="logout()">
@@ -60,12 +60,14 @@ export default {
     },
     redirectStudent() {
       if (this.$store.getters.isLoggedIn) {
-        this.$router.push(`studentAdmin/${this.$store.getters.getUser.username}`);
+        this.$router.push(`/studentAdmin/${this.$store.getters.getUser.username}`)
+          .catch(() => {});
       }
     },
-    redirectAdmin() {
+    redirectAssistant() {
       if (this.$store.getters.getUser.isAssistant === 1) {
-        this.$router.push(`assistantAdmin/${this.$store.getters.getUser.username}`);
+        this.$router.push(`/assistantAdmin/${this.$store.getters.getUser.username}`)
+          .catch(() => {});
       }
     },
     async logout() {

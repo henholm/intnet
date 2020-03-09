@@ -34,7 +34,14 @@ export default {
   methods: {
     remove(event, timeSlotId) {
       event.preventDefault();
-      this.socket.emit('removeTimeSlot', { id: timeSlotId });
+      this.socket.emit('changeState', { id: timeSlotId, bookedBy: 'no one' });
+      const newTimeSlots = [];
+      for (let i = 0; i < this.timeSlots.length; i += 1) {
+        if (this.timeSlots[i].id !== timeSlotId) {
+          newTimeSlots.push(this.timeSlots[i]);
+        }
+      }
+      this.timeSlots = newTimeSlots;
     },
   },
   // Step 2 in lifecycle hooks.
@@ -43,7 +50,7 @@ export default {
     const { isLoggedIn } = this.$store.getters;
 
     if (!isLoggedIn) {
-      this.$router.push('/login');
+      this.$router.push('/login').catch(() => {});
     }
 
     this.socket = this.$root.socket;

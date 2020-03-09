@@ -176,9 +176,6 @@ io.on('connection', (socket) => {
     });
   }
   socket.on('changeState', (message) => {
-    console.log('changeState');
-    console.log(message.bookedBy);
-    console.log(message.id);
     const timeSlotId = message.id;
     if (message.bookedBy === 'reserved') {
       // If the Timeout object already exists, clear it.
@@ -206,7 +203,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('removeTimeSlot', (message) => {
-    console.log('removeTimeSlot');
     model.removeTimeSlot(message.id).then(() => {
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
@@ -222,10 +218,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('addTimeSlot', (message) => {
-    console.log('addTimeSlot');
-    console.log(message);
-    console.log(message.time);
-    console.log(message.name);
     model.addTimeSlot(message.name, message.time).then(() => {
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
