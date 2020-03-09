@@ -4,20 +4,27 @@
       <h1>{{assistantName}}'s Time Slots</h1>
       <div class="btn-group">
         <div v-for="TS in timeSlots" v-bind:key="TS.id">
-          <!-- eslint-disable-next-line max-len -->
-          <!-- <button type="button" v-if="TS.bookedBy==='no one'" class="open" v-on:click="redirect($event, TS.id)" ref="TS.id"> -->
-          <!-- eslint-disable-next-line max-len -->
-          <button type="button" v-if="TS.bookedBy==='no one'" v-on:click="remove($event, TS.id)" class="a-open" ref="TS.id">
-            {{TS.time}}: open
-          </button>
-          <!-- eslint-disable-next-line max-len -->
-          <button type="button" v-else-if="TS.bookedBy==='reserved'" v-on:click="remove($event, TS.id)" class="a-reserved" ref="TS.id">
-            {{TS.time}}: reserved
-          </button>
-          <!-- eslint-disable-next-line max-len -->
-          <button type="button" v-else v-on:click="remove($event, TS.id)" class="a-booked" ref="TS.id">
-            {{TS.time}}: booked by {{TS.bookedBy}}
-          </button>
+          <button
+            type="button"
+            v-if="TS.bookedBy==='no one'"
+            v-on:click="remove($event, TS.id)"
+            class="a-open"
+            ref="TS.id"
+          >{{TS.time}}: open</button>
+          <button
+            type="button"
+            v-else-if="TS.bookedBy==='reserved'"
+            v-on:click="remove($event, TS.id)"
+            class="a-reserved"
+            ref="TS.id"
+          >{{TS.time}}: reserved</button>
+          <button
+            type="button"
+            v-else
+            v-on:click="remove($event, TS.id)"
+            class="a-booked"
+            ref="TS.id"
+          >{{TS.time}}: booked by {{TS.bookedBy}}</button>
         </div>
       </div>
       <div>
@@ -36,15 +43,19 @@
 </template>
 
 <script>
+import RoutingService from '@/services/RoutingService';
+
 export default {
   name: 'AssistantAdmin',
   components: {},
   data() {
     return {
-      assistantName: this.$route.params.assistantName,
+      // assistantName: this.$route.params.assistantName,
+      assistantId: '',
+      assistantName: '',
       timeSlots: [],
       slotTime: '',
-      // socket: null,
+      socket: null,
     };
   },
   methods: {
@@ -62,23 +73,30 @@ export default {
       event.preventDefault();
     },
   },
-  // Step 1 in lifecycle hooks.
-  beforeCreate() {
-    // The following line is executed before the one in data().
-    this.assistantName = this.$route.params.assistantName;
-    fetch(`/api/assistantLogin/${this.assistantName}`)
-      .then(res => res.json())
-      .then((data) => {
-        this.timeSlots = data.timeSlots;
-      });
-  },
   // Step 2 in lifecycle hooks.
-  created() {
+  async created() {
+    // If not authenticated or if not assistant, redirect to login page.
+    const { isLoggedIn } = this.$store.getters;
+    const { isAssistant } = this.$store.getters.getUser;
+
+    if (!isLoggedIn || isAssistant !== 1) {
+      this.$router.push('/login');
+    }
+
     this.socket = this.$root.socket;
     this.socket.connect();
+
+    const user = this.$store.getters.getUser;
+    this.assistantId = user.userId;
+    this.assistantName = user.username;
+
+    const payload = { assistantId: this.assistantId };
+
+    const response = await RoutingService.getAssistantTimeSlots(payload);
+    this.timeSlots = response.timeSlots;
   },
-  // Step 4 in lifecycle hooks.
-  mounted() {
+  // Step 4 in the lifecycle hooks.
+  async mounted() {
     this.socket.on('update', (data) => {
       this.timeSlots = [];
       for (let i = 0; i < data.timeSlots.length; i += 1) {

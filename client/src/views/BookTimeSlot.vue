@@ -8,12 +8,9 @@
       <div class="countdownTimer">
         <h4>{{this.countdownSeconds}} seconds left</h4>
       </div>
-      <h4>Enter your name and click 'Reserve' to reserve this slot</h4>
-      <form>
-        <input class="form-control" type="text" v-model="bookedByName" required autofocus />
-        <input class="btn btn-default" type="submit" value="Reserve" v-on:click="reserve()"/>
-        <input class="btn btn-default" type="submit" value="Cancel" v-on:click="abort()"/>
-      </form>
+      <h4>Do you want to book this time slot?</h4>
+      <input class="btn btn-default" type="submit" value="Reserve" v-on:click="reserve()"/>
+      <input class="btn btn-default" type="submit" value="Cancel" v-on:click="abort()"/>
     </div>
   </div>
 </template>
@@ -33,13 +30,13 @@ export default {
       timeSlotTime: '',
       assistantId: '',
       assistantName: '',
-      bookedByName: '',
       socket: null,
     };
   },
   methods: {
     reserve() {
-      this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: this.bookedByName });
+      const payload = { id: this.timeSlotId, bookedBy: this.$store.getters.getUser.username };
+      this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
       this.$router.push('/timeSlots');
     },

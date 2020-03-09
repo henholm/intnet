@@ -15,18 +15,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <!-- v-on:click="redirect('/timeSlots')" -->
-          <div
-            v-if="this.currentUser!==''"
-            class="centered-text"
-            style="line-height: 1em; cursor: pointer;"
-          >{{this.currentUser}} is logged in</div>
-          <div
-            v-else
-            class="centered-text"
-            style="line-height: 1em; cursor: pointer;"
-          >No one logged in</div>
-        </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-brand-centered">
@@ -40,9 +28,12 @@
             <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
             </li>
-            <!-- <li v-on:click="redirect('/assistantLogin')">
-              <a style="cursor: pointer;">Assistant Login</a>
-            </li> -->
+            <li v-on:click="redirectStudent()">
+              <a style="cursor: pointer;">Student Admin</a>
+            </li>
+            <li v-on:click="redirectAdmin()">
+              <a style="cursor: pointer;">Assistant Admin</a>
+            </li>
             <li v-on:click="logout()">
               <a style="cursor: pointer;">Log Out</a>
             </li>
@@ -61,12 +52,21 @@ import RoutingService from '@/services/RoutingService';
 
 export default {
   data: () => ({
-    currentUser: '',
-    socket: null,
+    currentUser: null,
   }),
   methods: {
     redirect(target) {
-      this.$router.push(target);
+      this.$router.push(target).catch(() => {});
+    },
+    redirectStudent() {
+      if (this.$store.getters.isLoggedIn) {
+        this.$router.push(`studentAdmin/${this.$store.getters.getUser.username}`);
+      }
+    },
+    redirectAdmin() {
+      if (this.$store.getters.getUser.isAssistant === 1) {
+        this.$router.push(`assistantAdmin/${this.$store.getters.getUser.username}`);
+      }
     },
     async logout() {
       if (this.$store.getters.isLoggedIn) {
@@ -74,36 +74,18 @@ export default {
         RoutingService.logout(user).then((response) => {
           console.log(response.msg);
           this.$store.dispatch('logout');
-          this.$router.push('/login');
+          this.$router.push('/login').catch(() => {});
         }).catch((err) => {
           console.log(err);
         });
       } else {
         this.$store.dispatch('logout');
-        this.$router.push('/login');
+        this.$router.push('/login').catch(() => {});
       }
     },
   },
   created() {
-    this.socket = this.$root.socket;
-    this.socket.connect();
-    console.log('this.socket');
-    console.log(this.socket);
-    if (this.$store.getters.isLoggedIn) {
-      this.currentUser = this.$store.getters.getUser.username;
-    }
-  },
-  mounted() {
-    this.socket.on('logout', () => {
-      this.currentUser = '';
-      console.log('this.currentUser socket');
-      console.log(this.currentUser);
-    });
-  },
-  updated() {
-    if (this.$store.getters.isLoggedIn) {
-      this.currentUser = this.$store.getters.getUser.username;
-    }
+    this.currentUser = this.$store.getters.getUser;
   },
 };
 </script>

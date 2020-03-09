@@ -2,6 +2,7 @@
 .jpg
 .jpeg
 server/certs/archive
+server/src/controllers/auth.controller_old.js
 ideas.md
 
 # Created by https://www.gitignore.io/api/node,linux,macos,windows

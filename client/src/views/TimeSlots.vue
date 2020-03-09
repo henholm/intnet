@@ -5,19 +5,35 @@
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
       <h1>Time Slots</h1>
       <div class="assistant-container">
-        <div class="ts-container" v-for="name in Object.keys(aTS)" v-bind:key="name">
-          <h3>{{name}}</h3>
-          <div v-for="TS in aTS[name]" v-bind:key="TS.id" class="timeslot-container">
-            <!-- eslint-disable-next-line max-len -->
-            <button type="button" v-if="TS.bookedBy==='no one'" class="open" v-on:click="redirect($event, TS.id)" ref="TS.id">
-              <h4>{{TS.time}}</h4>
-            </button>
-            <button type="button" v-else-if="TS.bookedBy==='reserved'" class="reserved" ref="TS.id">
-              <h4>{{TS.time}}</h4>
-            </button>
-            <button type="button" v-else class="booked" ref="TS.id">
-              <h4>{{TS.time}}</h4>
-            </button>
+        <div
+          class="ts-container"
+          v-for="name in Object.keys(aTS)"
+          v-bind:key="name"
+        ><h3>{{name}}</h3>
+          <div
+            class="timeslot-container"
+            v-for="TS in aTS[name]"
+            v-bind:key="TS.id"
+          >
+            <button
+              type="button"
+              class="open"
+              ref="TS.id"
+              v-if="TS.bookedBy==='no one'"
+              v-on:click="redirect($event, TS.id)"
+            ><h4>{{TS.time}}</h4></button>
+            <button
+              type="button"
+              class="reserved"
+              ref="TS.id"
+              v-else-if="TS.bookedBy==='reserved'"
+            ><h4>{{TS.time}}</h4></button>
+            <button
+              type="button"
+              class="booked"
+              ref="TS.id"
+              v-else
+            ><h4>{{TS.time}}</h4></button>
           </div>
         </div>
       </div>
@@ -34,6 +50,9 @@ export default {
   data: () => ({
     timeSlots: [],
     aTS: {},
+    userId: '',
+    username: '',
+    isAssistant: '',
   }),
   methods: {
     redirect(event, timeSlotId) {
@@ -41,11 +60,13 @@ export default {
       this.$router.push(`/bookTimeSlot/${timeSlotId}`);
     },
   },
-  // Step 1 in lifecycle hooks.
-  beforeCreate() {
-  },
   // Step 2 in lifecycle hooks.
   async created() {
+    const user = this.$store.getters.getUser;
+    this.userId = user.userId;
+    this.username = user.username;
+    this.isAssistant = user.isAssistant;
+
     this.socket = this.$root.socket;
     this.socket.connect();
 

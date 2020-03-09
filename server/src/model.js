@@ -144,8 +144,12 @@ exports.loginUser = (userName, userPassword) => (
   Database.loginAllegedUser(userName, userPassword)
 );
 
-exports.getAssistantTimeSlots = (assistantName) => (
-  Database.selectTimeSlotsByAssistantName(assistantName)
+exports.getAssistantTimeSlots = (assistantId) => (
+  Database.selectTimeSlotsByAssistantId(assistantId)
+);
+
+exports.getStudentTimeSlots = (studentName) => (
+  Database.selectTimeSlotsByStudentName(studentName)
 );
 
 exports.removeTimeSlot = (timeSlotId) => Database.removeTimeSlot(timeSlotId);

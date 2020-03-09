@@ -38,6 +38,7 @@ Assistant.hasMany(TimeSlot);
 // Relate TimeSlots table to Assistants table using foreign key 'assistantId'.
 TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
 
+exports.User = User;
 exports.Assistant = Assistant;
 exports.TimeSlot = TimeSlot;
 
@@ -243,12 +244,45 @@ exports.selectTimeSlotsByAssistantName = (assistantName) => (
       exports.selectTimeSlotsByAssistantId(assistantId).then((timeSlots) => {
         resolve(timeSlots);
       }).catch((err) => {
-        console.log('Error in selectTimeSlotByAssistantId in selectTimeSlotsByAssistantName');
+        console.log('Error in selectTimeSlotsByAssistantId in selectTimeSlotsByAssistantName');
         console.log(err);
         reject(err);
       });
     }).catch((err) => {
       console.log('Error in selectAssistantIdFromName in selectTimeSlotsByAssistantName');
+      console.log(err);
+      reject(err);
+    });
+  })
+);
+
+exports.selectStudentIdFromName = (studentName) => (
+  new Promise((resolve, reject) => {
+    User.findOne({
+      where: {
+        name: studentName,
+      },
+    }).then((student) => {
+      resolve(student.id);
+    }).catch((err) => {
+      console.log('Error in selectStudentIdFromName');
+      console.log(err);
+      reject(err);
+    });
+  })
+);
+
+exports.selectTimeSlotsByStudentName = (studentName) => (
+  new Promise((resolve, reject) => {
+    TimeSlot.findAll({
+      where: {
+        bookedBy: studentName,
+      },
+      raw: true,
+    }).then((timeSlots) => {
+      resolve(timeSlots);
+    }).catch((err) => {
+      console.log('Error in selectTimeSlotsByStudentName');
       console.log(err);
       reject(err);
     });

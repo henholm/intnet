@@ -50,7 +50,7 @@ export default {
     logout() {
       if (this.$store.getters.isLoggedIn) {
         const user = this.$store.getters.getUser;
-        RoutingService.logout(user).then((response) => {
+        RoutingService.logout(user).then(() => {
           this.$store.dispatch('logout');
         }).catch((err) => {
           this.msg = err.response.data.msg;

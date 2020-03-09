@@ -120,11 +120,9 @@ app.use(express.static(publicPath));
 
 // -------------------------------- Middleware ---------------------------------
 // Bind REST controllers to /api/*
-const socketController = require('./controllers/socket.controller.js');
+const authController = require('./controllers/auth.controller.js');
 
-app.use('/api', socketController.router);
-// const auth = require('./controllers/auth.controller.js');
-// app.use('/api', auth.requireAuth, socketController.router);
+app.use('/api', authController.router);
 // -----------------------------------------------------------------------------
 
 

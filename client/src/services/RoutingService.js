@@ -17,4 +17,10 @@ export default {
   getTimeSlotData(payload) {
     return Axios.post(`${url}timeSlotData/`, payload).then(response => response.data);
   },
+  getAssistantTimeSlots(payload) {
+    return Axios.post(`${url}assistantAdmin/`, payload).then(response => response.data);
+  },
+  getStudentTimeSlots(payload) {
+    return Axios.post(`${url}studentAdmin/`, payload).then(response => response.data);
+  },
 };
