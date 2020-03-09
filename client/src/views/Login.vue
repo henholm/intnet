@@ -2,9 +2,7 @@
 
 <template>
   <div class="text-box col-md-4 col-md-offset-4" style="text-align: center">
-    <h4 v-if="this.isLoggedIn">You are logged in as {{this.loggedInName}}.
-    Logging in with another user will log you out.</h4>
-    <h4 v-else>To log in, please enter your username and password.</h4>
+    <h4>{{this.loggedInMessage}}</h4>
     <form @submit="checkForm">
       <p>
         <label for="username">Username</label>
@@ -32,8 +30,8 @@ export default {
   components: {},
   data() {
     return {
-      isLoggedIn: false,
       loggedInName: '',
+      loggedInMessage: 'To log in, please enter your username and password.',
       username: '',
       password: '',
       msg: '',
@@ -76,20 +74,22 @@ export default {
   },
   created() {
     if (this.$store.getters.isLoggedIn) {
-      this.isLoggedIn = true;
       this.loggedInName = this.$store.getters.getUser.username;
+      // eslint-disable-next-line max-len
+      this.loggedInMessage = `You are logged in as ${this.loggedInName}. Logging in with another user will log you out.`;
     } else {
-      this.isLoggedIn = false;
       this.loggedInName = '';
+      this.loggedInMessage = 'To log in, please enter your username and password.';
     }
   },
   updated() {
     if (this.$store.getters.isLoggedIn) {
-      this.isLoggedIn = true;
       this.loggedInName = this.$store.getters.getUser.username;
+      // eslint-disable-next-line max-len
+      this.loggedInMessage = `You are logged in as ${this.loggedInName}. Logging in with another user will log you out.`;
     } else {
-      this.isLoggedIn = false;
       this.loggedInName = '';
+      this.loggedInMessage = 'To log in, please enter your username and password.';
     }
   },
 };
