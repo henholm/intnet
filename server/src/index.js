@@ -21,8 +21,33 @@ const fs = require('fs');
 const helmet = require('helmet'); // For Content-Security-Policy.
 const bodyParser = require('body-parser');
 const history = require('connect-history-api-fallback'); // For page refresh.
-const timeout = require('connect-timeout');
+const timeout = require('connect-timeout'); // For request timeout.
+const Sequelize = require('sequelize');
+// const sequelize = require('./sequelize');
+// For session timeout.
+const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
 // #endregion
+
+// const sequelize = new Sequelize(
+//   'database',
+//   'username',
+//   'password', {
+//     dialect: 'sqlite',
+//     storage: './session.sqlite',
+//   },
+// );
+const databasePath = path.join(__dirname, 'db.sqlite');
+const sequelize = new Sequelize({
+  // host: 'localhost',
+  dialect: 'sqlite',
+  storage: databasePath,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+});
 
 
 // #region setup boilerplate
@@ -119,21 +144,57 @@ app.use(haltOnTimedout);
 
 
 // ------------------------------- Init session --------------------------------
+// COOKIE THEFT: TITTA ATT COOKIEN ÄR FRÅN SAMMA IP-ADRESS
+// CHECKA OM COOKIEN ÄR STALE
+// https://www.npmjs.com/package/connect-session-sequelize
+// För att hålla koll på sessions genom en Sessions-tabell.
 // Setup session
+const myStore = new SequelizeStore({
+  db: sequelize,
+  // 15 min. The interval at which to cleanup expired sessions in milliseconds.
+  // checkExpirationInterval: 15 * 60 * 1000,
+  checkExpirationInterval: 5000,
+  // 24 hours. The maximum age (in milliseconds) of a valid session.
+  // expiration: 24 * 60 * 60 * 1000,
+  expiration: 10000,
+});
+
 const maxAge = 60 * 60 * 1000; // 1 hour
 const session = expressSession({
   name: 'sessionId',
   secret: 'Super secret! Shh! Don\'t tell anyone...',
-  resave: true,
+  resave: false,
   saveUninitialized: true,
   cookie: {
     secure: true,
     httpOnly: true,
     maxAge,
   },
+  store: myStore,
 });
+
+myStore.sync();
+
 app.use(session);
 app.use(haltOnTimedout);
+
+app.use((req, res, next) => {
+  console.log(req.stale);
+  console.log(req.session);
+  console.log(req.session.cookie.expires);
+  console.log(Date.now());
+  if (req.session.cookie.expires < Date.now()) {
+    console.log('Stale cookie');
+  }
+  if (req.stale) {
+    res.clearCookie();
+  }
+  next();
+});
+
+app.use(timeout('5s'));
+
+
 io.use(socketIOSession(session, {
   autoSave: true,
   saveUninitialized: true,

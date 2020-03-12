@@ -105,7 +105,6 @@ exports.alterTimeSlotState = (timeSlotId, bookedByWhom) => (
 );
 
 // SELECT * FROM time_slots INNER JOIN assistants ON time_slots.assistant_id == assistants.id;
-// TODO: make async.
 exports.selectAllTimeSlotsDirty = () => {
   TimeSlot.findAll({
     include: [{
@@ -195,7 +194,7 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
         assistantId: dirtyTimeSlot['Assistant.id'],
         assistantName: dirtyTimeSlot['Assistant.name'],
       };
-      if (dirtyTimeSlot.bookedBy !== "no one") {
+      if (dirtyTimeSlot.bookedBy !== 'no one') {
         reject();
       }
       resolve(cleanTimeSlot);
