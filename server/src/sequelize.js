@@ -455,7 +455,7 @@ exports.setLoggedInIfNot = (userId) => (
       },
       raw: true,
     }).then((user) => {
-      if (user.isLoggedIn !== 0) {
+      if (user.isLoggedIn !== 1) {
         setLoggedIn(user.id, 1).then(() => resolve(true));
       } else {
         resolve(false);
