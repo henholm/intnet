@@ -4,6 +4,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const model = require('../model.js');
 const userMiddleware = require('../middleware/users.js');
@@ -56,6 +57,7 @@ router.post('/studentAdmin', (req, res) => {
  * @returns {void}
  */
 router.post('/timeSlots', userMiddleware.isLoggedIn, (req, res) => {
+  console.log(req.signedCookies);
   model.getTimeSlots().then((resolve) => {
     res.status(200).json({
       timeSlots: resolve,
@@ -119,6 +121,12 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
+  // console.log(req.session.cookie);
+  // console.log(req.session.cookie.expires);
+  // Set the cookie to expire.
+  req.session.cookie.expires = new Date(Date.now());
+  // Remove the sessionId on logout.
+  res.clearCookie('sessionId');
   model.userLogOut(req.body.userId).then(() => (
     res.status(200).send({
       msg: `User ${req.body.username} logged out successfully`,

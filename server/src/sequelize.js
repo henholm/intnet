@@ -402,7 +402,6 @@ exports.loginAllegedUser = (userName, userPassword) => (
 // Add a new TimeSlot for the Assistant specified by the input name.
 exports.addTimeSlot = (assistantName, time) => (
   new Promise((resolve, reject) => {
-    console.log(assistantName);
     Assistant.findOne({
       where: {
         name: assistantName,
@@ -443,6 +442,30 @@ exports.removeTimeSlot = (idOfTimeSlot) => (
     }).catch((err) => {
       console.log('Error in removeTimeSlot in TimeSlot.destroy');
       console.log(err);
+      reject(err);
+    });
+  })
+);
+
+exports.setLoggedInIfNot = (userId) => (
+  new Promise((resolve, reject) => {
+    console.log(userId);
+    User.findOne({
+      where: {
+        userId: userId,
+      },
+      raw: true,
+    }).then((user) => {
+      console.log('user.isLoggedIn');
+      console.log(user.isLoggedIn);
+      if (user.isLoggedIn !== 0) {
+        setLoggedIn(user.id, 1);
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    }).catch((err) => {
+      console.log('Error in setLoggedInIfNot User.findOne');
       reject(err);
     });
   })

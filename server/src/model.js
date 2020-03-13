@@ -159,3 +159,5 @@ exports.addTimeSlot = (assistantName, timeSlotId) => (
 );
 
 exports.userLogOut = (userId) => Database.setLoggedIn(userId, 0);
+
+exports.setLoggedInIfNot = (userId) => Database.setLoggedInIfNot(userId);

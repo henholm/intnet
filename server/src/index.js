@@ -4,14 +4,6 @@
 
 // #region require dependencies
 const betterLogging = require('better-logging'); // enhances log messages with timestamps etc
-
-betterLogging.default(console, {
-  stampColor: (Color) => Color.Light_Green,
-  typeColors: (Color) => ({
-    log: Color.Light_Green,
-  }),
-});
-
 const path = require('path'); // helper library for resolving relative paths
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
@@ -21,24 +13,23 @@ const fs = require('fs');
 const helmet = require('helmet'); // For Content-Security-Policy.
 const bodyParser = require('body-parser');
 const history = require('connect-history-api-fallback'); // For page refresh.
-const timeout = require('connect-timeout'); // For request timeout.
-const Sequelize = require('sequelize');
-// const sequelize = require('./sequelize');
-// For session timeout.
+const Sequelize = require('sequelize'); // For session timeout.
 const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
 // #endregion
 
-// const sequelize = new Sequelize(
-//   'database',
-//   'username',
-//   'password', {
-//     dialect: 'sqlite',
-//     storage: './session.sqlite',
-//   },
-// );
+// #region setup boilerplate
+betterLogging.default(console, {
+  stampColor: (Color) => Color.Light_Green,
+  typeColors: (Color) => ({
+    log: Color.Light_Green,
+  }),
+});
+console.loglevel = 4; // Enables debug output
+const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
+const port = 8989; // The port that the server will listen to
+const app = express(); // Creates express app
 const databasePath = path.join(__dirname, 'db.sqlite');
 const sequelize = new Sequelize({
-  // host: 'localhost',
   dialect: 'sqlite',
   storage: databasePath,
   pool: {
@@ -48,40 +39,28 @@ const sequelize = new Sequelize({
     idle: 10000,
   },
 });
-
-
-// #region setup boilerplate
-console.loglevel = 4; // Enables debug output
-const publicPath = path.join(__dirname, '..', '..', 'client', 'dist');
-const port = 8989; // The port that the server will listen to
-const app = express(); // Creates express app
-
-function haltOnTimedout(req, res, next) {
-  if (!req.timedout) next();
-}
-
-app.use(timeout('5s'));
-
-// Middleware which allows for page refreshing.
-app.use(history({
-  verbose: true,
-}));
-
-app.use(haltOnTimedout);
-
 // Express usually does this for us, but socket.io needs the httpServer directly
 const httpsServer = https.createServer({
   key: fs.readFileSync('./certs/localhost.key'),
   cert: fs.readFileSync('./certs/localhost.crt'),
 }, app);
-
-
-// const httpServer = http.Server(app);
 const io = require('socket.io').listen(httpsServer); // Creates socket.io app
 
+// Initialize model
+const model = require('./model.js');
 
-// ------------------------------------ CSP ------------------------------------
-// // Use helmet (from npm install helmet) for setting Content Security Policies.
+// Initialize server
+model.init({ io });
+// #endregion
+
+// #region page refreshing and backward/forward in history
+// Middleware which allows for page refreshing.
+app.use(history({
+  verbose: true,
+}));
+// #endregion
+
+// #region content security policy
 // // This prevents cross-site scripting among other things.
 app.use(helmet.contentSecurityPolicy({
   directives: {
@@ -98,16 +77,10 @@ app.use(helmet.contentSecurityPolicy({
   },
   // browserSniff: false,
 }));
-
-app.use(haltOnTimedout);
-
 // JSON parser for logging CSP violations.
 app.use(bodyParser.json({
   type: ['json', 'application/csp-report'],
 }));
-
-app.use(haltOnTimedout);
-
 // https://helmetjs.github.io/docs/csp/
 app.post('/report-violation', (req, res) => {
   if (req.body) {
@@ -117,38 +90,34 @@ app.post('/report-violation', (req, res) => {
   }
   res.status(204).end();
 });
-// -----------------------------------------------------------------------------
 
+// #endregion
 
-// ---------------------------- Parsing and logging ----------------------------
+// #region parsing and logging
 // Setup middlewares.
 app.use(betterLogging.expressMiddleware(console, {
   ip: { show: true },
   path: { show: true },
   body: { show: true },
 }));
-
-app.use(haltOnTimedout);
-
 /* This is a middleware that parses the body of the request into a javascript
    object. It's basically just replacing the body property like this:
    req.body = JSON.parse(req.body) */
 app.use(express.json());
-
-app.use(haltOnTimedout);
-
 app.use(express.urlencoded({ extended: true }));
 
-app.use(haltOnTimedout);
-// -----------------------------------------------------------------------------
+// #endregion
 
+// app.get('/*', (req, res, next) => {
+//   console.log('REQUEST RECEIVED');
+//   next();
+// });
 
+// #region initialize session
 // ------------------------------- Init session --------------------------------
 // COOKIE THEFT: TITTA ATT COOKIEN ÄR FRÅN SAMMA IP-ADRESS
 // CHECKA OM COOKIEN ÄR STALE
-// https://www.npmjs.com/package/connect-session-sequelize
-// För att hålla koll på sessions genom en Sessions-tabell.
-// Setup session
+// Add a Sessions table to the database for persistent storage.
 const myStore = new SequelizeStore({
   db: sequelize,
   // 15 min. The interval at which to cleanup expired sessions in milliseconds.
@@ -163,7 +132,7 @@ const maxAge = 60 * 60 * 1000; // 1 hour
 const session = expressSession({
   name: 'sessionId',
   secret: 'Super secret! Shh! Don\'t tell anyone...',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
   cookie: {
     secure: true,
@@ -176,23 +145,6 @@ const session = expressSession({
 myStore.sync();
 
 app.use(session);
-app.use(haltOnTimedout);
-
-app.use((req, res, next) => {
-  console.log(req.stale);
-  console.log(req.session);
-  console.log(req.session.cookie.expires);
-  console.log(Date.now());
-  if (req.session.cookie.expires < Date.now()) {
-    console.log('Stale cookie');
-  }
-  if (req.stale) {
-    res.clearCookie();
-  }
-  next();
-});
-
-app.use(timeout('5s'));
 
 
 io.use(socketIOSession(session, {
@@ -202,24 +154,36 @@ io.use(socketIOSession(session, {
 
 // This will serve static files from the public directory, starting with index.html
 app.use(express.static(publicPath));
-app.use(haltOnTimedout);
-// -----------------------------------------------------------------------------
+
+// #endregion
+
+// #region additional middleware
+app.use(async(req, res, next) => {
+  await req.session.save();
+  console.log('req.session.cookie.expires');
+  console.log(req.session.cookie.expires);
+  const now = new Date(Date.now());
+  now.setHours(now.getHours() + 1);
+  console.log(now);
+  console.log(req.session.id);
+  console.log(req.body);
+  console.log(req.session.cookie.expires < now);
+  if (req.session.cookie.expires < now) {
+    console.log('STALE COOKIE');
+  } else if (req.body.userId) {
+    console.log(req.body.userId);
+    model.setLoggedInIfNot(req.body.userId);
+  }
+  next();
+});
 
 
-// -------------------------------- Middleware ---------------------------------
 // Bind REST controllers to /api/*
 const authController = require('./controllers/auth.controller.js');
 
 app.use('/api', authController.router);
-app.use(haltOnTimedout);
-// -----------------------------------------------------------------------------
 
-
-// Init model
-const model = require('./model.js');
-
-// Initialize server
-model.init({ io });
+// #endregion
 
 function resetTimeSlot(message) {
   model.getTimeSlotByIdDirty(message.id).then((timeSlot) => {
@@ -244,10 +208,7 @@ function resetTimeSlot(message) {
   });
 }
 
-
-// const timeoutHandles = {};
 const timeoutHandlesMap = new Map();
-
 
 // Handle connected socket.io sockets. Add extra listeners.
 io.on('connection', (socket) => {
@@ -323,7 +284,6 @@ io.on('connection', (socket) => {
 });
 
 // Start server.
-// httpServer.listen(port, () => {
 httpsServer.listen(port, () => {
   console.log(`Listening on https://localhost:${port}`);
 });
