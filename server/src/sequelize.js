@@ -449,18 +449,14 @@ exports.removeTimeSlot = (idOfTimeSlot) => (
 
 exports.setLoggedInIfNot = (userId) => (
   new Promise((resolve, reject) => {
-    console.log(userId);
     User.findOne({
       where: {
-        userId: userId,
+        id: userId,
       },
       raw: true,
     }).then((user) => {
-      console.log('user.isLoggedIn');
-      console.log(user.isLoggedIn);
       if (user.isLoggedIn !== 0) {
-        setLoggedIn(user.id, 1);
-        resolve(true);
+        setLoggedIn(user.id, 1).then(() => resolve(true));
       } else {
         resolve(false);
       }

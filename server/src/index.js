@@ -12,6 +12,7 @@ const https = require('https');
 const fs = require('fs');
 const helmet = require('helmet'); // For Content-Security-Policy.
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const history = require('connect-history-api-fallback'); // For page refresh.
 const Sequelize = require('sequelize'); // For session timeout.
 const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
@@ -51,6 +52,19 @@ const model = require('./model.js');
 
 // Initialize server
 model.init({ io });
+
+// COOKIE THEFT: TITTA ATT COOKIEN ÄR FRÅN SAMMA IP-ADRESS
+// CHECKA OM COOKIEN ÄR STALE
+// Add a Sessions table to the database for persistent storage.
+const myStore = new SequelizeStore({
+  db: sequelize,
+  // 15 min. The interval at which to cleanup expired sessions in milliseconds.
+  // checkExpirationInterval: 15 * 60 * 1000,
+  checkExpirationInterval: 5000,
+  // 24 hours. The maximum age (in milliseconds) of a valid session.
+  // expiration: 24 * 60 * 60 * 1000,
+  expiration: 10000,
+});
 // #endregion
 
 // #region page refreshing and backward/forward in history
@@ -90,7 +104,6 @@ app.post('/report-violation', (req, res) => {
   }
   res.status(204).end();
 });
-
 // #endregion
 
 // #region parsing and logging
@@ -105,34 +118,17 @@ app.use(betterLogging.expressMiddleware(console, {
    req.body = JSON.parse(req.body) */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 // #endregion
-
-// app.get('/*', (req, res, next) => {
-//   console.log('REQUEST RECEIVED');
-//   next();
-// });
 
 // #region initialize session
 // ------------------------------- Init session --------------------------------
-// COOKIE THEFT: TITTA ATT COOKIEN ÄR FRÅN SAMMA IP-ADRESS
-// CHECKA OM COOKIEN ÄR STALE
-// Add a Sessions table to the database for persistent storage.
-const myStore = new SequelizeStore({
-  db: sequelize,
-  // 15 min. The interval at which to cleanup expired sessions in milliseconds.
-  // checkExpirationInterval: 15 * 60 * 1000,
-  checkExpirationInterval: 5000,
-  // 24 hours. The maximum age (in milliseconds) of a valid session.
-  // expiration: 24 * 60 * 60 * 1000,
-  expiration: 10000,
-});
-
-const maxAge = 60 * 60 * 1000; // 1 hour
+// const maxAge = 60 * 60 * 1000; // 1 hour
+const maxAge = 10000; // 10 seconds
 const session = expressSession({
   name: 'sessionId',
   secret: 'Super secret! Shh! Don\'t tell anyone...',
-  resave: true,
+  resave: false,
   saveUninitialized: true,
   cookie: {
     secure: true,
@@ -140,12 +136,10 @@ const session = expressSession({
     maxAge,
   },
   store: myStore,
+  // rolling: true,
 });
 
-myStore.sync();
-
 app.use(session);
-
 
 io.use(socketIOSession(session, {
   autoSave: true,
@@ -154,30 +148,55 @@ io.use(socketIOSession(session, {
 
 // This will serve static files from the public directory, starting with index.html
 app.use(express.static(publicPath));
-
 // #endregion
 
-// #region additional middleware
+// #region session check
 app.use(async(req, res, next) => {
-  await req.session.save();
-  console.log('req.session.cookie.expires');
-  console.log(req.session.cookie.expires);
-  const now = new Date(Date.now());
-  now.setHours(now.getHours() + 1);
-  console.log(now);
-  console.log(req.session.id);
-  console.log(req.body);
-  console.log(req.session.cookie.expires < now);
-  if (req.session.cookie.expires < now) {
-    console.log('STALE COOKIE');
-  } else if (req.body.userId) {
-    console.log(req.body.userId);
-    model.setLoggedInIfNot(req.body.userId);
+  console.log();
+  console.log(req.cookies);
+  console.log(req.cookies.sessionId);
+  console.log(req.headers.cookie);
+  console.log(req.session);
+  if (!req.headers.cookie) {
+    console.log('req.headers.cookie undefined');
+    console.log(req.headers.cookie);
+    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    return res.status(403).send({
+      msg: 'Your session has expired. Please log in again',
+    });
+  } else {
+    // console.log(myStore)
+    await myStore.clearExpiredSessions();
+    // sequelize.getQueryInterface().showAllSchemas().then((tableObj) => {
+    //     console.log('// Tables in database','==========================');
+    //     console.log(tableObj);
+    // })
+    // .catch((err) => {
+    //     console.log('showAllSchemas ERROR',err);
+    // })
+    // // model.Database.Session
+    // // myStore.findOne({
+    // sequelize.Session.findOne({
+    //   where: {
+    //     data: req.session,
+    //   },
+    //   raw: true,
+    // }).then((sessionTuple) => {
+    //   console.log(sessionTuple);
+    //   next();
+    // }).catch((err) => {
+    //   console.log(err);
+    //   console.log('Session has expired. Sending back 403 - Forbidden response.');
+    //   return res.status(403).send({
+    //     msg: 'Your session has expired. Please log in again',
+    //   });
+    // });
   }
   next();
 });
+// #endregion
 
-
+// #region additional middleware
 // Bind REST controllers to /api/*
 const authController = require('./controllers/auth.controller.js');
 
