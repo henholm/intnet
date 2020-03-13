@@ -127,7 +127,7 @@ app.use(cookieParser());
 const maxAge = 10000; // 10 seconds
 const session = expressSession({
   name: 'sessionId',
-  secret: 'Super secret! Shh! Don\'t tell anyone...',
+  secret: 'SECRETKEY',
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -154,12 +154,11 @@ app.use(express.static(publicPath));
 app.use(async(req, res, next) => {
   console.log();
   console.log(req.cookies);
+  console.log(req.signedCookies);
   console.log(req.cookies.sessionId);
-  console.log(req.headers.cookie);
   console.log(req.session);
-  if (!req.headers.cookie) {
-    console.log('req.headers.cookie undefined');
-    console.log(req.headers.cookie);
+  if (!req.cookies.sessionId) {
+    console.log('req.cookies.sessionId undefined');
     console.log('Session has expired. Sending back 403 - Forbidden response.');
     return res.status(403).send({
       msg: 'Your session has expired. Please log in again',

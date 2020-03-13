@@ -84,6 +84,12 @@ export default {
       }
     },
   },
+  async created() {
+    if (this.$store.getters.isLoggedIn) {
+      const user = this.$store.getters.getUser;
+      await RoutingService.setLoggedIn(user);
+    }
+  },
   computed: {
     currentUser() {
       return this.$store.getters.getUser.username;
