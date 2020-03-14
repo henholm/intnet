@@ -5,6 +5,7 @@
 // #region require dependencies
 const betterLogging = require('better-logging'); // enhances log messages with timestamps etc
 const path = require('path'); // helper library for resolving relative paths
+const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 const socketIOSession = require('express-socket.io-session');
 const express = require('express');
@@ -12,7 +13,6 @@ const https = require('https');
 const fs = require('fs');
 const helmet = require('helmet'); // For Content-Security-Policy.
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const history = require('connect-history-api-fallback'); // For page refresh.
 const Sequelize = require('sequelize'); // For session timeout.
 const SequelizeStore = require('connect-session-sequelize')(expressSession.Store);
@@ -71,11 +71,16 @@ const myStore = new SequelizeStore({
   table: 'Session',
   // 15 min. The interval at which to cleanup expired sessions in milliseconds.
   // checkExpirationInterval: 15 * 60 * 1000,
-  checkExpirationInterval: 5000,
+  checkExpirationInterval: 10000,
   // 24 hours. The maximum age (in milliseconds) of a valid session.
   // expiration: 24 * 60 * 60 * 1000,
-  expiration: 10000,
+  expiration: 30000,
 });
+
+async function initialClear() {
+  await myStore.clearExpiredSessions();
+}
+initialClear();
 // #endregion
 
 // #region page refreshing and backward/forward in history
@@ -136,27 +141,25 @@ app.use(cookieParser());
 app.use('/api/', async (req, res, next) => {
   await myStore.clearExpiredSessions();
   console.log();
+  console.log('req.cookies.sessionId');
   console.log(req.cookies.sessionId);
   if (!req.cookies.sessionId) {
+    console.log('next');
     // If no sessionId cookie has been set, proceed as usual.
     next();
   } else {
-    console.log('Session has expired. Sending back 403 - Forbidden response.');
-    return res.status(403).send({
-      msg: 'Your session has expired. Please log in again',
-    });
     // If a sessionId cookie exists, check whether it is still valid.
     const cookie = req.cookies.sessionId;
     // Get the session ID of the cookie belonging to the request.
     const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
+    console.log('sid');
     console.log(sid);
-    await myStore.clearExpiredSessions();
     const storedSession = await Session.findOne({ where: { sid: sid }, raw: true });
+    console.log('storedSession');
     console.log(storedSession);
     if (!storedSession) {
       // If no stored session corresponding to the cookie sessionId was found,
-      // the stored session has removed because it expired.
-      // LOG OUT THE USER.
+      // the stored session has been removed because it expired.
       console.log('Session has expired. Sending back 403 - Forbidden response.');
       return res.status(403).send({
         msg: 'Your session has expired. Please log in again',
@@ -181,7 +184,6 @@ app.use('/api/', async (req, res, next) => {
         });
       }
       next();
-      // LOGOUT USER.
     }
   }
 });
@@ -190,7 +192,7 @@ app.use('/api/', async (req, res, next) => {
 // #region initialize session
 // ------------------------------- Init session --------------------------------
 // const maxAge = 60 * 60 * 1000; // 1 hour
-const maxAge = 10000; // 10 seconds
+const maxAge = 30000; // 30 seconds
 const session = expressSession({
   name: 'sessionId',
   secret: 'SECRETKEY',

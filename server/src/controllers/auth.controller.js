@@ -4,7 +4,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-// const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 const model = require('../model.js');
 const userMiddleware = require('../middleware/users.js');
@@ -85,7 +85,17 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  model.loginUser(req.body.username, req.body.password).then((response) => {
+  console.log('JARKJASKLRJLAKJSRLK');
+  console.log(req.cookies.sessionId);
+  console.log(req.cookies.sessionId.expires);
+  const cookie = req.cookies.sessionId;
+  const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
+  const nowTimeStamp = Date.now();
+  const sessionExpires = nowTimeStamp + 10000; // Valid for 10 seconds.
+  console.log(sid);
+  console.log(nowTimeStamp);
+  console.log(sessionExpires);
+  model.loginUser(req.body.username, req.body.password, sid, nowTimeStamp).then((response) => {
     // TODO: CHANGE TO USER INSTEAD OF USERID. Include isAssistant and ID.
     // SAME FOR TIME SLOTS.
     const { userData } = response;
@@ -107,12 +117,14 @@ router.post('/login', (req, res) => {
 
       // Optionally use database model to set last login of user.
 
+      // req.session.isAuthenticated = true;
       return res.status(200).send({
         msg,
         token,
         user,
       });
     }
+    // req.session.isAuthenticated = false;
     return res.status(401).send({
       msg,
     });
@@ -138,7 +150,6 @@ router.post('/logout', (req, res) => {
 
 router.post('/setLoggedIn', (req, res) => {
   model.setLoggedInIfNot(req.body.userId).then((response) => {
-    console.log(response);
     return res.status(200).send({
       msg: 'LoggedIn attribute successfully set',
     });

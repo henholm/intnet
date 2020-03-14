@@ -31,6 +31,14 @@ module.exports = (sequelize, type) => sequelize.define('User', {
     type: type.INTEGER,
     allowNull: false,
   },
+  sessionId: {
+    type: type.STRING,
+    allowNull: true,
+  },
+  sessionExpires: {
+    type: type.INTEGER,
+    allowNull: true,
+  },
 }, {
   // Additional settings for the Users table in our sqlite database.
   // Skip timestamp attributes updatedAt and createdAt.

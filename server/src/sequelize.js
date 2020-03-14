@@ -41,6 +41,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
 exports.User = User;
 exports.Assistant = Assistant;
 exports.TimeSlot = TimeSlot;
+// exports.Session = Session;
 
 function resetReservedTimeSlots() {
   TimeSlot.update(
@@ -78,6 +79,24 @@ function setLoggedIn(userId, toggleTo) {
       resolve(numUpdatedRows);
     }).catch((err) => {
       console.log('Error in setLoggedIn');
+      console.log(err);
+      reject(err);
+    });
+  });
+}
+
+function setSession(userId, sid, sessionExpires) {
+  return new Promise((resolve, reject) => {
+    User.update(
+      {
+        sessionId: sid,
+        sessionExpires: sessionExpires,
+      },
+      { where: { id: userId } },
+    ).then((numUpdatedRows) => {
+      resolve(numUpdatedRows);
+    }).catch((err) => {
+      console.log('Error in setSessionId');
       console.log(err);
       reject(err);
     });
@@ -351,7 +370,7 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
   })
 );
 
-exports.loginAllegedUser = (userName, userPassword) => (
+exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires) => (
   new Promise((resolve, reject) => {
     User.findOne({
       where: {
@@ -374,6 +393,7 @@ exports.loginAllegedUser = (userName, userPassword) => (
         } else if (res && user.isLoggedIn !== 1) {
           // Resolve with userData if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
+          setSession(user.id, sid, sessionExpires);
           const userData = {
             userId: user.id,
             username: user.name,

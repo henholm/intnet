@@ -43,7 +43,7 @@
       <!-- /.container-fluid -->
     </nav>
     <router-view :key="$route.fullPath"></router-view>
-    <button @click="openpopup">Open popup</button>
+    <!-- <button @click="openpopup">Open popup</button> -->
     <popup :popupData="popupData" ></popup>
   </div>
 </template>
@@ -51,19 +51,17 @@
 <script>
 import Axios from 'axios';
 import RoutingService from '@/services/RoutingService';
-// import Popup from './Popup.vue';
-import Dialog from './Dialog.vue';
+import Popup from './Popup.vue';
 
 export default {
   components: {
-    popup: Dialog,
+    popup: Popup,
   },
   data() {
     return {
       popupData: {
-        header: 'My popup',
-        body: 'My body',
-        footer: 'My footer',
+        header: 'Response 403 - Forbidden',
+        body: 'Your session has expired. Please close this message and log in again.',
         display: 'none',
       },
     };

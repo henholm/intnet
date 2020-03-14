@@ -139,9 +139,8 @@ exports.authenticateUser = (userName, userPassword) => (
   Database.authenticateAllegedUser(userName, userPassword)
 );
 
-exports.loginUser = (userName, userPassword) => (
-  // Database.authenticateAllegedAssistant(userName, userPassword)
-  Database.loginAllegedUser(userName, userPassword)
+exports.loginUser = (userName, userPassword, sid, sessionExpires) => (
+  Database.loginAllegedUser(userName, userPassword, sid, sessionExpires)
 );
 
 exports.getAssistantTimeSlots = (assistantId) => (

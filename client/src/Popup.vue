@@ -1,12 +1,12 @@
 <template>
-  <div id="popup" :style="{display : popupData.display}">
+  <div id="popup" :style="{display: popupData.display}">
+  <div id="popup">
       <div class="inner">
         <div class="header">
             <div>{{popupData.header}}</div>
-            <div @click="closeFunction">Close</div>
+            <div @click="closeFunction">X</div>
         </div>
         <div class="body">{{popupData.body}}</div>
-        <div class="footer">{{popupData.footer}}</div>
       </div>
   </div>
 </template>
