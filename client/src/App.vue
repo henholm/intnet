@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <!-- <v-dialog/> -->
     <nav class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -44,27 +43,35 @@
       <!-- /.container-fluid -->
     </nav>
     <router-view :key="$route.fullPath"></router-view>
+    <button @click="openpopup">Open popup</button>
+    <popup :popupData="popupData" ></popup>
   </div>
 </template>
 
 <script>
 import Axios from 'axios';
 import RoutingService from '@/services/RoutingService';
+// import Popup from './Popup.vue';
+import Dialog from './Dialog.vue';
 
 export default {
-  data: () => ({
-  }),
+  components: {
+    popup: Dialog,
+  },
+  data() {
+    return {
+      popupData: {
+        header: 'My popup',
+        body: 'My body',
+        footer: 'My footer',
+        display: 'none',
+      },
+    };
+  },
   methods: {
-    // showRedirectToLoginModal() {
-    //   this.$modal.show('dialog', {
-    //     title: 'Redirect to Login',
-    //     text: 'Your session has expired. You have been redirect to the login page.',
-    //     buttons: [{ title: 'Close' }],
-    //   });
-    // },
-    // hideRedirectToLoginModal() {
-    //   this.$modal.show('redirect-to-login');
-    // },
+    openpopup() {
+      this.popupData.display = 'block';
+    },
     redirect(target) {
       this.$router.push(target).catch(() => {});
     },
@@ -100,9 +107,10 @@ export default {
     Axios.interceptors.response.use(response => response, (error) => {
       if (error.response.status === 403) {
         console.log('Redirect me to login');
+        this.popupData.display = 'block';
         this.$store.dispatch('logout');
         this.$router.push('/login').catch(() => {});
-        // showRedirectToLoginModal();
+        // this.showRedirectToLoginModal();
       }
       return Promise.reject(error);
     });
@@ -113,6 +121,9 @@ export default {
       // console.log(valid);
     }
   },
+  // mounted() {
+  //   this.popupData.display = 'block';
+  // },
   computed: {
     currentUser() {
       return this.$store.getters.getUser.username;

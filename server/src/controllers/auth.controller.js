@@ -4,7 +4,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 
 const model = require('../model.js');
 const userMiddleware = require('../middleware/users.js');

@@ -59,7 +59,7 @@ model.init({ io });
 const Session = sequelize.define('Session', {
   sid: {
     type: Sequelize.STRING,
-    primaryKey: true
+    primaryKey: true,
   },
   expires: Sequelize.DATE,
   data: Sequelize.STRING(50000),
@@ -133,7 +133,7 @@ app.use(cookieParser());
 // #endregion
 
 // #region session check
-app.use('/api/', async(req, res, next) => {
+app.use('/api/', async (req, res, next) => {
   await myStore.clearExpiredSessions();
   console.log();
   console.log(req.cookies.sessionId);
