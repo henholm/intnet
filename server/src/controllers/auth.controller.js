@@ -85,19 +85,13 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  console.log('JARKJASKLRJLAKJSRLK');
-  console.log(req.cookies.sessionId);
-  console.log(req.cookies.sessionId.expires);
+  console.log(`/login sid: ${req.cookies.sessionId} exp: ${req.cookies.sessionId.expires}`);
   const cookie = req.cookies.sessionId;
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
   const nowTimeStamp = Date.now();
-  const sessionExpires = nowTimeStamp + 10000; // Valid for 10 seconds.
-  console.log(sid);
-  console.log(nowTimeStamp);
-  console.log(sessionExpires);
+  const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
+  console.log(`sid ${sid} nowTimeStamp ${nowTimeStamp} our sessionExpires ${sessionExpires}`);
   model.loginUser(req.body.username, req.body.password, sid, sessionExpires).then((response) => {
-    // TODO: CHANGE TO USER INSTEAD OF USERID. Include isAssistant and ID.
-    // SAME FOR TIME SLOTS.
     const { userData } = response;
     const { msg } = response;
     if (userData) {
@@ -115,16 +109,12 @@ router.post('/login', (req, res) => {
         expiresIn: '30m',
       });
 
-      // Optionally use database model to set last login of user.
-
-      // req.session.isAuthenticated = true;
       return res.status(200).send({
         msg,
         token,
         user,
       });
     }
-    // req.session.isAuthenticated = false;
     return res.status(401).send({
       msg,
     });
@@ -158,18 +148,14 @@ router.post('/setLoggedIn', (req, res) => {
 });
 
 router.post('/checkValidSession', (req, res) => {
-  console.log('CHECKVALIDSESSION');
   const { username } = req.body;
   const cookie = req.cookies.sessionId;
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
   const nowTimeStamp = Date.now();
-  const sessionExpires = nowTimeStamp + 20000; // Valid for 10 seconds.
-  console.log(username);
-  console.log(sid);
-  console.log(sessionExpires);
+  const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
+  console.log(`CHECKVALIDSESSION ${username} ${sid} ${sessionExpires}`);
   model.extendSessionIfValid(username, sid, sessionExpires).then((isValid) => {
-    console.log('isValid from extendSessionIfValid');
-    console.log(isValid);
+    console.log(`isValid: ${isValid}`);
     if (isValid) {
       return res.status(200).send({
         msg: 'Successfully refreshed session',

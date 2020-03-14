@@ -103,7 +103,8 @@ export default {
   },
   async created() {
     Axios.interceptors.response.use(response => response, (error) => {
-      if (error.response.status === 403 || error.response.status === 401) {
+      // if (error.response.status === 403 || error.response.status === 401) {
+      if (error.response.status === 403) {
         this.popupData.display = 'block';
         this.$store.dispatch('logout');
         this.$router.push('/login').catch((err) => { console.log(err); });
