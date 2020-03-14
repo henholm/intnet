@@ -137,19 +137,21 @@ router.post('/logout', (req, res) => {
 });
 
 router.post('/setLoggedIn', (req, res) => {
-  console.log();
-  console.log('req.body.userId');
-  console.log(req.body);
-  console.log(req.body.userId);
   model.setLoggedInIfNot(req.body.userId).then((response) => {
     console.log(response);
     return res.status(200).send({
       msg: 'LoggedIn attribute successfully set',
     });
-    // return res.status(401).send({
-    //   msg,
-    // });
   });
 });
+
+// router.post('/checkValidSession', (req, res) => {
+//   model.setLoggedInIfNot(req.body.userId).then((response) => {
+//     console.log(response);
+//     return res.status(200).send({
+//       msg: 'LoggedIn attribute successfully set',
+//     });
+//   });
+// });
 
 module.exports = { router };

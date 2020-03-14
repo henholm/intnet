@@ -56,8 +56,19 @@ model.init({ io });
 // COOKIE THEFT: TITTA ATT COOKIEN ÄR FRÅN SAMMA IP-ADRESS
 // CHECKA OM COOKIEN ÄR STALE
 // Add a Sessions table to the database for persistent storage.
+const Session = sequelize.define('Session', {
+  sid: {
+    type: Sequelize.STRING,
+    primaryKey: true
+  },
+  expires: Sequelize.DATE,
+  data: Sequelize.STRING(50000),
+});
+
+// const myStore = new SessionStore({
 const myStore = new SequelizeStore({
   db: sequelize,
+  table: 'Session',
   // 15 min. The interval at which to cleanup expired sessions in milliseconds.
   // checkExpirationInterval: 15 * 60 * 1000,
   checkExpirationInterval: 5000,
@@ -121,6 +132,61 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 // #endregion
 
+// #region session check
+app.use('/api/', async(req, res, next) => {
+  await myStore.clearExpiredSessions();
+  console.log();
+  console.log(req.cookies.sessionId);
+  if (!req.cookies.sessionId) {
+    // If no sessionId cookie has been set, proceed as usual.
+    next();
+  } else {
+    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    return res.status(403).send({
+      msg: 'Your session has expired. Please log in again',
+    });
+    // If a sessionId cookie exists, check whether it is still valid.
+    const cookie = req.cookies.sessionId;
+    // Get the session ID of the cookie belonging to the request.
+    const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
+    console.log(sid);
+    await myStore.clearExpiredSessions();
+    const storedSession = await Session.findOne({ where: { sid: sid }, raw: true });
+    console.log(storedSession);
+    if (!storedSession) {
+      // If no stored session corresponding to the cookie sessionId was found,
+      // the stored session has removed because it expired.
+      // LOG OUT THE USER.
+      console.log('Session has expired. Sending back 403 - Forbidden response.');
+      return res.status(403).send({
+        msg: 'Your session has expired. Please log in again',
+      });
+    } else {
+      // A corresponding session is stored in the database. Compare its expires
+      // attribute to Date.now().
+      console.log();
+      console.log('Session still stored in database');
+      console.log(storedSession.expires);
+      // Convert to timestamp with +.
+      const expiresTimeStamp = +new Date(storedSession.expires);
+      const nowTimeStamp = Date.now();
+      console.log(new Date(nowTimeStamp));
+      console.log(expiresTimeStamp);
+      console.log(nowTimeStamp);
+      if (expiresTimeStamp < nowTimeStamp) {
+        console.log('Session exists but has expired database-wise');
+        console.log('Session has expired. Sending back 403 - Forbidden response.');
+        return res.status(403).send({
+          msg: 'Your session has expired. Please log in again',
+        });
+      }
+      next();
+      // LOGOUT USER.
+    }
+  }
+});
+// #endregion
+
 // #region initialize session
 // ------------------------------- Init session --------------------------------
 // const maxAge = 60 * 60 * 1000; // 1 hour
@@ -148,51 +214,6 @@ io.use(socketIOSession(session, {
 
 // This will serve static files from the public directory, starting with index.html
 app.use(express.static(publicPath));
-// #endregion
-
-// #region session check
-app.use(async(req, res, next) => {
-  console.log();
-  console.log(req.cookies);
-  console.log(req.signedCookies);
-  console.log(req.cookies.sessionId);
-  console.log(req.session);
-  if (!req.cookies.sessionId) {
-    console.log('req.cookies.sessionId undefined');
-    console.log('Session has expired. Sending back 403 - Forbidden response.');
-    return res.status(403).send({
-      msg: 'Your session has expired. Please log in again',
-    });
-  } else {
-    // console.log(myStore)
-    await myStore.clearExpiredSessions();
-    // sequelize.getQueryInterface().showAllSchemas().then((tableObj) => {
-    //     console.log('// Tables in database','==========================');
-    //     console.log(tableObj);
-    // })
-    // .catch((err) => {
-    //     console.log('showAllSchemas ERROR',err);
-    // })
-    // // model.Database.Session
-    // // myStore.findOne({
-    // sequelize.Session.findOne({
-    //   where: {
-    //     data: req.session,
-    //   },
-    //   raw: true,
-    // }).then((sessionTuple) => {
-    //   console.log(sessionTuple);
-    //   next();
-    // }).catch((err) => {
-    //   console.log(err);
-    //   console.log('Session has expired. Sending back 403 - Forbidden response.');
-    //   return res.status(403).send({
-    //     msg: 'Your session has expired. Please log in again',
-    //   });
-    // });
-  }
-  next();
-});
 // #endregion
 
 // #region additional middleware

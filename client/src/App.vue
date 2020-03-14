@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <!-- <v-dialog/> -->
     <nav class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -47,12 +48,23 @@
 </template>
 
 <script>
+import Axios from 'axios';
 import RoutingService from '@/services/RoutingService';
 
 export default {
   data: () => ({
   }),
   methods: {
+    // showRedirectToLoginModal() {
+    //   this.$modal.show('dialog', {
+    //     title: 'Redirect to Login',
+    //     text: 'Your session has expired. You have been redirect to the login page.',
+    //     buttons: [{ title: 'Close' }],
+    //   });
+    // },
+    // hideRedirectToLoginModal() {
+    //   this.$modal.show('redirect-to-login');
+    // },
     redirect(target) {
       this.$router.push(target).catch(() => {});
     },
@@ -85,9 +97,20 @@ export default {
     },
   },
   async created() {
+    Axios.interceptors.response.use(response => response, (error) => {
+      if (error.response.status === 403) {
+        console.log('Redirect me to login');
+        this.$store.dispatch('logout');
+        this.$router.push('/login').catch(() => {});
+        // showRedirectToLoginModal();
+      }
+      return Promise.reject(error);
+    });
     if (this.$store.getters.isLoggedIn) {
       const user = this.$store.getters.getUser;
       await RoutingService.setLoggedIn(user);
+      // const valid = await RoutingService.checkValidSession(user);
+      // console.log(valid);
     }
   },
   computed: {

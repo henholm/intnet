@@ -26,4 +26,7 @@ export default {
   getStudentTimeSlots(payload) {
     return Axios.post(`${url}studentAdmin/`, payload).then(response => response.data);
   },
+  // checkValidSession(user) {
+  //   return Axios.post(`${url}checkValidSession/`, user).then(response => response.data);
+  // },
 };
