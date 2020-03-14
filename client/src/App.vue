@@ -103,7 +103,7 @@ export default {
   },
   async created() {
     Axios.interceptors.response.use(response => response, (error) => {
-      if (error.response.status === 403) {
+      if (error.response.status === 403 || error.response.status === 401) {
         console.log('Redirect me to login');
         this.popupData.display = 'block';
         this.$store.dispatch('logout');
@@ -114,9 +114,9 @@ export default {
     });
     if (this.$store.getters.isLoggedIn) {
       const user = this.$store.getters.getUser;
-      await RoutingService.setLoggedIn(user);
-      // const valid = await RoutingService.checkValidSession(user);
-      // console.log(valid);
+      // await RoutingService.setLoggedIn(user);
+      const valid = await RoutingService.checkValidSession(user);
+      console.log(valid);
     }
   },
   // mounted() {

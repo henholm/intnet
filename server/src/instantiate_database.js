@@ -50,7 +50,8 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
+    },
+  );
   await User.create(
     {
       name: 'assistant2',
@@ -59,7 +60,8 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
+    },
+  );
   await User.create(
     {
       name: 'assistant3',
@@ -68,7 +70,8 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
+    },
+  );
   await User.create(
     {
       name: 'student1',
@@ -77,7 +80,8 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
+    },
+  );
   await User.create(
     {
       name: 'student2',
@@ -86,7 +90,8 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
+    },
+  );
   await User.create(
     {
       name: 'student3',
@@ -95,10 +100,11 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
-    });
-    /* eslint-disable object-curly-newline */
-  // await User.create({ name: 'assistant2', password: 'password2', isAssistant: 1, isLoggedIn: 0 });
-  // await User.create({ name: 'assistant3', password: 'password3', isAssistant: 1, isLoggedIn: 0 });
+    },
+  );
+  /* eslint-disable object-curly-newline */
+  // await User.create({ name: 'assistant2', password: 'password2', isAssistant: 1, isLoggedIn: 0});
+  // await User.create({ name: 'assistant3', password: 'password3', isAssistant: 1, isLoggedIn: 0});
   // await User.create({ name: 'student1', password: 'password1', isAssistant: 0, isLoggedIn: 0 });
   // await User.create({ name: 'student2', password: 'password2', isAssistant: 0, isLoggedIn: 0 });
   // await User.create({ name: 'student3', password: 'password3', isAssistant: 0, isLoggedIn: 0 });

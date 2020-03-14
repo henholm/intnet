@@ -1,3 +1,5 @@
+// src//main.js
+
 import Vue from 'vue';
 import io from 'socket.io-client';
 import Axios from 'axios';

@@ -146,46 +146,44 @@ app.use('/api/', async (req, res, next) => {
   if (!req.cookies.sessionId) {
     console.log('next');
     // If no sessionId cookie has been set, proceed as usual.
-    next();
-  } else {
-    // If a sessionId cookie exists, check whether it is still valid.
-    const cookie = req.cookies.sessionId;
-    // Get the session ID of the cookie belonging to the request.
-    const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
-    console.log('sid');
-    console.log(sid);
-    const storedSession = await Session.findOne({ where: { sid: sid }, raw: true });
-    console.log('storedSession');
-    console.log(storedSession);
-    if (!storedSession) {
-      // If no stored session corresponding to the cookie sessionId was found,
-      // the stored session has been removed because it expired.
-      console.log('Session has expired. Sending back 403 - Forbidden response.');
-      return res.status(403).send({
-        msg: 'Your session has expired. Please log in again',
-      });
-    } else {
-      // A corresponding session is stored in the database. Compare its expires
-      // attribute to Date.now().
-      console.log();
-      console.log('Session still stored in database');
-      console.log(storedSession.expires);
-      // Convert to timestamp with +.
-      const expiresTimeStamp = +new Date(storedSession.expires);
-      const nowTimeStamp = Date.now();
-      console.log(new Date(nowTimeStamp));
-      console.log(expiresTimeStamp);
-      console.log(nowTimeStamp);
-      if (expiresTimeStamp < nowTimeStamp) {
-        console.log('Session exists but has expired database-wise');
-        console.log('Session has expired. Sending back 403 - Forbidden response.');
-        return res.status(403).send({
-          msg: 'Your session has expired. Please log in again',
-        });
-      }
-      next();
-    }
+    return next();
   }
+  // If a sessionId cookie exists, check whether it is still valid.
+  const cookie = req.cookies.sessionId;
+  // Get the session ID of the cookie belonging to the request.
+  const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
+  console.log('sid');
+  console.log(sid);
+  const storedSession = await Session.findOne({ where: { sid }, raw: true });
+  console.log('storedSession');
+  console.log(storedSession);
+  if (!storedSession) {
+    // If no stored session corresponding to the cookie sessionId was found,
+    // the stored session has been removed because it expired.
+    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    return res.status(403).send({
+      msg: 'Your session has expired. Please log in again',
+    });
+  }
+  // A corresponding session is stored in the database. Compare its expires
+  // attribute to Date.now().
+  console.log();
+  console.log('Session still stored in database');
+  console.log(storedSession.expires);
+  // Convert to timestamp with +.
+  const expiresTimeStamp = +new Date(storedSession.expires);
+  const nowTimeStamp = Date.now();
+  console.log(new Date(nowTimeStamp));
+  console.log(expiresTimeStamp);
+  console.log(nowTimeStamp);
+  if (expiresTimeStamp < nowTimeStamp) {
+    console.log('Session exists but has expired database-wise');
+    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    return res.status(403).send({
+      msg: 'Your session has expired. Please log in again',
+    });
+  }
+  return next();
 });
 // #endregion
 

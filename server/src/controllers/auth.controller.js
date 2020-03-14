@@ -30,7 +30,7 @@ router.get('/assistantLogin/:name/:pword', (req, res) => {
  * Get time slots belonging to the assistant corresponding to the input id.
  * @returns {void}
  */
-router.post('/assistantAdmin', (req, res) => {
+router.post('/assistantAdmin', userMiddleware.isLoggedIn, (req, res) => {
   model.getAssistantTimeSlots(req.body.assistantId).then((resolve) => {
     res.status(200).json({
       timeSlots: resolve,
@@ -41,7 +41,7 @@ router.post('/assistantAdmin', (req, res) => {
   });
 });
 
-router.post('/studentAdmin', (req, res) => {
+router.post('/studentAdmin', userMiddleware.isLoggedIn, (req, res) => {
   model.getStudentTimeSlots(req.body.studentName).then((resolve) => {
     res.status(200).json({
       timeSlots: resolve,
@@ -95,7 +95,7 @@ router.post('/login', (req, res) => {
   console.log(sid);
   console.log(nowTimeStamp);
   console.log(sessionExpires);
-  model.loginUser(req.body.username, req.body.password, sid, nowTimeStamp).then((response) => {
+  model.loginUser(req.body.username, req.body.password, sid, sessionExpires).then((response) => {
     // TODO: CHANGE TO USER INSTEAD OF USERID. Include isAssistant and ID.
     // SAME FOR TIME SLOTS.
     const { userData } = response;
@@ -135,9 +135,9 @@ router.post('/logout', (req, res) => {
   // console.log(req.session.cookie);
   // console.log(req.session.cookie.expires);
   // Set the cookie to expire.
-  req.session.cookie.expires = new Date(Date.now());
+  // req.session.cookie.expires = new Date(Date.now());
   // Remove the sessionId on logout.
-  res.clearCookie('sessionId');
+  // res.clearCookie('sessionId');
   model.userLogOut(req.body.userId).then(() => (
     res.status(200).send({
       msg: `User ${req.body.username} logged out successfully`,
@@ -150,19 +150,39 @@ router.post('/logout', (req, res) => {
 
 router.post('/setLoggedIn', (req, res) => {
   model.setLoggedInIfNot(req.body.userId).then((response) => {
+    console.log(response);
     return res.status(200).send({
       msg: 'LoggedIn attribute successfully set',
     });
   });
 });
 
-// router.post('/checkValidSession', (req, res) => {
-//   model.setLoggedInIfNot(req.body.userId).then((response) => {
-//     console.log(response);
-//     return res.status(200).send({
-//       msg: 'LoggedIn attribute successfully set',
-//     });
-//   });
-// });
+router.post('/checkValidSession', (req, res) => {
+  console.log('CHECKVALIDSESSION');
+  const { username } = req.body;
+  const cookie = req.cookies.sessionId;
+  const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
+  const nowTimeStamp = Date.now();
+  const sessionExpires = nowTimeStamp + 10000; // Valid for 10 seconds.
+  console.log(username);
+  console.log(sid);
+  console.log(sessionExpires);
+  model.extendSessionIfValid(username, sid, sessionExpires).then((isValid) => {
+    console.log('isValid from extendSessionIfValid');
+    console.log(isValid);
+    if (isValid) {
+      return res.status(200).send({
+        msg: 'Successfully refreshed session',
+      });
+    }
+    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    return res.status(403).send({
+      msg: 'Your session has expired. Please log in again',
+    });
+  }).catch((err) => {
+    console.log('Error in router.post(/checkValidSession');
+    console.log(err);
+  });
+});
 
 module.exports = { router };

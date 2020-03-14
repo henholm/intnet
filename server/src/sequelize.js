@@ -43,32 +43,6 @@ exports.Assistant = Assistant;
 exports.TimeSlot = TimeSlot;
 // exports.Session = Session;
 
-function resetReservedTimeSlots() {
-  TimeSlot.update(
-    { bookedBy: 'no one' },
-    { where: { bookedBy: 'reserved' } },
-  ).catch((err) => {
-    throw err;
-  });
-}
-
-// If the server was shut down before a timeslot booking session was terminated,
-// reset all reserved time slots to be "open".
-resetReservedTimeSlots();
-
-function resetLoggedIn() {
-  User.update(
-    { isLoggedIn: 0 },
-    { where: { isLoggedIn: 1 } },
-  ).catch((err) => {
-    throw err;
-  });
-}
-
-// If the server was shut down before a the LoggedIn status of users was reset,
-// reset the isLoggedIn attribute of all Users.
-resetLoggedIn();
-
 // Function for toggling the isLoggedIn attribute of a user.
 function setLoggedIn(userId, toggleTo) {
   return new Promise((resolve, reject) => {
@@ -85,12 +59,55 @@ function setLoggedIn(userId, toggleTo) {
   });
 }
 
+
+function resetReservedTimeSlots() {
+  TimeSlot.update(
+    { bookedBy: 'no one' },
+    { where: { bookedBy: 'reserved' } },
+  ).catch((err) => {
+    throw err;
+  });
+}
+
+// If the server was shut down before a timeslot booking session was terminated,
+// reset all reserved time slots to be "open".
+resetReservedTimeSlots();
+
+function resetLoggedInIfExpired() {
+  User.findAll({ where: { isLoggedIn: 1 } }).then((loggedInUsers) => {
+    if (loggedInUsers) {
+      for (let i = 0; i < loggedInUsers.length; i += 1) {
+        const loggedInUser = loggedInUsers[i];
+        if (loggedInUser.sessionExpires < Date.now()) {
+          setLoggedIn(loggedInUser.id, 0);
+        }
+      }
+    }
+  }).catch((err) => {
+    throw err;
+  });
+}
+
+function resetLoggedIn() {
+  User.update(
+    { isLoggedIn: 0 },
+    { where: { isLoggedIn: 1 } },
+  ).catch((err) => {
+    throw err;
+  });
+}
+
+// If the server was shut down before a the LoggedIn status of users was reset,
+// reset the isLoggedIn attribute of all Users.
+// resetLoggedIn();
+resetLoggedInIfExpired();
+
 function setSession(userId, sid, sessionExpires) {
   return new Promise((resolve, reject) => {
     User.update(
       {
         sessionId: sid,
-        sessionExpires: sessionExpires,
+        sessionExpires,
       },
       { where: { id: userId } },
     ).then((numUpdatedRows) => {
@@ -104,6 +121,7 @@ function setSession(userId, sid, sessionExpires) {
 }
 
 exports.setLoggedIn = setLoggedIn;
+exports.resetLoggedInIfExpired = resetLoggedInIfExpired;
 
 // Update TimeSlot table: set the value of booked_by to bookedByWhom in the time
 // slot (i.e. row) where the id = timeSlotId.
@@ -372,6 +390,7 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
 
 exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires) => (
   new Promise((resolve, reject) => {
+    resetLoggedInIfExpired();
     User.findOne({
       where: {
         name: userName,
@@ -386,9 +405,15 @@ exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires) => (
       // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
-        if (res && user.isLoggedIn === 1) {
+        if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
           const response = { userId: false, msg: `${userName} is already logged in` };
+          resolve(response);
+        } else if (res && user.isLoggedIn === 1 && user.sessionId === sid) {
+          // In this case, simply renew the sessionExpires attribute.
+          setSession(user.id, sid, sessionExpires);
+          const userData = { userId: user.id, username: user.name, isAssistant: user.isAssistant };
+          const response = { userData, msg: `Successfully renewed session for ${userName}` };
           resolve(response);
         } else if (res && user.isLoggedIn !== 1) {
           // Resolve with userData if passwords matched and user is not logged in.
@@ -482,6 +507,43 @@ exports.setLoggedInIfNot = (userId) => (
       }
     }).catch((err) => {
       console.log('Error in setLoggedInIfNot User.findOne');
+      reject(err);
+    });
+  })
+);
+
+exports.extendSessionIfValid = (username, sid, sessionExpires) => (
+  new Promise((resolve, reject) => {
+    // Set the isLoggedIn attribute of all expired sessions to 0.
+    console.log('extendSessionIfValid');
+    console.log(username);
+    console.log(sid);
+    console.log(sessionExpires);
+    // resetLoggedInIfExpired();
+    User.findOne({
+      where: {
+        name: username,
+      },
+      raw: true,
+    }).then((user) => {
+      // User does not exist: invalid.
+      // if (!user) resolve({ msg: 'No such user' });
+      if (!user) resolve(false);
+
+      // Not the same session: invalid.
+      if (user.sessionId !== sid) resolve(false);
+
+      // Session already expired: invalid.
+      if (user.isLoggedIn === 0) resolve(false);
+
+      // In this case, the session is still valid. Refresh it and reolve with true.
+      if (user.isLoggedIn === 1) {
+        setSession(user.userId, sid, sessionExpires);
+        resolve(true);
+      }
+    }).catch((err) => {
+      console.log('Error in extendSessionIfValid');
+      console.log(err);
       reject(err);
     });
   })
