@@ -113,7 +113,7 @@ function setSession(userId, sid, sessionExpires) {
     ).then((numUpdatedRows) => {
       resolve(numUpdatedRows);
     }).catch((err) => {
-      console.log('Error in setSessionId');
+      console.log('Error in setSession');
       console.log(err);
       reject(err);
     });
@@ -515,10 +515,6 @@ exports.setLoggedInIfNot = (userId) => (
 exports.extendSessionIfValid = (username, sid, sessionExpires) => (
   new Promise((resolve, reject) => {
     // Set the isLoggedIn attribute of all expired sessions to 0.
-    console.log('extendSessionIfValid');
-    console.log(username);
-    console.log(sid);
-    console.log(sessionExpires);
     // resetLoggedInIfExpired();
     User.findOne({
       where: {
@@ -536,9 +532,9 @@ exports.extendSessionIfValid = (username, sid, sessionExpires) => (
       // Session already expired: invalid.
       if (user.isLoggedIn === 0) resolve(false);
 
-      // In this case, the session is still valid. Refresh it and reolve with true.
+      // In this case, the session is still valid. Refresh it and resolve with true.
       if (user.isLoggedIn === 1) {
-        setSession(user.userId, sid, sessionExpires);
+        setSession(user.id, sid, sessionExpires);
         resolve(true);
       }
     }).catch((err) => {

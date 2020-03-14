@@ -70,17 +70,12 @@ const myStore = new SequelizeStore({
   db: sequelize,
   table: 'Session',
   // 15 min. The interval at which to cleanup expired sessions in milliseconds.
-  // checkExpirationInterval: 15 * 60 * 1000,
-  checkExpirationInterval: 10000,
+  checkExpirationInterval: 5 * 60 * 1000,
+  // checkExpirationInterval: 10000,
   // 24 hours. The maximum age (in milliseconds) of a valid session.
   // expiration: 24 * 60 * 60 * 1000,
-  expiration: 30000,
+  expiration: 10 * 60 * 1000, // 10 min
 });
-
-async function initialClear() {
-  await myStore.clearExpiredSessions();
-}
-initialClear();
 // #endregion
 
 // #region page refreshing and backward/forward in history
@@ -140,11 +135,7 @@ app.use(cookieParser());
 // #region session check
 app.use('/api/', async (req, res, next) => {
   await myStore.clearExpiredSessions();
-  console.log();
-  console.log('req.cookies.sessionId');
-  console.log(req.cookies.sessionId);
   if (!req.cookies.sessionId) {
-    console.log('next');
     // If no sessionId cookie has been set, proceed as usual.
     return next();
   }
@@ -152,33 +143,22 @@ app.use('/api/', async (req, res, next) => {
   const cookie = req.cookies.sessionId;
   // Get the session ID of the cookie belonging to the request.
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
-  console.log('sid');
-  console.log(sid);
   const storedSession = await Session.findOne({ where: { sid }, raw: true });
-  console.log('storedSession');
-  console.log(storedSession);
   if (!storedSession) {
     // If no stored session corresponding to the cookie sessionId was found,
     // the stored session has been removed because it expired.
-    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    console.log('Session has expired. Sending back "403 - Forbidden" response.');
     return res.status(403).send({
       msg: 'Your session has expired. Please log in again',
     });
   }
   // A corresponding session is stored in the database. Compare its expires
-  // attribute to Date.now().
-  console.log();
-  console.log('Session still stored in database');
-  console.log(storedSession.expires);
-  // Convert to timestamp with +.
+  // attribute to Date.now(). Convert to timestamp with +.
   const expiresTimeStamp = +new Date(storedSession.expires);
   const nowTimeStamp = Date.now();
-  console.log(new Date(nowTimeStamp));
-  console.log(expiresTimeStamp);
-  console.log(nowTimeStamp);
   if (expiresTimeStamp < nowTimeStamp) {
     console.log('Session exists but has expired database-wise');
-    console.log('Session has expired. Sending back 403 - Forbidden response.');
+    console.log('Session has expired. Sending back "403 - Forbidden" response.');
     return res.status(403).send({
       msg: 'Your session has expired. Please log in again',
     });
@@ -188,9 +168,8 @@ app.use('/api/', async (req, res, next) => {
 // #endregion
 
 // #region initialize session
-// ------------------------------- Init session --------------------------------
-// const maxAge = 60 * 60 * 1000; // 1 hour
-const maxAge = 30000; // 30 seconds
+// const maxAge = 30000; // 30 seconds
+const maxAge = 60 * 60 * 1000; // 1 hour
 const session = expressSession({
   name: 'sessionId',
   secret: 'SECRETKEY',

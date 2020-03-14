@@ -163,7 +163,7 @@ router.post('/checkValidSession', (req, res) => {
   const cookie = req.cookies.sessionId;
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
   const nowTimeStamp = Date.now();
-  const sessionExpires = nowTimeStamp + 10000; // Valid for 10 seconds.
+  const sessionExpires = nowTimeStamp + 20000; // Valid for 10 seconds.
   console.log(username);
   console.log(sid);
   console.log(sessionExpires);

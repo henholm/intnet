@@ -104,24 +104,29 @@ export default {
   async created() {
     Axios.interceptors.response.use(response => response, (error) => {
       if (error.response.status === 403 || error.response.status === 401) {
-        console.log('Redirect me to login');
         this.popupData.display = 'block';
         this.$store.dispatch('logout');
-        this.$router.push('/login').catch(() => {});
-        // this.showRedirectToLoginModal();
+        this.$router.push('/login').catch((err) => { console.log(err); });
       }
       return Promise.reject(error);
     });
     if (this.$store.getters.isLoggedIn) {
       const user = this.$store.getters.getUser;
-      // await RoutingService.setLoggedIn(user);
-      const valid = await RoutingService.checkValidSession(user);
-      console.log(valid);
+      console.log(`Check validity of session for user ${user.username}`);
+      RoutingService.checkValidSession(user).then((valid) => {
+        if (!valid) {
+          RoutingService.logout(user).then(() => {
+            this.$store.dispatch('logout');
+          }).catch((err) => {
+            this.msg = err.response.data.msg;
+          });
+          this.$router.push('/login').catch(() => {});
+        }
+      }).catch((err) => {
+        this.msg = err.response.data.msg;
+      });
     }
   },
-  // mounted() {
-  //   this.popupData.display = 'block';
-  // },
   computed: {
     currentUser() {
       return this.$store.getters.getUser.username;

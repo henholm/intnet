@@ -29,8 +29,12 @@ const router = new VueRouter({
   routes,
 });
 
+// Check validity
+// - renew sessionExpires if still valid
+//   - next(to);
+// - set isLoggedIn false and remove token if no longer valid
+//   - next(Login)
 router.beforeEach((to, from, next) => {
-  // GET USER, IF LOGGED IN, SEND REQUEST (WEBSOCKET?) TO SEE IF SESSION STILL VALID.
   console.log(store.getters.isLoggedIn);
   console.log(store.getters.getUser);
   // If not logged in but trying to access non-login route, redirect to login.
@@ -39,13 +43,7 @@ router.beforeEach((to, from, next) => {
   // If logged in and trying to access any route, check validity.
   } else if (store.getters.isLoggedIn) {
     const user = store.getters.getUser;
-    console.log('Check validity of session');
-    console.log(user);
-    // RoutingService.checkValidSession(user).then(() => {
-    //   this.$store.dispatch('logout');
-    // }).catch((err) => {
-    //   this.msg = err.response.data.msg;
-    // });
+    console.log(`Check validity of session for user ${user.username}`);
     RoutingService.checkValidSession(user).then((valid) => {
       console.log(valid);
       if (valid) {
@@ -59,17 +57,6 @@ router.beforeEach((to, from, next) => {
         next({ name: 'Login' });
       }
     });
-    // RoutingService.login(credentials).then((response) => {
-    //   const { token } = response;
-    //   const { user } = response;
-    //   this.$store.dispatch('login', { token, user });
-    //   this.$router.push('/timeSlots');
-    // }
-    // Check validity
-    // - renew sessionExpires if still valid
-    //   - next(to);
-    // - set isLoggedIn false and remove token if no longer valid
-    //   - next(Login)
   }
   next();
 });
