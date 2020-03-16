@@ -5,13 +5,6 @@ const bcrypt = require('bcrypt');
 console.log('creating User model');
 
 module.exports = (sequelize, type) => sequelize.define('User', {
-  // Create a User model for our Users sqlite table.
-  // Attributes of each user.
-  id: {
-    type: type.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
   name: {
     // Defaults to STRING(255).
     type: type.STRING,
@@ -19,6 +12,11 @@ module.exports = (sequelize, type) => sequelize.define('User', {
   },
   password: {
     type: type.STRING,
+    allowNull: false,
+  },
+  // Emulates a boolean. It will take values of either 1 or 0.
+  isAdmin: {
+    type: type.INTEGER,
     allowNull: false,
   },
   // Emulates a boolean. It will take values of either 1 or 0.

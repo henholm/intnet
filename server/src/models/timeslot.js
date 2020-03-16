@@ -2,21 +2,25 @@
 
 console.log('creating TimeSlot model');
 
-// Create a TimeSlot model for our TimeSlots sqlite table.
-module.exports = (sequelize, type, assistantModel) => sequelize.define('TimeSlot', {
-  // Attributes of each TimeSlot. Might need to rename the ID-attribute.
-  id: {
-    type: type.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  assistantId: {
+module.exports = (sequelize, type, userModel) => sequelize.define('TimeSlot', {
+  // Previously called "assistantId".
+  userId: {
     type: type.INTEGER,
     allowNull: false,
     references: {
-      model: assistantModel,
+      model: userModel,
       key: 'id',
     },
+  },
+  // Emulates a boolean. It will take values of either 1 or 0.
+  isReserved: {
+    type: type.INTEGER,
+    allowNull: false,
+  },
+  // Emulates a boolean. It will take values of either 1 or 0.
+  isBooked: {
+    type: type.INTEGER,
+    allowNull: false,
   },
   bookedBy: {
     type: type.STRING,

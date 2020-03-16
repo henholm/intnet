@@ -5,11 +5,12 @@
 
 const path = require('path');
 const bcrypt = require('bcrypt');
-// const { Sequelize, Model, DataTypes } = require('sequelize');
 const { Sequelize } = require('sequelize');
 const UserModel = require('./models/user');
-const AssistantModel = require('./models/assistant');
-const TimeSlotModel = require('./models/timeslot');
+const TimeSlotModel = require('./models/timeSlot');
+const CourseModel = require('./models/course');
+const AssistsCourseModel = require('./models/assistsCourse');
+const AttendsCourseModel = require('./models/attendsCourse');
 
 const databasePath = path.join(__dirname, 'db.sqlite');
 const sequelize = new Sequelize({
@@ -25,23 +26,34 @@ const sequelize = new Sequelize({
 });
 
 // Instantiate models using our instance of Sequelize.
+// const Assistant = AssistantModel(sequelize, Sequelize);
 const User = UserModel(sequelize, Sequelize);
-const Assistant = AssistantModel(sequelize, Sequelize);
-const TimeSlot = TimeSlotModel(sequelize, Sequelize, Assistant);
+const Course = CourseModel(sequelize, Sequelize);
+const AssistsCourse = AssistsCourseModel(sequelize, Sequelize, User, Course);
+const AttendsCourse = AttendsCourseModel(sequelize, Sequelize, User, Course);
+const TimeSlot = TimeSlotModel(sequelize, Sequelize, User);
 
-// All Assistants are Users / some Users are Assistants.
-// Assistant.hasOne(User);
-Assistant.belongsTo(User, { foreignKey: 'id' });
+// One Assistant (who is a User) potentially has several TimeSlots (or none).
+User.hasMany(TimeSlot);
+TimeSlot.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 
-// One Assistant has potentially several TimeSlots.
-Assistant.hasMany(TimeSlot);
-// Relate TimeSlots table to Assistants table using foreign key 'assistantId'.
-TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
+// One Assistant (who is a User) potentially assists several Course (or none).
+AssistsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
+User.hasMany(AssistsCourse);
+
+// One Course is potentially assisted by several Assistants (or none).
+AssistsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
+Course.hasMany(AssistsCourse);
+
+// One Course is potentially attended by several Students (or none).
+AttendsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
+Course.hasMany(AttendsCourse);
 
 exports.User = User;
-exports.Assistant = Assistant;
+exports.Course = Course;
+exports.AssistsCourse = AssistsCourse;
+exports.AttendsCourse = AttendsCourse;
 exports.TimeSlot = TimeSlot;
-// exports.Session = Session;
 
 // Function for toggling the isLoggedIn attribute of a user.
 function setLoggedIn(userId, toggleTo) {
@@ -58,7 +70,6 @@ function setLoggedIn(userId, toggleTo) {
     });
   });
 }
-
 
 function resetReservedTimeSlots() {
   TimeSlot.update(
