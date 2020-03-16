@@ -85,13 +85,11 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  console.log(`/login sid: ${req.cookies.sessionId} exp: ${req.cookies.sessionId.expires}`);
   const cookie = req.cookies.sessionId;
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
-  const nowTimeStamp = Date.now();
-  const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
-  console.log(`sid ${sid} nowTimeStamp ${nowTimeStamp} our sessionExpires ${sessionExpires}`);
-  model.loginUser(req.body.username, req.body.password, sid, sessionExpires).then((response) => {
+  const { ip } = req;
+  // console.log(`sid ${sid} ip ${ip}`);
+  model.loginUser(req.body.username, req.body.password, sid, ip).then((response) => {
     const { userData } = response;
     const { msg } = response;
     if (userData) {
@@ -149,13 +147,12 @@ router.post('/setLoggedIn', (req, res) => {
 
 router.post('/checkValidSession', (req, res) => {
   const { username } = req.body;
+  const { ip } = req;
   const cookie = req.cookies.sessionId;
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
-  const nowTimeStamp = Date.now();
-  const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
-  console.log(`CHECKVALIDSESSION ${username} ${sid} ${sessionExpires}`);
-  model.extendSessionIfValid(username, sid, sessionExpires).then((isValid) => {
-    console.log(`isValid: ${isValid}`);
+  // console.log(`CHECKVALIDSESSION ${username} ${sid} ${ip}`);
+  model.extendSessionIfValid(username, sid, ip).then((isValid) => {
+    // console.log(`isValid: ${isValid}`);
     if (isValid) {
       return res.status(200).send({
         msg: 'Successfully refreshed session',

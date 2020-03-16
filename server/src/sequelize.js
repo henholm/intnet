@@ -100,14 +100,16 @@ function resetLoggedIn() {
 // If the server was shut down before a the LoggedIn status of users was reset,
 // reset the isLoggedIn attribute of all Users.
 // resetLoggedIn();
+
 resetLoggedInIfExpired();
 
-function setSession(userId, sid, sessionExpires) {
+function setSession(userId, sid, sessionExpires, ip) {
   return new Promise((resolve, reject) => {
     User.update(
       {
         sessionId: sid,
         sessionExpires,
+        lastIpAddress: ip,
       },
       { where: { id: userId } },
     ).then((numUpdatedRows) => {
@@ -388,7 +390,8 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
   })
 );
 
-exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires) => (
+// exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires, ip) => (
+exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
   new Promise((resolve, reject) => {
     resetLoggedInIfExpired();
     User.findOne({
@@ -405,20 +408,22 @@ exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires) => (
       // Check password if user exists.
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
+        const nowTimeStamp = Date.now();
+        const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
         if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
           const response = { userId: false, msg: `${userName} is already logged in` };
           resolve(response);
         } else if (res && user.isLoggedIn === 1 && user.sessionId === sid) {
           // In this case, simply renew the sessionExpires attribute.
-          setSession(user.id, sid, sessionExpires);
+          setSession(user.id, sid, sessionExpires, ip);
           const userData = { userId: user.id, username: user.name, isAssistant: user.isAssistant };
           const response = { userData, msg: `Successfully renewed session for ${userName}` };
           resolve(response);
         } else if (res && user.isLoggedIn !== 1) {
           // Resolve with userData if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
-          setSession(user.id, sid, sessionExpires);
+          setSession(user.id, sid, sessionExpires, ip);
           const userData = {
             userId: user.id,
             username: user.name,
@@ -512,10 +517,11 @@ exports.setLoggedInIfNot = (userId) => (
   })
 );
 
-exports.extendSessionIfValid = (username, sid, sessionExpires) => (
+// exports.extendSessionIfValid = (username, sid, sessionExpires) => (
+exports.extendSessionIfValid = (username, sid, ip) => (
   new Promise((resolve, reject) => {
     // Set the isLoggedIn attribute of all expired sessions to 0.
-    // resetLoggedInIfExpired();
+    resetLoggedInIfExpired();
     User.findOne({
       where: {
         name: username,
@@ -529,11 +535,16 @@ exports.extendSessionIfValid = (username, sid, sessionExpires) => (
       // Not the same session: invalid.
       if (user.sessionId !== sid) resolve(false);
 
+      // IP address changed in same session: invalid (cookie theft detected).
+      if (user.lastIpAddress !== ip) resolve(false);
+
       // Session already expired: invalid.
       if (user.isLoggedIn === 0) resolve(false);
 
       // In this case, the session is still valid. Refresh it and resolve with true.
       if (user.isLoggedIn === 1) {
+        const nowTimeStamp = Date.now();
+        const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
         setSession(user.id, sid, sessionExpires);
         resolve(true);
       }

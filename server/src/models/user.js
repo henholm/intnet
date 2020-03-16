@@ -39,6 +39,10 @@ module.exports = (sequelize, type) => sequelize.define('User', {
     type: type.INTEGER,
     allowNull: true,
   },
+  lastIpAddress: {
+    type: type.STRING,
+    allowNull: true,
+  },
 }, {
   // Additional settings for the Users table in our sqlite database.
   // Skip timestamp attributes updatedAt and createdAt.

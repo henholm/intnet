@@ -138,8 +138,8 @@ exports.authenticateUser = (userName, userPassword) => (
   Database.authenticateAllegedUser(userName, userPassword)
 );
 
-exports.loginUser = (userName, userPassword, sid, sessionExpires) => (
-  Database.loginAllegedUser(userName, userPassword, sid, sessionExpires)
+exports.loginUser = (userName, userPassword, sid, ip) => (
+  Database.loginAllegedUser(userName, userPassword, sid, ip)
 );
 
 exports.getAssistantTimeSlots = (assistantId) => (
@@ -160,6 +160,6 @@ exports.userLogOut = (userId) => Database.setLoggedIn(userId, 0);
 
 exports.setLoggedInIfNot = (userId) => Database.setLoggedInIfNot(userId);
 
-exports.extendSessionIfValid = (username, sid, sessionExpires) => (
-  Database.extendSessionIfValid(username, sid, sessionExpires)
+exports.extendSessionIfValid = (username, sid, ip) => (
+  Database.extendSessionIfValid(username, sid, ip)
 );

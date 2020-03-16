@@ -50,6 +50,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   await User.create(
@@ -60,6 +61,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   await User.create(
@@ -70,6 +72,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   await User.create(
@@ -80,6 +83,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   await User.create(
@@ -90,6 +94,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   await User.create(
@@ -100,6 +105,7 @@ TimeSlot.belongsTo(Assistant, { foreignKey: 'assistantId' });
       isLoggedIn: 0,
       sessionId: null,
       sessionExpires: null,
+      lastIpAddress: null,
     },
   );
   /* eslint-disable object-curly-newline */

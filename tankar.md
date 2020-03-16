@@ -22,3 +22,5 @@ genom vue-js-modal
 ----
 
 om behöver checka första, sätt boolean: first = true/false
+
+ADD BROADCAST TO SELF (SOCKETS)
