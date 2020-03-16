@@ -233,6 +233,9 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
         assistantId: dirtyTimeSlot['Assistant.id'],
         assistantName: dirtyTimeSlot['Assistant.name'],
       };
+      // This breaks refreshing of the bookTimeSlot view as it sends back the
+      // user to the timeSlots view. Could be solved by adding isReserved and
+      // reservedBy.
       if (dirtyTimeSlot.bookedBy !== 'no one') {
         reject();
       }
@@ -390,7 +393,6 @@ exports.authenticateAllegedUser = (userName, userPassword) => (
   })
 );
 
-// exports.loginAllegedUser = (userName, userPassword, sid, sessionExpires, ip) => (
 exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
   new Promise((resolve, reject) => {
     resetLoggedInIfExpired();
@@ -517,7 +519,6 @@ exports.setLoggedInIfNot = (userId) => (
   })
 );
 
-// exports.extendSessionIfValid = (username, sid, sessionExpires) => (
 exports.extendSessionIfValid = (username, sid, ip) => (
   new Promise((resolve, reject) => {
     // Set the isLoggedIn attribute of all expired sessions to 0.

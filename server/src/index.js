@@ -258,7 +258,8 @@ io.on('connection', (socket) => {
     model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
       model.getTimeSlots().then((timeSlots) => {
-        socket.broadcast.emit('update', { timeSlots });
+        // socket.broadcast.emit('update', { timeSlots });
+        io.emit('update', { timeSlots });
       }).catch((err) => {
         console.log('Error after getTimeSlots in changeState');
         console.log(err);
