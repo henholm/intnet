@@ -26,7 +26,6 @@ const sequelize = new Sequelize({
 });
 
 // Instantiate models using our instance of Sequelize.
-// const Assistant = AssistantModel(sequelize, Sequelize);
 const User = UserModel(sequelize, Sequelize);
 const Course = CourseModel(sequelize, Sequelize);
 const AssistsCourse = AssistsCourseModel(sequelize, Sequelize, User, Course);
@@ -57,31 +56,29 @@ exports.TimeSlot = TimeSlot;
 
 // Function for toggling the isLoggedIn attribute of a user.
 function setLoggedIn(userId, toggleTo) {
-  return new Promise((resolve, reject) => {
-    User.update(
-      { isLoggedIn: toggleTo },
-      { where: { id: userId } },
-    ).then((numUpdatedRows) => {
-      resolve(numUpdatedRows);
-    }).catch((err) => {
-      console.log('Error in setLoggedIn');
-      console.log(err);
-      reject(err);
-    });
-  });
+  // return new Promise((resolve, reject) => {
+  User.update(
+    { isLoggedIn: toggleTo },
+    { where: { id: userId } },
+  )
+    // .then((numUpdatedRows) => {
+    //   resolve(numUpdatedRows);
+    // }).catch((err) => {
+    //   reject(err);
+  //   });
+  // });
 }
 
 function resetReservedTimeSlots() {
-  TimeSlot.update(
-    { bookedBy: 'no one' },
-    { where: { bookedBy: 'reserved' } },
+  TimeSlot.updateAll(
+    { isReserved: 0 },
   ).catch((err) => {
     throw err;
   });
 }
 
 // If the server was shut down before a timeslot booking session was terminated,
-// reset all reserved time slots to be "open".
+// reset the isReserved attribute of all time slots to 0 (i.e. "false").
 resetReservedTimeSlots();
 
 function resetLoggedInIfExpired() {
@@ -99,83 +96,55 @@ function resetLoggedInIfExpired() {
   });
 }
 
-function resetLoggedIn() {
-  User.update(
-    { isLoggedIn: 0 },
-    { where: { isLoggedIn: 1 } },
-  ).catch((err) => {
-    throw err;
-  });
-}
-
-// If the server was shut down before a the LoggedIn status of users was reset,
-// reset the isLoggedIn attribute of all Users.
-// resetLoggedIn();
-
 resetLoggedInIfExpired();
 
 function setSession(userId, sid, sessionExpires, ip) {
-  return new Promise((resolve, reject) => {
-    User.update(
-      {
-        sessionId: sid,
-        sessionExpires,
-        lastIpAddress: ip,
-      },
-      { where: { id: userId } },
-    ).then((numUpdatedRows) => {
-      resolve(numUpdatedRows);
-    }).catch((err) => {
-      console.log('Error in setSession');
-      console.log(err);
-      reject(err);
-    });
-  });
+  // return new Promise((resolve, reject) => {
+  User.update(
+    {
+      sessionId: sid,
+      sessionExpires,
+      lastIpAddress: ip,
+    },
+    { where: { id: userId } },
+  )
+  //   ).then((numUpdatedRows) => {
+  //     resolve(numUpdatedRows);
+  //   }).catch((err) => {
+  //     reject(err);
+  //   });
+  // });
 }
 
 exports.setLoggedIn = setLoggedIn;
 exports.resetLoggedInIfExpired = resetLoggedInIfExpired;
 
-// Update TimeSlot table: set the value of booked_by to bookedByWhom in the time
-// slot (i.e. row) where the id = timeSlotId.
+// Set isReserved to 0, isBooked to 1 and bookedBy to bookedByWhom for time slot.
 exports.alterTimeSlotState = (timeSlotId, bookedByWhom) => (
-  new Promise((resolve, reject) => {
-    TimeSlot.update(
-      { bookedBy: bookedByWhom },
-      { returning: true, where: { id: timeSlotId } },
-    ).then((numUpdatedRows) => {
-      console.log(`numUpdatedRows: ${numUpdatedRows[1]}`);
-      resolve(numUpdatedRows[1]);
-    }).catch((err) => {
-      console.log('Error in alterTimeSlotState');
-      console.log(err);
-      reject(err);
-    });
-  })
+  // new Promise((resolve, reject) => {
+  TimeSlot.update(
+    {
+      isReserved: 0,
+      isBooked: 1,
+      bookedBy: bookedByWhom,
+    },
+    { returning: true, where: { id: timeSlotId } },
+  )
+  //   .then((numUpdatedRows) => {
+  //     resolve(numUpdatedRows[1]);
+  //   }).catch((err) => {
+  //     reject(err);
+  //   });
+  // })
 );
 
-// SELECT * FROM time_slots INNER JOIN assistants ON time_slots.assistant_id == assistants.id;
-exports.selectAllTimeSlotsDirty = () => {
-  TimeSlot.findAll({
-    include: [{
-      model: Assistant,
-      required: true,
-    }],
-  }).then((result) => {
-    console.log(result);
-    return result;
-  }).catch((err) => {
-    console.log('Error in selectAllTimeSlotsDirty');
-    console.log(err);
-  });
-};
-
+// SELECT * FROM time_slots INNER JOIN users ON time_slots.user_id == users.id;
 // Same as selectAllTimeSlotsDirty() but removes sensitive data like passwords.
 exports.selectAllTimeSlotsClean = () => (
   new Promise((resolve, reject) => {
     TimeSlot.findAll({
       include: [{
-        model: Assistant,
+        model: User,
         required: true,
       }],
       raw: true,
@@ -186,46 +155,44 @@ exports.selectAllTimeSlotsClean = () => (
         const dirtyTimeSlot = dirtyTimeSlots[i];
         const cleanTimeSlot = {
           id: dirtyTimeSlot.id,
-          bookedBy: dirtyTimeSlot.bookedBy,
+          isReserved: dirtyTimeSlot.isReserved,
+          isBooked: dirtyTimeSlot.isBooked,
+          // bookedBy: dirtyTimeSlot.bookedBy,
           time: dirtyTimeSlot.time,
-          assistantId: dirtyTimeSlot['Assistant.id'],
-          assistantName: dirtyTimeSlot['Assistant.name'],
+          assistantId: dirtyTimeSlot['User.id'],
+          assistantName: dirtyTimeSlot['User.name'],
         };
-        // cleanTimeSlots.set(cleanTimeSlot.id, cleanTimeSlot);
         cleanTimeSlots.push(cleanTimeSlot);
       }
       resolve(cleanTimeSlots);
     }).catch((err) => {
-      console.log('Error in selectAllTimeSlotsClean');
-      console.log(err);
       reject(err);
     });
   })
 );
 
-// Selects time slot as specified by input timeslot id. Inner join with Assistant.
+// Selects time slot as specified by input timeslot id. Inner join with User.
 exports.selectTimeSlotByIdDirty = (timeSlotId) => (
-  new Promise((resolve, reject) => {
-    TimeSlot.findOne({
-      where: {
-        id: timeSlotId,
-      },
-      include: [{
-        model: Assistant,
-        required: true,
-      }],
-      raw: true,
-    }).then((dirtyTimeSlot) => {
-      resolve(dirtyTimeSlot);
-    }).catch((err) => {
-      console.log('Error in selectTimeSlot');
-      console.log(err);
-      reject(err);
-    });
+  // new Promise((resolve, reject) => {
+  TimeSlot.findOne({
+    where: {
+      id: timeSlotId,
+    },
+    include: [{
+      model: User,
+      required: true,
+    }],
+    raw: true,
   })
+  //   .then((dirtyTimeSlot) => {
+  //     resolve(dirtyTimeSlot);
+  //   }).catch((err) => {
+  //     reject(err);
+  //   });
+  // })
 );
 
-// Selects time slot as specified by input timeslot id. Inner join with Assistant.
+// Selects time slot as specified by input timeslot id. Inner join with User.
 exports.selectTimeSlotByIdClean = (timeSlotId) => (
   new Promise((resolve, reject) => {
     TimeSlot.findOne({
@@ -233,7 +200,7 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
         id: timeSlotId,
       },
       include: [{
-        model: Assistant,
+        model: User,
         required: true,
       }],
       raw: true,
@@ -241,71 +208,63 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
       const cleanTimeSlot = {
         id: dirtyTimeSlot.id,
         time: dirtyTimeSlot.time,
-        assistantId: dirtyTimeSlot['Assistant.id'],
-        assistantName: dirtyTimeSlot['Assistant.name'],
+        assistantId: dirtyTimeSlot['User.id'],
+        assistantName: dirtyTimeSlot['User.name'],
       };
       // This breaks refreshing of the bookTimeSlot view as it sends back the
-      // user to the timeSlots view. Could be solved by adding isReserved and
-      // reservedBy.
-      if (dirtyTimeSlot.bookedBy !== 'no one') {
+      // user to the timeSlots view. Could be solved by adding reservedBy.
+      if (dirtyTimeSlot.isReserved !== 0) {
         reject();
       }
       resolve(cleanTimeSlot);
     }).catch((err) => {
-      console.log('Error in selectTimeSlot');
-      console.log(err);
       reject(err);
     });
   })
 );
 
-exports.selectAssistantIdFromName = (assistantName) => (
+exports.selectUserIdFromName = (userName) => (
   new Promise((resolve, reject) => {
-    Assistant.findOne({
+    User.findOne({
       where: {
-        name: assistantName,
+        name: userName,
       },
-    }).then((assistant) => {
-      resolve(assistant.id);
+    }).then((user) => {
+      resolve(user.id);
     }).catch((err) => {
-      console.log('Error in selectAssistantIdFromName');
-      console.log(err);
       reject(err);
     });
   })
 );
 
-// Selects time slot as specified by input assistant id. Inner join with Assistant.
+// Selects time slot as specified by input assistant ID. Inner join with User.
 exports.selectTimeSlotsByAssistantId = (assistantId) => (
-  new Promise((resolve, reject) => {
-    TimeSlot.findAll({
-      where: {
-        assistant_id: assistantId,
-      },
-      raw: true,
-    }).then((timeSlots) => {
-      resolve(timeSlots);
-    }).catch((err) => {
-      console.log('Error in selectTimeSlotByAssistantId');
-      console.log(err);
-      reject(err);
-    });
+  // new Promise((resolve, reject) => {
+  TimeSlot.findAll({
+    where: {
+      user_id: assistantId,
+    },
+    raw: true,
   })
+  //   .then((timeSlots) => {
+  //     resolve(timeSlots);
+  //   }).catch((err) => {
+  //     console.log('Error in selectTimeSlotByUserId');
+  //     console.log(err);
+  //     reject(err);
+  //   });
+  // })
 );
 
 exports.selectTimeSlotsByAssistantName = (assistantName) => (
   new Promise((resolve, reject) => {
-    exports.selectAssistantIdFromName(assistantName).then((assistantId) => {
+    exports.selectUserIdFromName(assistantName).then((assistantId) => {
       exports.selectTimeSlotsByAssistantId(assistantId).then((timeSlots) => {
         resolve(timeSlots);
       }).catch((err) => {
-        console.log('Error in selectTimeSlotsByAssistantId in selectTimeSlotsByAssistantName');
-        console.log(err);
         reject(err);
       });
     }).catch((err) => {
-      console.log('Error in selectAssistantIdFromName in selectTimeSlotsByAssistantName');
-      console.log(err);
       reject(err);
     });
   })
@@ -320,88 +279,27 @@ exports.selectStudentIdFromName = (studentName) => (
     }).then((student) => {
       resolve(student.id);
     }).catch((err) => {
-      console.log('Error in selectStudentIdFromName');
-      console.log(err);
       reject(err);
     });
   })
 );
 
 exports.selectTimeSlotsByStudentName = (studentName) => (
-  new Promise((resolve, reject) => {
-    TimeSlot.findAll({
-      where: {
-        bookedBy: studentName,
-      },
-      raw: true,
-    }).then((timeSlots) => {
-      resolve(timeSlots);
-    }).catch((err) => {
-      console.log('Error in selectTimeSlotsByStudentName');
-      console.log(err);
-      reject(err);
-    });
+  // new Promise((resolve, reject) => {
+  TimeSlot.findAll({
+    where: {
+      bookedBy: studentName,
+    },
+    raw: true,
   })
-);
-
-exports.authenticateAllegedAssistant = (assistantName, assistantPassword) => (
-  new Promise((resolve, reject) => {
-    Assistant.findOne({
-      where: {
-        name: assistantName,
-      },
-      raw: true,
-    }).then((assistant) => {
-      if (!assistant) {
-        resolve(false);
-      }
-      const hashedTruePassword = assistant.password;
-      bcrypt.compare(assistantPassword, hashedTruePassword).then((res) => {
-        resolve(res);
-      }).catch((err) => {
-        console.log('Error in bcrypt.compare');
-        console.log(err);
-        reject(err);
-      });
-    }).catch((err) => {
-      console.log('Error in authenticateAllegedAssistant');
-      console.log(err);
-      reject(err);
-    });
-  })
-);
-
-exports.authenticateAllegedUser = (userName, userPassword) => (
-  new Promise((resolve, reject) => {
-    console.log(userName);
-    console.log(userPassword);
-    console.log('authenticateAllegedUser');
-    User.findOne({
-      where: {
-        name: userName,
-      },
-      raw: true,
-    }).then((user) => {
-      // User does not exist.
-      if (!user) resolve(false);
-
-      // Check password if user exists.
-      const hashedTruePassword = user.password;
-      bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
-        // Resolve with true of false depending on whether the password matched
-        // or not.
-        resolve(res);
-      }).catch((err) => {
-        console.log('Error in bcrypt.compare');
-        console.log(err);
-        reject(err);
-      });
-    }).catch((err) => {
-      console.log('Error in authenticateAllegedAssistant');
-      console.log(err);
-      reject(err);
-    });
-  })
+  //   .then((timeSlots) => {
+  //     resolve(timeSlots);
+  //   }).catch((err) => {
+  //     console.log('Error in selectTimeSlotsByStudentName');
+  //     console.log(err);
+  //     reject(err);
+  //   });
+  // })
 );
 
 exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
@@ -425,7 +323,7 @@ exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
         const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
         if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
-          const response = { userId: false, msg: `${userName} is already logged in` };
+          const response = { userData: null, msg: `${userName} is already logged in` };
           resolve(response);
         } else if (res && user.isLoggedIn === 1 && user.sessionId === sid) {
           // In this case, simply renew the sessionExpires attribute.
@@ -437,26 +335,18 @@ exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
           // Resolve with userData if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
           setSession(user.id, sid, sessionExpires, ip);
-          const userData = {
-            userId: user.id,
-            username: user.name,
-            isAssistant: user.isAssistant,
-          };
+          const userData = { userId: user.id, username: user.name, isAssistant: user.isAssistant };
           const response = { userData, msg: `${userName} logged in successfully` };
           resolve(response);
         } else {
           // Resolve with false if passwords did not match.
-          const response = { userId: false, msg: 'User or password incorrect' };
+          const response = { userData: null, msg: 'User or password incorrect' };
           resolve(response);
         }
       }).catch((err) => {
-        console.log('Error in bcrypt.compare');
-        console.log(err);
         reject(err);
       });
     }).catch((err) => {
-      console.log('Error in authenticateAllegedAssistant');
-      console.log(err);
       reject(err);
     });
   })
@@ -465,27 +355,24 @@ exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
 // Add a new TimeSlot for the Assistant specified by the input name.
 exports.addTimeSlot = (assistantName, time) => (
   new Promise((resolve, reject) => {
-    Assistant.findOne({
+    User.findOne({
       where: {
         name: assistantName,
       },
       raw: true,
     }).then((assistant) => {
       TimeSlot.create({
-        assistantId: assistant.id,
-        bookedBy: 'no one',
+        userId: assistant.id,
+        isReserved: 0,
+        isBooked: 0,
+        bookedBy: null,
         time,
       }).then((newTimeSlot) => {
-        console.log(newTimeSlot.toJSON());
         resolve(newTimeSlot);
       }).catch((err) => {
-        console.log('Error in TimeSlot.create in addTimeSlot');
-        console.log(err);
         reject(err);
       });
     }).catch((err) => {
-      console.log('Error in Assistant.findOne in addTimeSlot');
-      console.log(err);
       reject(err);
     });
   })
@@ -493,42 +380,24 @@ exports.addTimeSlot = (assistantName, time) => (
 
 // Remove TimeSlot corresponding to the input ID.
 exports.removeTimeSlot = (idOfTimeSlot) => (
-  new Promise((resolve, reject) => {
-    TimeSlot.destroy(
-      {
-        where: { id: idOfTimeSlot },
-        force: true,
-      },
-    ).then((result) => {
-      console.log(`numRemovedRows: ${result}`);
-      resolve(result);
-    }).catch((err) => {
-      console.log('Error in removeTimeSlot in TimeSlot.destroy');
-      console.log(err);
-      reject(err);
-    });
-  })
+  // new Promise((resolve, reject) => {
+  TimeSlot.destroy(
+    {
+      where: { id: idOfTimeSlot },
+      force: true,
+    },
+  )
+  //   .then((result) => {
+  //     console.log(`numRemovedRows: ${result}`);
+  //     resolve(result);
+  //   }).catch((err) => {
+  //     console.log('Error in removeTimeSlot in TimeSlot.destroy');
+  //     console.log(err);
+  //     reject(err);
+  //   });
+  // })
 );
 
-exports.setLoggedInIfNot = (userId) => (
-  new Promise((resolve, reject) => {
-    User.findOne({
-      where: {
-        id: userId,
-      },
-      raw: true,
-    }).then((user) => {
-      if (user.isLoggedIn !== 1) {
-        setLoggedIn(user.id, 1).then(() => resolve(true));
-      } else {
-        resolve(false);
-      }
-    }).catch((err) => {
-      console.log('Error in setLoggedInIfNot User.findOne');
-      reject(err);
-    });
-  })
-);
 
 exports.extendSessionIfValid = (username, sid, ip) => (
   new Promise((resolve, reject) => {
@@ -540,10 +409,6 @@ exports.extendSessionIfValid = (username, sid, ip) => (
       },
       raw: true,
     }).then((user) => {
-      // User does not exist: invalid.
-      // if (!user) resolve({ msg: 'No such user' });
-      if (!user) resolve(false);
-
       // Not the same session: invalid.
       if (user.sessionId !== sid) resolve(false);
 
@@ -561,8 +426,6 @@ exports.extendSessionIfValid = (username, sid, ip) => (
         resolve(true);
       }
     }).catch((err) => {
-      console.log('Error in extendSessionIfValid');
-      console.log(err);
       reject(err);
     });
   })

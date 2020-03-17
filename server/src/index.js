@@ -204,7 +204,7 @@ app.use('/api', authController.router);
 // #endregion
 
 function resetTimeSlot(message) {
-  model.getTimeSlotByIdDirty(message.id).then((timeSlot) => {
+  model.selectTimeSlotByIdDirty(message.id).then((timeSlot) => {
     // If the timeSlot is still 'reserved' after 20 seconds, reset it.
     if (timeSlot.bookedBy === 'reserved') {
       model.setTimeSlotBookedBy(message.id, 'no one').then(() => {

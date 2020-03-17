@@ -29,3 +29,5 @@ AttendsCourse
 
 TimeSlots
 - timeSlotId, assistantId (foreignKey), isReserved, isBooked, bookedBy, time
+
+Add reservedBy to fix refresh bug in bookTimeSlot view.

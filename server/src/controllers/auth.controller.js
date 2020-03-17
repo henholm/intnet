@@ -12,21 +12,6 @@ const userMiddleware = require('../middleware/users.js');
 const router = express.Router();
 
 /**
- * Authenticate input assistant name and password.
- * @returns {void}
- */
-router.get('/assistantLogin/:name/:pword', (req, res) => {
-  model.authenticateAssistant(req.params.name, req.params.pword).then((resolve) => {
-    res.status(200).json({
-      isAuthenticated: resolve,
-    });
-  }).catch((err) => {
-    console.log('Error in router.get assistant login');
-    console.log(err);
-  });
-});
-
-/**
  * Get time slots belonging to the assistant corresponding to the input id.
  * @returns {void}
  */
@@ -133,15 +118,6 @@ router.post('/logout', (req, res) => {
   )).catch((err) => {
     console.log('Error in router.post(/logout)');
     console.log(err);
-  });
-});
-
-router.post('/setLoggedIn', (req, res) => {
-  model.setLoggedInIfNot(req.body.userId).then((response) => {
-    console.log(response);
-    return res.status(200).send({
-      msg: 'LoggedIn attribute successfully set',
-    });
   });
 });
 

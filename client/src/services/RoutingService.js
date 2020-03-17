@@ -11,9 +11,6 @@ export default {
   logout(user) {
     return Axios.post(`${url}logout/`, user).then(response => response.data);
   },
-  setLoggedIn(user) {
-    return Axios.post(`${url}setLoggedIn/`, user).then(response => response.data);
-  },
   getTimeSlots() {
     return Axios.post(`${url}timeSlots/`, '').then(response => response.data);
   },

@@ -83,59 +83,18 @@ exports.findUser = (name) => users[name];
  * Returns all time slots.
  * @returns {TimeSlot[]}
  */
-exports.getTimeSlotsWithPwords = () => Database.selectAllTimeSlots();
-
-/**
- * Returns all time slots.
- * @returns {TimeSlot[]}
- */
 exports.getTimeSlots = () => Database.selectAllTimeSlotsClean();
 
 /**
- * Returns all time slots.
+ * Returns one time slot as dictated by the input timeSlotId.
  * @returns {TimeSlot[]}
  */
 exports.getTimeSlotById = (timeSlotId) => Database.selectTimeSlotByIdClean(timeSlotId);
 
-exports.getTimeSlotByIdDirty = (timeSlotId) => Database.selectTimeSlotByIdDirty(timeSlotId);
+exports.selectTimeSlotByIdDirty = (timeSlotId) => Database.selectTimeSlotByIdDirty(timeSlotId);
 
 exports.setTimeSlotBookedBy = (timeSlotId, bookedByWhom) => (
   Database.alterTimeSlotState(timeSlotId, bookedByWhom)
-);
-
-exports.selectTimeSlot = (timeSlotId) => (
-  new Promise((resolve, reject) => {
-    Database.TimeSlot.findOne({
-      where: {
-        id: timeSlotId,
-      },
-      include: [{
-        model: Database.Assistant,
-        required: true,
-      }],
-      raw: true,
-    }).then((dirtyTimeSlot) => {
-      const cleanTimeSlot = {
-        id: dirtyTimeSlot.id,
-        time: dirtyTimeSlot.time,
-        assistantId: dirtyTimeSlot['Assistant.id'],
-        assistantName: dirtyTimeSlot['Assistant.name'],
-      };
-      resolve(cleanTimeSlot);
-    }).catch((err) => {
-      console.log('Error in selectTimeSlot');
-      console.log(err);
-      reject(err);
-    });
-  })
-);
-
-exports.authenticateAssistant = (assistantName, assistantPassword) => (
-  Database.authenticateAllegedAssistant(assistantName, assistantPassword)
-);
-
-exports.authenticateUser = (userName, userPassword) => (
-  Database.authenticateAllegedUser(userName, userPassword)
 );
 
 exports.loginUser = (userName, userPassword, sid, ip) => (
@@ -157,8 +116,6 @@ exports.addTimeSlot = (assistantName, timeSlotId) => (
 );
 
 exports.userLogOut = (userId) => Database.setLoggedIn(userId, 0);
-
-exports.setLoggedInIfNot = (userId) => Database.setLoggedInIfNot(userId);
 
 exports.extendSessionIfValid = (username, sid, ip) => (
   Database.extendSessionIfValid(username, sid, ip)
