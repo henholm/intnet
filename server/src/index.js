@@ -206,15 +206,15 @@ app.use('/api', authController.router);
 
 function resetTimeSlot(message) {
   const { timeSlotId } = message;
-  const { isReserved } = message;
-  const { isBooked } = message;
-  const { bookedBy } = message;
+  // const { isReserved } = message;
+  // const { isBooked } = message;
+  // const { bookedBy } = message;
   model.selectTimeSlotByIdDirty(timeSlotId).then((timeSlot) => {
     // If the timeSlot is still 'reserved' after 20 seconds, reset it.
     if (timeSlot.isReserved === 1) {
       // model.setTimeSlotBookedBy(message.id, 'no one').then(() => {
       // Should maybe not force the isBooked to 0.
-      model.setTimeSlotAttributes(timeSlotId, 0, 0, bookedBy).then(() => {
+      model.setTimeSlotAttributes(timeSlotId, 0, 0, null).then(() => {
         // Broadcast to others after the update has been recognized server-wise.
         model.getTimeSlots().then((timeSlots) => {
           io.emit('update', { timeSlots });

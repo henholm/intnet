@@ -61,18 +61,6 @@ Course.hasMany(AttendsCourse);
   console.log('Populating Users table');
   await User.create(
     {
-      name: 'admin1',
-      password: 'password1',
-      isAdmin: 1,
-      isAssistant: 0,
-      isLoggedIn: 0,
-      sessionId: null,
-      sessionExpires: null,
-      lastIpAddress: null,
-    },
-  );
-  await User.create(
-    {
       name: 'assistant1',
       password: 'password1',
       isAdmin: 0,
@@ -143,6 +131,18 @@ Course.hasMany(AttendsCourse);
       lastIpAddress: null,
     },
   );
+  await User.create(
+    {
+      name: 'admin1',
+      password: 'password1',
+      isAdmin: 1,
+      isAssistant: 0,
+      isLoggedIn: 0,
+      sessionId: null,
+      sessionExpires: null,
+      lastIpAddress: null,
+    },
+  );
 
   await Course.create(
     {
@@ -161,12 +161,12 @@ Course.hasMany(AttendsCourse);
   );
 
   /* eslint-disable object-curly-newline */
-  await AssistsCourse.create({ userId: 1, courseId: 1 });
-  await AssistsCourse.create({ userId: 1, courseId: 2 });
-  await AssistsCourse.create({ userId: 2, courseId: 1 });
-  await AssistsCourse.create({ userId: 2, courseId: 3 });
-  await AssistsCourse.create({ userId: 3, courseId: 2 });
-  await AssistsCourse.create({ userId: 3, courseId: 3 });
+  await AssistsCourse.create({ userId: 1, courseId: 1 }); // Assistant 1
+  await AssistsCourse.create({ userId: 1, courseId: 2 }); // Assistant 1
+  await AssistsCourse.create({ userId: 2, courseId: 1 }); // Assistant 2
+  await AssistsCourse.create({ userId: 2, courseId: 3 }); // Assistant 2
+  await AssistsCourse.create({ userId: 3, courseId: 2 }); // Assistant 3
+  await AssistsCourse.create({ userId: 3, courseId: 3 }); // Assistant 3
 
   await AttendsCourse.create({ userId: 1, courseId: 3 }); // Assistant 1
   await AttendsCourse.create({ userId: 2, courseId: 2 }); // Assistant 2
