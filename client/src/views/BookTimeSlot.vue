@@ -38,6 +38,7 @@ export default {
       const payload = {
         timeSlotId: this.timeSlotId,
         isReserved: 0,
+        reservedBy: null,
         isBooked: 1,
         bookedBy: this.$store.getters.getUser.username,
       };
@@ -49,6 +50,7 @@ export default {
       const payload = {
         timeSlotId: this.timeSlotId,
         isReserved: 0,
+        reservedBy: null,
         isBooked: 0,
         bookedBy: null,
       };
@@ -78,6 +80,7 @@ export default {
       const payload = {
         timeSlotId: this.timeSlotId,
         isReserved: 1,
+        reservedBy: this.$store.getters.getUser.username,
         isBooked: 0,
         bookedBy: null,
       };

@@ -6,25 +6,25 @@
         <div v-for="TS in timeSlots" v-bind:key="TS.id">
           <button
             type="button"
-            v-if="TS.bookedBy==='no one'"
-            v-on:click="remove($event, TS.id)"
-            class="a-open"
-            ref="TS.id"
-          >{{TS.time}}: open</button>
-          <button
-            type="button"
-            v-else-if="TS.bookedBy==='reserved'"
-            v-on:click="remove($event, TS.id)"
-            class="a-reserved"
-            ref="TS.id"
-          >{{TS.time}}: reserved</button>
-          <button
-            type="button"
-            v-else
+            v-if="TS.isBooked===1"
             v-on:click="remove($event, TS.id)"
             class="a-booked"
             ref="TS.id"
           >{{TS.time}}: booked by {{TS.bookedBy}}</button>
+          <button
+            type="button"
+            v-else-if="TS.isReserved===1"
+            v-on:click="remove($event, TS.id)"
+            class="a-reserved"
+            ref="TS.id"
+          >{{TS.time}}: reserved by {{TS.reservedBy}}</button>
+          <button
+            type="button"
+            v-else
+            v-on:click="remove($event, TS.id)"
+            class="a-open"
+            ref="TS.id"
+          >{{TS.time}}: open time slot</button>
         </div>
       </div>
       <div>
@@ -80,7 +80,7 @@ export default {
     const { isAssistant } = this.$store.getters.getUser;
 
     if (!isLoggedIn || isAssistant !== 1) {
-      this.$router.push('/login').catch(() => {});
+      this.$router.push('/login').catch(err => console.log(err));
     }
 
     this.socket = this.$root.socket;

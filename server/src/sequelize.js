@@ -71,7 +71,7 @@ function setLoggedIn(userId, toggleTo) {
 
 function resetReservedTimeSlots() {
   TimeSlot.update(
-    { isReserved: 0 },
+    { isReserved: 0, reservedBy: null },
     { where: { isReserved: 1 } },
   )
   // .catch((err) => {
@@ -121,29 +121,11 @@ function setSession(userId, sid, sessionExpires, ip) {
 exports.setLoggedIn = setLoggedIn;
 exports.resetLoggedInIfExpired = resetLoggedInIfExpired;
 
-// Set isReserved to 0, isBooked to 1 and bookedBy to bookedByWhom for time slot.
-exports.alterTimeSlotState = (timeSlotId, bookedByWhom) => (
-  // new Promise((resolve, reject) => {
-  TimeSlot.update(
-    {
-      isReserved: 0,
-      isBooked: 1,
-      bookedBy: bookedByWhom,
-    },
-    { returning: true, where: { id: timeSlotId } },
-  )
-  //   .then((numUpdatedRows) => {
-  //     resolve(numUpdatedRows[1]);
-  //   }).catch((err) => {
-  //     reject(err);
-  //   });
-  // })
-);
-
-exports.setTimeSlotAttributes = (timeSlotId, isReserved, isBooked, bookedBy) => (
+exports.setTimeSlotAttributes = (timeSlotId, isReserved, reservedBy, isBooked, bookedBy) => (
   TimeSlot.update(
     {
       isReserved,
+      reservedBy,
       isBooked,
       bookedBy,
     },
@@ -169,8 +151,9 @@ exports.selectAllTimeSlotsClean = () => (
         const cleanTimeSlot = {
           id: dirtyTimeSlot.id,
           isReserved: dirtyTimeSlot.isReserved,
+          reservedBy: dirtyTimeSlot.reservedBy,
           isBooked: dirtyTimeSlot.isBooked,
-          // bookedBy: dirtyTimeSlot.bookedBy,
+          bookedBy: dirtyTimeSlot.bookedBy,
           time: dirtyTimeSlot.time,
           assistantId: dirtyTimeSlot['User.id'],
           assistantName: dirtyTimeSlot['User.name'],
@@ -298,21 +281,12 @@ exports.selectStudentIdFromName = (studentName) => (
 );
 
 exports.selectTimeSlotsByStudentName = (studentName) => (
-  // new Promise((resolve, reject) => {
   TimeSlot.findAll({
     where: {
       bookedBy: studentName,
     },
     raw: true,
   })
-  //   .then((timeSlots) => {
-  //     resolve(timeSlots);
-  //   }).catch((err) => {
-  //     console.log('Error in selectTimeSlotsByStudentName');
-  //     console.log(err);
-  //     reject(err);
-  //   });
-  // })
 );
 
 exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
@@ -377,6 +351,7 @@ exports.addTimeSlot = (assistantName, time) => (
       TimeSlot.create({
         userId: assistant.id,
         isReserved: 0,
+        reservedBy: null,
         isBooked: 0,
         bookedBy: null,
         time,

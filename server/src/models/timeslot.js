@@ -17,6 +17,10 @@ module.exports = (sequelize, type, userModel) => sequelize.define('TimeSlot', {
     type: type.INTEGER,
     allowNull: false,
   },
+  reservedBy: {
+    type: type.STRING,
+    allowNull: true,
+  },
   // Emulates a boolean. It will take values of either 1 or 0.
   isBooked: {
     type: type.INTEGER,

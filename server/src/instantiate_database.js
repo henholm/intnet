@@ -183,6 +183,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 1,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:00 - 13:20',
@@ -192,6 +193,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 1,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:20 - 13:40',
@@ -201,6 +203,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 1,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:40 - 14:00'
@@ -210,6 +213,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 2,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:00 - 13:20'
@@ -219,6 +223,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 2,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:20 - 13:40'
@@ -228,6 +233,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 2,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:40 - 14:00'
@@ -237,6 +243,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 3,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:00 - 13:20'
@@ -246,6 +253,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 3,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:20 - 13:40'
@@ -255,6 +263,7 @@ Course.hasMany(AttendsCourse);
     {
       userId: 3,
       isReserved: 0,
+      reservedBy: null,
       isBooked: 0,
       bookedBy: null,
       time: '13:40 - 14:00'

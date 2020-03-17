@@ -16,12 +16,12 @@ const router = express.Router();
  * @returns {void}
  */
 router.post('/assistantAdmin', userMiddleware.isLoggedIn, (req, res) => {
-  model.getAssistantTimeSlots(req.body.assistantId).then((resolve) => {
+  model.getAssistantTimeSlots(req.body.assistantId).then((timeSlots) => {
+    console.log(timeSlots);
     res.status(200).json({
-      timeSlots: resolve,
+      timeSlots,
     });
   }).catch((err) => {
-    console.log('Error in router.get assistant time slots');
     console.log(err);
   });
 });
@@ -32,7 +32,6 @@ router.post('/studentAdmin', userMiddleware.isLoggedIn, (req, res) => {
       timeSlots: resolve,
     });
   }).catch((err) => {
-    console.log('Error in router.get student time slots');
     console.log(err);
   });
 });

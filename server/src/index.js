@@ -206,29 +206,22 @@ app.use('/api', authController.router);
 
 function resetTimeSlot(message) {
   const { timeSlotId } = message;
-  // const { isReserved } = message;
-  // const { isBooked } = message;
-  // const { bookedBy } = message;
   model.selectTimeSlotByIdDirty(timeSlotId).then((timeSlot) => {
-    // If the timeSlot is still 'reserved' after 20 seconds, reset it.
+    // If the timeSlot is still reserved after 20 seconds, reset it.
     if (timeSlot.isReserved === 1) {
-      // model.setTimeSlotBookedBy(message.id, 'no one').then(() => {
       // Should maybe not force the isBooked to 0.
-      model.setTimeSlotAttributes(timeSlotId, 0, 0, null).then(() => {
+      model.setTimeSlotAttributes(timeSlotId, 0, null, 0, null).then(() => {
         // Broadcast to others after the update has been recognized server-wise.
         model.getTimeSlots().then((timeSlots) => {
           io.emit('update', { timeSlots });
         }).catch((err) => {
-          console.log('Error in getTimeSlots in resetTimeSlot');
           console.log(err);
         });
       }).catch((err) => {
-        console.log('Error in setTimeSlotBookedBy in resetTimeSlot');
         console.log(err);
       });
     }
   }).catch((err) => {
-    console.log('Error in getTimeSlotById in resetTimeSlot');
     console.log(err);
   });
 }
@@ -253,6 +246,7 @@ io.on('connection', (socket) => {
   socket.on('changeState', (message) => {
     const { timeSlotId } = message;
     const { isReserved } = message;
+    const { reservedBy } = message;
     const { isBooked } = message;
     const { bookedBy } = message;
     if (isReserved === 1) {
@@ -262,39 +256,22 @@ io.on('connection', (socket) => {
         clearTimeout(timeoutHandle);
       }
       // Instantiate a new Timeout object.
-      const timeoutHandle = setTimeout(resetTimeSlot, 21000, message);
+      const timeoutHandle = setTimeout(resetTimeSlot, 20000, message);
       timeoutHandlesMap.set(timeSlotId, timeoutHandle);
     }
-    model.setTimeSlotAttributes(timeSlotId, isReserved, isBooked, bookedBy).then(() => {
+    model.setTimeSlotAttributes(timeSlotId, isReserved, reservedBy, isBooked, bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
         io.emit('update', { timeSlots });
       }).catch((err) => {
-        console.log('Error after getTimeSlots in changeState');
         console.log(err);
       });
       // socket.broadcast.emit('update', { message });
     }).catch((err) => {
-      console.log('Error after setTimeSlotBookedBy / in broadcast.emit');
       console.log(err);
     });
   });
-  //   model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
-  //     // Broadcast to others after the update has been recognized server-wise.
-  //     model.getTimeSlots().then((timeSlots) => {
-  //       // socket.broadcast.emit('update', { timeSlots });
-  //       io.emit('update', { timeSlots });
-  //     }).catch((err) => {
-  //       console.log('Error after getTimeSlots in changeState');
-  //       console.log(err);
-  //     });
-  //     // socket.broadcast.emit('update', { message });
-  //   }).catch((err) => {
-  //     console.log('Error after setTimeSlotBookedBy / in broadcast.emit');
-  //     console.log(err);
-  //   });
-  // });
 
   socket.on('removeTimeSlot', (message) => {
     model.removeTimeSlot(message.id).then(() => {
@@ -302,11 +279,9 @@ io.on('connection', (socket) => {
         // socket.broadcast.emit('update', { timeSlots });
         io.emit('update', { timeSlots });
       }).catch((err) => {
-        console.log('Error in on.removeTimeSlot in getTimeSlots');
         console.log(err);
       });
     }).catch((err) => {
-      console.log('Error in on.removeTimeSlot in removeTimeSlot');
       console.log(err);
     });
   });
