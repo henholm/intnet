@@ -123,13 +123,12 @@ router.post('/timeSlots', userMiddleware.isLoggedIn, (req, res) => {
  * @returns {void}
  */
 router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
-  model.getTimeSlotById(req.body.timeSlotId).then((resolve) => {
+  model.getTimeSlotById(req.body.timeSlotId, req.body.reservedBy).then((resolve) => {
     res.status(200).json({
       timeSlotData: resolve,
     });
   // A non-existent time slot was requested.
   }).catch((err) => {
-    console.log(err);
     return res.status(401).send({
       msg: '',
     });

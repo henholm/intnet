@@ -111,7 +111,9 @@ exports.getTimeSlotsForAssistant = (username) => Database.getTimeSlotsForAssista
  * Returns one time slot as dictated by the input timeSlotId.
  * @returns {TimeSlot[]}
  */
-exports.getTimeSlotById = (timeSlotId) => Database.selectTimeSlotByIdClean(timeSlotId);
+exports.getTimeSlotById = (timeSlotId, reservedBy) => (
+  Database.selectTimeSlotByIdClean(timeSlotId, reservedBy)
+);
 
 exports.selectTimeSlotByIdDirty = (timeSlotId) => Database.selectTimeSlotByIdDirty(timeSlotId);
 

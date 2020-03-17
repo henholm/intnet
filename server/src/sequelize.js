@@ -182,13 +182,16 @@ exports.selectTimeSlotByIdDirty = (timeSlotId) => (
 );
 
 // Selects time slot as specified by input timeslot id. Inner join with User.
-exports.selectTimeSlotByIdClean = (timeSlotId) => (
+exports.selectTimeSlotByIdClean = (timeSlotId, reservedBy) => (
   new Promise((resolve, reject) => {
     TimeSlot.findOne({
       where: {
         id: timeSlotId,
       },
       include: [{
+        model: Course,
+        required: true,
+      }, {
         model: User,
         required: true,
       }],
@@ -199,10 +202,9 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
         time: dirtyTimeSlot.time,
         assistantId: dirtyTimeSlot['User.id'],
         assistantName: dirtyTimeSlot['User.name'],
+        courseName: dirtyTimeSlot['Course.name'],
       };
-      // This breaks refreshing of the bookTimeSlot view as it sends back the
-      // user to the timeSlots view. Could be solved by adding reservedBy.
-      if (dirtyTimeSlot.isReserved !== 0) {
+      if (dirtyTimeSlot.reservedBy !== null && dirtyTimeSlot.reservedBy !== reservedBy) {
         reject();
       }
       resolve(cleanTimeSlot);
@@ -513,7 +515,6 @@ exports.removeTimeSlot = (timeSlotId) => (
     },
   ).catch((err) => console.log(err) )
 );
-
 
 exports.extendSessionIfValid = (username, sid, ip) => (
   new Promise((resolve, reject) => {

@@ -3,6 +3,7 @@
   <div v-if="this.show" class="text-box col-md-4 col-md-offset-4" style="text-align: center">
     <h1>Time slot booking</h1>
     <div>
+      <h4>Course: {{this.courseName}}</h4>
       <h4>Time: {{this.timeSlotTime}}</h4>
       <h4>Assistant: {{this.assistantName}}</h4>
       <div class="countdownTimer">
@@ -30,6 +31,7 @@ export default {
       timeSlotTime: '',
       assistantId: '',
       assistantName: '',
+      courseName: '',
       socket: null,
     };
   },
@@ -44,7 +46,7 @@ export default {
       };
       this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
-      this.$router.push('/timeSlots').catch(() => {});
+      this.$router.push(`/courses/${this.courseName}/timeslots`).catch(() => {});
     },
     abort() {
       const payload = {
@@ -56,7 +58,8 @@ export default {
       };
       this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
-      this.$router.push('/timeSlots').catch(() => {});
+      // this.$router.push('/timeSlots').catch(() => {});
+      this.$router.push(`/courses/${this.courseName}/timeslots`).catch(() => {});
     },
     countdown() {
       this.countdownTime = setInterval(() => {
@@ -64,7 +67,7 @@ export default {
         if (this.countdownSeconds === 0) {
           this.countdownSeconds = 20;
           clearInterval(this.countdownTime);
-          this.$router.push('/timeSlots').catch(() => {});
+          this.$router.push(`/courses/${this.courseName}/timeslots`).catch(() => {});
         }
       }, 1000);
     },
@@ -90,6 +93,7 @@ export default {
         this.timeSlotTime = timeSlotData.time;
         this.assistantId = timeSlotData.assistantId;
         this.assistantName = timeSlotData.assistantName;
+        this.courseName = timeSlotData.courseName;
         this.show = true;
       }).catch((err) => {
         console.log(err);
