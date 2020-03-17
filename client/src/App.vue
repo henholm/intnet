@@ -17,18 +17,21 @@
           </button>
 
           <div
-          class="navbar-brand navbar-brand-centered"
+          class="navbar-brand navbar-brand-centered-name"
           style="line-height: 1em; cursor: pointer;"
         >{{currentUser}}</div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-brand-centered">
           <ul class="nav navbar-nav">
-            <li v-on:click="redirect('/timeSlots')">
+            <!-- <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
+            </li> -->
+            <li v-on:click="redirect('/courses')">
+              <a style="cursor: pointer;">Courses</a>
             </li>
             <li
-              v-if="this.$store.getters.getUser.isAdmin !== 1"
+              v-if="this.$store.getters.getUser.isAdmin!==1 && this.$store.getters.getUser.isAdmin"
               v-on:click="redirectStudent()"
             >
               <a style="cursor: pointer;">Student Page</a>

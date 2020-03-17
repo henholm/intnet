@@ -63,7 +63,6 @@ export default {
       RoutingService.login(credentials).then((response) => {
         const { token } = response;
         const { user } = response;
-        console.log(user);
         this.$store.dispatch('login', { token, user });
         // this.$router.push('/timeSlots');
         this.$router.push('/courses');

@@ -30,9 +30,18 @@ AttendsCourse
 TimeSlots
 - timeSlotId, assistantId (foreignKey), isReserved, isBooked, bookedBy, time
 
+
+
+Login -> Courses, either Administers or Assists/Attends or Attends
+Courses/courseName/timeSlots
+
+
+
 !!! Add reservedBy to fix refresh bug in bookTimeSlot view.
 
 !!! Use sockets to send session invalidation
 
 !!! Vid login, starta en timer på klientsidan som startas om varje gång något
 händer
+
+!!! Sätt socket som lyssnar på userId: socket.on(userId, )

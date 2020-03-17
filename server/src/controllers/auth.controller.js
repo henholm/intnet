@@ -20,10 +20,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
   const userId = req.body.userId;
   const isAssistant = req.body.isAssistant;
   const isAdmin = req.body.isAdmin;
-  console.log(username);
-  console.log(userId);
-  console.log(isAssistant);
-  console.log(isAdmin);
+
   const attendsCourses = [];
   const assistsCourses = [];
   const administersCourses = [];
@@ -32,7 +29,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
     if (isAdmin === 1) {
       // In this case, return all courses.
       const courses = await model.getCourses();
-      console.log(courses);
       for (let i = 0; i < courses.length; i += 1) {
         const course = {
           id: courses[i].id,
@@ -43,7 +39,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
     } else if (isAssistant === 1) {
       // In this case, get courses which the assistant attends ...
       const attendingCourses = await model.getAttendingCourses(userId);
-      console.log(attendingCourses);
       for (let i = 0; i < attendingCourses.length; i += 1) {
         const attendingCourse = {
           id: attendingCourses[i].id,
@@ -53,7 +48,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
       }
       // ... and assists.
       const assistingCourses = await model.getAssistingCourses(userId);
-      console.log(assistingCourses);
       for (let i = 0; i < assistingCourses.length; i += 1) {
         const assistingCourse = {
           id: assistingCourses[i].id,
@@ -64,7 +58,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
     } else {
       // In this case, get courses which the student attends.
       const attendingCourses = await model.getAttendingCourses(userId);
-      console.log(attendingCourses);
       for (let i = 0; i < attendingCourses.length; i += 1) {
         const attendingCourse = {
           id: attendingCourses[i].id,
@@ -77,10 +70,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
     console.log(err);
   }
 
-  console.log(attendsCourses);
-  console.log(assistsCourses);
-  console.log(administersCourses);
-
   const response = {
     attendsCourses,
     assistsCourses,
@@ -89,6 +78,22 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
 
   res.status(200).json({
     response,
+  });
+});
+
+/**
+ * Fetch the list of existing time slots for the specified course.
+ * @returns {void}
+ */
+router.post('/courses/:courseName/timeSlots', userMiddleware.isLoggedIn, (req, res) => {
+  // model.getTimeSlots().then((resolve) => {
+  console.log(req.body);
+  console.log(req.params);
+  console.log(req.params.courseName);
+  model.getTimeSlotsForCourse(req.params.courseName).then((resolve) => {
+    res.status(200).json({
+      timeSlots: resolve,
+    });
   });
 });
 

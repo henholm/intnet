@@ -114,5 +114,5 @@ export default {
 </script>
 
 <style>
-  @import '../assets/styleTimeSlots.css';
+  @import '../assets/timeSlots.css';
 </style>

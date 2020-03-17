@@ -237,14 +237,11 @@ exports.getAttendingCourses = (userId) => (
         include: [{
           model: User,
           required: true,
-          where: {
-            id: userId,
-          }
+          where: { id: userId },
         }]
       }],
       raw: true,
     }).then((courses) => {
-      console.log(courses);
       resolve(courses);
     }).catch((err) => {
       reject(err);
@@ -256,11 +253,13 @@ exports.getAssistingCourses = (userId) => (
   new Promise((resolve, reject) => {
     Course.findAll({
       include: [{
-        model: AttendsCourse,
+        model: AssistsCourse,
         required: true,
-        // include: [
-        //   User
-        // ]
+        include: [{
+          model: User,
+          required: true,
+          where: { id: userId },
+        }]
       }],
       raw: true,
     }).then((courses) => {

@@ -62,14 +62,6 @@ export default {
       this.countdownTime = setInterval(() => {
         this.countdownSeconds -= 1;
         if (this.countdownSeconds === 0) {
-          // const payload = {
-          //   timeSlotId: this.timeSlotId,
-          //   isReserved: 0,
-          //   reservedBy: null,
-          //   isBooked: 0,
-          //   bookedBy: null,
-          // };
-          // this.socket.emit('changeState', { payload });
           this.countdownSeconds = 20;
           clearInterval(this.countdownTime);
           this.$router.push('/timeSlots').catch(() => {});

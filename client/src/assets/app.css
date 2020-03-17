@@ -20,6 +20,16 @@ button:focus {
   width: 100%;
 }
 
+.navbar-brand-centered-name {
+  position: absolute;
+  left: 50%;
+  display: block;
+  width: 160px;
+  text-align: center;
+  background-color: transparent;
+  pointer-events: none;
+}
+
 .navbar-brand-centered {
   position: absolute;
   left: 50%;
