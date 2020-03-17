@@ -36,6 +36,10 @@ const TimeSlot = TimeSlotModel(sequelize, Sequelize, User);
 User.hasMany(TimeSlot);
 TimeSlot.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 
+// One Course potentially has several TimeSlots (or none).
+Course.hasMany(TimeSlot);
+TimeSlot.belongsTo(Course, { foreignKey: 'courseName', targetKey: 'name' });
+
 // One Assistant (who is a User) potentially assists several Course (or none).
 AssistsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 User.hasMany(AssistsCourse);
@@ -250,6 +254,27 @@ exports.getAttendingCourses = (userId) => (
 );
 
 exports.getAssistingCourses = (userId) => (
+  new Promise((resolve, reject) => {
+    Course.findAll({
+      include: [{
+        model: AssistsCourse,
+        required: true,
+        include: [{
+          model: User,
+          required: true,
+          where: { id: userId },
+        }]
+      }],
+      raw: true,
+    }).then((courses) => {
+      resolve(courses);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
+exports.getTimeSlotsForCourse = (courseName) => (
   new Promise((resolve, reject) => {
     Course.findAll({
       include: [{

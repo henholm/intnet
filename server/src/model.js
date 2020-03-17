@@ -103,6 +103,8 @@ exports.getAssistingCourses = (userId) => Database.getAssistingCourses(userId);
  */
 exports.getTimeSlots = () => Database.selectAllTimeSlotsClean();
 
+exports.getTimeSlotsForCourse = (courseName) => Database.getTimeSlotsForCourse(courseName);
+
 /**
  * Returns one time slot as dictated by the input timeSlotId.
  * @returns {TimeSlot[]}

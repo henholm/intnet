@@ -48,6 +48,7 @@ export default {
   name: 'TimeSlots',
   components: {},
   data: () => ({
+    courseName: '',
     timeSlots: [],
     aTS: {},
     userId: '',
@@ -70,10 +71,13 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
+    this.courseName = this.$route.params.courseName;
+
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
-      const response = await RoutingService.getTimeSlots();
+      // const response = await RoutingService.getTimeSlots();
+      const response = await RoutingService.getTimeSlotsForCourse(courseName);
       this.timeSlots = response.timeSlots;
       // "aTS" stands for assistant Time Slots.
       const aTS = {};

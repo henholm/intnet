@@ -28,7 +28,8 @@ AttendsCourse
 - studentId, courseId
 
 TimeSlots
-- timeSlotId, assistantId (foreignKey), isReserved, isBooked, bookedBy, time
+- timeSlotId, assistantId (foreignKey), isReserved, isBooked, bookedBy, time,
+  courseName
 
 
 

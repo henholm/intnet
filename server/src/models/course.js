@@ -7,6 +7,7 @@ module.exports = (sequelize, type) => sequelize.define('Course', {
     // Defaults to STRING(255).
     type: type.STRING,
     allowNull: false,
+    unique: true,
   },
 }, {
   timestamps: false,
