@@ -185,6 +185,7 @@ const session = expressSession({
 });
 
 app.use(session);
+// myStore.sync();
 
 io.use(socketIOSession(session, {
   autoSave: true,
@@ -204,10 +205,16 @@ app.use('/api', authController.router);
 // #endregion
 
 function resetTimeSlot(message) {
-  model.selectTimeSlotByIdDirty(message.id).then((timeSlot) => {
+  const { timeSlotId } = message;
+  const { isReserved } = message;
+  const { isBooked } = message;
+  const { bookedBy } = message;
+  model.selectTimeSlotByIdDirty(timeSlotId).then((timeSlot) => {
     // If the timeSlot is still 'reserved' after 20 seconds, reset it.
-    if (timeSlot.bookedBy === 'reserved') {
-      model.setTimeSlotBookedBy(message.id, 'no one').then(() => {
+    if (timeSlot.isReserved === 1) {
+      // model.setTimeSlotBookedBy(message.id, 'no one').then(() => {
+      // Should maybe not force the isBooked to 0.
+      model.setTimeSlotAttributes(timeSlotId, 0, 0, bookedBy).then(() => {
         // Broadcast to others after the update has been recognized server-wise.
         model.getTimeSlots().then((timeSlots) => {
           io.emit('update', { timeSlots });
@@ -244,8 +251,11 @@ io.on('connection', (socket) => {
     });
   }
   socket.on('changeState', (message) => {
-    const timeSlotId = message.id;
-    if (message.bookedBy === 'reserved') {
+    const { timeSlotId } = message;
+    const { isReserved } = message;
+    const { isBooked } = message;
+    const { bookedBy } = message;
+    if (isReserved === 1) {
       // If the Timeout object already exists, clear it.
       if (timeoutHandlesMap.has(timeSlotId)) {
         const timeoutHandle = timeoutHandlesMap.get(timeSlotId);
@@ -255,7 +265,7 @@ io.on('connection', (socket) => {
       const timeoutHandle = setTimeout(resetTimeSlot, 21000, message);
       timeoutHandlesMap.set(timeSlotId, timeoutHandle);
     }
-    model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
+    model.setTimeSlotAttributes(timeSlotId, isReserved, isBooked, bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
@@ -270,6 +280,21 @@ io.on('connection', (socket) => {
       console.log(err);
     });
   });
+  //   model.setTimeSlotBookedBy(message.id, message.bookedBy).then(() => {
+  //     // Broadcast to others after the update has been recognized server-wise.
+  //     model.getTimeSlots().then((timeSlots) => {
+  //       // socket.broadcast.emit('update', { timeSlots });
+  //       io.emit('update', { timeSlots });
+  //     }).catch((err) => {
+  //       console.log('Error after getTimeSlots in changeState');
+  //       console.log(err);
+  //     });
+  //     // socket.broadcast.emit('update', { message });
+  //   }).catch((err) => {
+  //     console.log('Error after setTimeSlotBookedBy / in broadcast.emit');
+  //     console.log(err);
+  //   });
+  // });
 
   socket.on('removeTimeSlot', (message) => {
     model.removeTimeSlot(message.id).then(() => {

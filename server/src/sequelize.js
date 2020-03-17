@@ -70,11 +70,13 @@ function setLoggedIn(userId, toggleTo) {
 }
 
 function resetReservedTimeSlots() {
-  TimeSlot.updateAll(
+  TimeSlot.update(
     { isReserved: 0 },
-  ).catch((err) => {
-    throw err;
-  });
+    { where: { isReserved: 1 } },
+  )
+  // .catch((err) => {
+  //   throw err;
+  // });
 }
 
 // If the server was shut down before a timeslot booking session was terminated,
@@ -136,6 +138,17 @@ exports.alterTimeSlotState = (timeSlotId, bookedByWhom) => (
   //     reject(err);
   //   });
   // })
+);
+
+exports.setTimeSlotAttributes = (timeSlotId, isReserved, isBooked, bookedBy) => (
+  TimeSlot.update(
+    {
+      isReserved,
+      isBooked,
+      bookedBy,
+    },
+    { returning: true, where: { id: timeSlotId } },
+  )
 );
 
 // SELECT * FROM time_slots INNER JOIN users ON time_slots.user_id == users.id;

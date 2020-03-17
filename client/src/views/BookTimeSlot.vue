@@ -9,7 +9,7 @@
         <h4>{{this.countdownSeconds}} seconds left</h4>
       </div>
       <h4>Do you want to book this time slot?</h4>
-      <input class="btn btn-default" type="submit" value="Reserve" v-on:click="reserve()"/>
+      <input class="btn btn-default" type="submit" value="Reserve" v-on:click="book()"/>
       <input class="btn btn-default" type="submit" value="Cancel" v-on:click="abort()"/>
     </div>
   </div>
@@ -34,14 +34,25 @@ export default {
     };
   },
   methods: {
-    reserve() {
-      const payload = { id: this.timeSlotId, bookedBy: this.$store.getters.getUser.username };
+    book() {
+      const payload = {
+        timeSlotId: this.timeSlotId,
+        isReserved: 0,
+        isBooked: 1,
+        bookedBy: this.$store.getters.getUser.username,
+      };
       this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
       this.$router.push('/timeSlots').catch(() => {});
     },
     abort() {
-      this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
+      const payload = {
+        timeSlotId: this.timeSlotId,
+        isReserved: 0,
+        isBooked: 0,
+        bookedBy: null,
+      };
+      this.socket.emit('changeState', payload);
       clearInterval(this.countdownTime);
       this.$router.push('/timeSlots').catch(() => {});
     },
@@ -49,7 +60,8 @@ export default {
       this.countdownTime = setInterval(() => {
         this.countdownSeconds -= 1;
         if (this.countdownSeconds === 0) {
-          this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
+          // this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'no one' });
+          this.socket.emit('changeState', { id: this.timeSlotId, type: 'open' });
           this.countdownSeconds = 20;
           clearInterval(this.countdownTime);
           this.$router.push('/timeSlots').catch(() => {});
@@ -65,9 +77,12 @@ export default {
     } else {
       const payload = {
         timeSlotId: this.timeSlotId,
+        isReserved: 1,
+        isBooked: 0,
+        bookedBy: null,
       };
       RoutingService.getTimeSlotData(payload).then((response) => {
-        this.socket.emit('changeState', { id: this.timeSlotId, bookedBy: 'reserved' });
+        this.socket.emit('changeState', payload);
         this.countdown();
         const { timeSlotData } = response;
         this.timeSlotId = timeSlotData.id;

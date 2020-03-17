@@ -17,22 +17,22 @@
           >
             <button
               type="button"
-              class="open"
+              class="booked"
               ref="TS.id"
-              v-if="TS.bookedBy==='no one'"
-              v-on:click="redirect($event, TS.id)"
+              v-if="TS.isBooked===1"
             ><h4>{{TS.time}}</h4></button>
             <button
               type="button"
               class="reserved"
               ref="TS.id"
-              v-else-if="TS.bookedBy==='reserved'"
+              v-else-if="TS.isReserved===1"
             ><h4>{{TS.time}}</h4></button>
             <button
               type="button"
-              class="booked"
+              class="open"
               ref="TS.id"
               v-else
+              v-on:click="redirect($event, TS.id)"
             ><h4>{{TS.time}}</h4></button>
           </div>
         </div>

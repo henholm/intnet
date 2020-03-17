@@ -97,6 +97,10 @@ exports.setTimeSlotBookedBy = (timeSlotId, bookedByWhom) => (
   Database.alterTimeSlotState(timeSlotId, bookedByWhom)
 );
 
+exports.setTimeSlotAttributes = (timeSlotId, isReserved, isBooked, bookedByWhom) => (
+  Database.setTimeSlotAttributes(timeSlotId, isReserved, isBooked, bookedByWhom)
+);
+
 exports.loginUser = (userName, userPassword, sid, ip) => (
   Database.loginAllegedUser(userName, userPassword, sid, ip)
 );
