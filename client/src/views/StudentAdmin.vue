@@ -68,9 +68,6 @@ export default {
     this.studentId = user.userId;
     this.studentName = user.username;
 
-    // const payload = { studentName: this.studentName };
-    // const response = await RoutingService.getStudentTimeSlots(payload);
-
     const response = await RoutingService.getTimeSlots();
     console.log(response.timeSlots);
     this.timeSlots = [];

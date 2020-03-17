@@ -90,10 +90,13 @@ export default {
     this.assistantId = user.userId;
     this.assistantName = user.username;
 
-    const payload = { assistantId: this.assistantId };
-
-    const response = await RoutingService.getAssistantTimeSlots(payload);
-    this.timeSlots = response.timeSlots;
+    const response = await RoutingService.getTimeSlots();
+    this.timeSlots = [];
+    for (let i = 0; i < response.timeSlots.length; i += 1) {
+      if (response.timeSlots[i].assistantName === this.assistantName) {
+        this.timeSlots.push(response.timeSlots[i]);
+      }
+    }
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {

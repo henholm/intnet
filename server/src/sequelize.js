@@ -370,22 +370,12 @@ exports.addTimeSlot = (assistantName, time) => (
 
 // Remove TimeSlot corresponding to the input ID.
 exports.removeTimeSlot = (idOfTimeSlot) => (
-  // new Promise((resolve, reject) => {
   TimeSlot.destroy(
     {
       where: { id: idOfTimeSlot },
       force: true,
     },
   )
-  //   .then((result) => {
-  //     console.log(`numRemovedRows: ${result}`);
-  //     resolve(result);
-  //   }).catch((err) => {
-  //     console.log('Error in removeTimeSlot in TimeSlot.destroy');
-  //     console.log(err);
-  //     reject(err);
-  //   });
-  // })
 );
 
 

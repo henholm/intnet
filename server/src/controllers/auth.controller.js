@@ -12,34 +12,6 @@ const userMiddleware = require('../middleware/users.js');
 const router = express.Router();
 
 /**
- * Get time slots belonging to the assistant corresponding to the input id.
- * @returns {void}
- */
-router.post('/assistantAdmin', userMiddleware.isLoggedIn, (req, res) => {
-  model.getAssistantTimeSlots(req.body.assistantId).then((timeSlots) => {
-    console.log(timeSlots);
-    res.status(200).json({
-      timeSlots,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-});
-
-router.post('/studentAdmin', userMiddleware.isLoggedIn, (req, res) => {
-  model.getStudentTimeSlots(req.body.studentName).then((timeSlots) => {
-    console.log('router timeSlots');
-    console.log(timeSlots);
-    res.status(200).json({
-      timeSlots,
-    });
-  }).catch((err) => {
-    console.log('ERR');
-    console.log(err);
-  });
-});
-
-/**
  * Fetch the list of existing time slots.
  * @returns {void}
  */
@@ -63,7 +35,6 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
     });
   // A non-existent time slot was requested.
   }).catch((err) => {
-    console.log('Error in router.get timeSlotData');
     console.log(err);
     return res.status(401).send({
       msg: '',
@@ -107,18 +78,11 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  // console.log(req.session.cookie);
-  // console.log(req.session.cookie.expires);
-  // Set the cookie to expire.
-  // req.session.cookie.expires = new Date(Date.now());
-  // Remove the sessionId on logout.
-  // res.clearCookie('sessionId');
   model.userLogOut(req.body.userId).then(() => (
     res.status(200).send({
       msg: `User ${req.body.username} logged out successfully`,
     })
   )).catch((err) => {
-    console.log('Error in router.post(/logout)');
     console.log(err);
   });
 });
@@ -130,18 +94,15 @@ router.post('/checkValidSession', (req, res) => {
   const sid = cookieParser.signedCookie(cookie, 'SECRETKEY');
   // console.log(`CHECKVALIDSESSION ${username} ${sid} ${ip}`);
   model.extendSessionIfValid(username, sid, ip).then((isValid) => {
-    // console.log(`isValid: ${isValid}`);
     if (isValid) {
       return res.status(200).send({
         msg: 'Successfully refreshed session',
       });
     }
-    console.log('Session has expired. Sending back 403 - Forbidden response.');
     return res.status(403).send({
       msg: 'Your session has expired. Please log in again',
     });
   }).catch((err) => {
-    console.log('Error in router.post(/checkValidSession');
     console.log(err);
   });
 });
