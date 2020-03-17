@@ -27,11 +27,14 @@ router.post('/assistantAdmin', userMiddleware.isLoggedIn, (req, res) => {
 });
 
 router.post('/studentAdmin', userMiddleware.isLoggedIn, (req, res) => {
-  model.getStudentTimeSlots(req.body.studentName).then((resolve) => {
+  model.getStudentTimeSlots(req.body.studentName).then((timeSlots) => {
+    console.log('router timeSlots');
+    console.log(timeSlots);
     res.status(200).json({
-      timeSlots: resolve,
+      timeSlots,
     });
   }).catch((err) => {
+    console.log('ERR');
     console.log(err);
   });
 });

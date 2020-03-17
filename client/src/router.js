@@ -35,17 +35,14 @@ const router = new VueRouter({
 // - set isLoggedIn false and remove token if no longer valid
 //   - next(Login)
 router.beforeEach((to, from, next) => {
-  console.log(store.getters.isLoggedIn);
-  console.log(store.getters.getUser);
   // If not logged in but trying to access non-login route, redirect to login.
   if (to.name !== 'Login' && !store.getters.isLoggedIn) {
     next({ name: 'Login' });
   // If logged in and trying to access any route, check validity.
   } else if (store.getters.isLoggedIn) {
     const user = store.getters.getUser;
-    console.log(`Check validity of session for user ${user.username}`);
+    // console.log(`Check validity of session for user ${user.username}`);
     RoutingService.checkValidSession(user).then((valid) => {
-      console.log(valid);
       if (valid) {
         next(to);
       } else {

@@ -9,7 +9,7 @@
             v-on:click="remove($event, TS.id)"
             class="a-booked"
             ref="TS.id"
-          >{{TS.time}}</button>
+          >{{TS.time}}: with {{TS.assistantName}}</button>
         </div>
       </div>
     </section>
@@ -34,7 +34,15 @@ export default {
   methods: {
     remove(event, timeSlotId) {
       event.preventDefault();
-      this.socket.emit('changeState', { id: timeSlotId, bookedBy: 'no one' });
+      const payload = {
+        timeSlotId,
+        isReserved: 0,
+        reservedBy: null,
+        isBooked: 0,
+        bookedBy: null,
+      };
+      // this.socket.emit('changeState', { id: timeSlotId, bookedBy: 'no one' });
+      this.socket.emit('changeState', payload);
       const newTimeSlots = [];
       for (let i = 0; i < this.timeSlots.length; i += 1) {
         if (this.timeSlots[i].id !== timeSlotId) {
@@ -60,10 +68,17 @@ export default {
     this.studentId = user.userId;
     this.studentName = user.username;
 
-    const payload = { studentName: this.studentName };
+    // const payload = { studentName: this.studentName };
+    // const response = await RoutingService.getStudentTimeSlots(payload);
 
-    const response = await RoutingService.getStudentTimeSlots(payload);
-    this.timeSlots = response.timeSlots;
+    const response = await RoutingService.getTimeSlots();
+    console.log(response.timeSlots);
+    this.timeSlots = [];
+    for (let i = 0; i < response.timeSlots.length; i += 1) {
+      if (response.timeSlots[i].bookedBy === this.studentName) {
+        this.timeSlots.push(response.timeSlots[i]);
+      }
+    }
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {

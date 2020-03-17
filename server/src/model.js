@@ -119,7 +119,9 @@ exports.addTimeSlot = (assistantName, timeSlotId) => (
   Database.addTimeSlot(assistantName, timeSlotId)
 );
 
-exports.userLogOut = (userId) => Database.setLoggedIn(userId, 0);
+exports.userLogOut = (userId) => (
+  Database.setLoggedIn(userId, 0)
+);
 
 exports.extendSessionIfValid = (username, sid, ip) => (
   Database.extendSessionIfValid(username, sid, ip)

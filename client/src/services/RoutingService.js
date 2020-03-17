@@ -20,9 +20,6 @@ export default {
   getAssistantTimeSlots(payload) {
     return Axios.post(`${url}assistantAdmin/`, payload).then(response => response.data);
   },
-  getStudentTimeSlots(payload) {
-    return Axios.post(`${url}studentAdmin/`, payload).then(response => response.data);
-  },
   checkValidSession(user) {
     return Axios.post(`${url}checkValidSession/`, user).then(response => response.data);
   },

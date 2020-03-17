@@ -56,17 +56,16 @@ exports.TimeSlot = TimeSlot;
 
 // Function for toggling the isLoggedIn attribute of a user.
 function setLoggedIn(userId, toggleTo) {
-  // return new Promise((resolve, reject) => {
-  User.update(
-    { isLoggedIn: toggleTo },
-    { where: { id: userId } },
-  )
-    // .then((numUpdatedRows) => {
-    //   resolve(numUpdatedRows);
-    // }).catch((err) => {
-    //   reject(err);
-  //   });
-  // });
+  return new Promise((resolve, reject) => {
+    User.update(
+      { isLoggedIn: toggleTo },
+      { where: { id: userId } },
+    ).then((numUpdatedRows) => {
+      resolve(numUpdatedRows);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
 }
 
 function resetReservedTimeSlots() {
@@ -101,7 +100,6 @@ function resetLoggedInIfExpired() {
 resetLoggedInIfExpired();
 
 function setSession(userId, sid, sessionExpires, ip) {
-  // return new Promise((resolve, reject) => {
   User.update(
     {
       sessionId: sid,
@@ -110,12 +108,6 @@ function setSession(userId, sid, sessionExpires, ip) {
     },
     { where: { id: userId } },
   )
-  //   ).then((numUpdatedRows) => {
-  //     resolve(numUpdatedRows);
-  //   }).catch((err) => {
-  //     reject(err);
-  //   });
-  // });
 }
 
 exports.setLoggedIn = setLoggedIn;
@@ -134,7 +126,7 @@ exports.setTimeSlotAttributes = (timeSlotId, isReserved, reservedBy, isBooked, b
 );
 
 // SELECT * FROM time_slots INNER JOIN users ON time_slots.user_id == users.id;
-// Same as selectAllTimeSlotsDirty() but removes sensitive data like passwords.
+// Removes sensitive data like passwords.
 exports.selectAllTimeSlotsClean = () => (
   new Promise((resolve, reject) => {
     TimeSlot.findAll({
@@ -169,7 +161,6 @@ exports.selectAllTimeSlotsClean = () => (
 
 // Selects time slot as specified by input timeslot id. Inner join with User.
 exports.selectTimeSlotByIdDirty = (timeSlotId) => (
-  // new Promise((resolve, reject) => {
   TimeSlot.findOne({
     where: {
       id: timeSlotId,
@@ -180,12 +171,6 @@ exports.selectTimeSlotByIdDirty = (timeSlotId) => (
     }],
     raw: true,
   })
-  //   .then((dirtyTimeSlot) => {
-  //     resolve(dirtyTimeSlot);
-  //   }).catch((err) => {
-  //     reject(err);
-  //   });
-  // })
 );
 
 // Selects time slot as specified by input timeslot id. Inner join with User.
@@ -235,21 +220,12 @@ exports.selectUserIdFromName = (userName) => (
 
 // Selects time slot as specified by input assistant ID. Inner join with User.
 exports.selectTimeSlotsByAssistantId = (assistantId) => (
-  // new Promise((resolve, reject) => {
   TimeSlot.findAll({
     where: {
       user_id: assistantId,
     },
     raw: true,
   })
-  //   .then((timeSlots) => {
-  //     resolve(timeSlots);
-  //   }).catch((err) => {
-  //     console.log('Error in selectTimeSlotByUserId');
-  //     console.log(err);
-  //     reject(err);
-  //   });
-  // })
 );
 
 exports.selectTimeSlotsByAssistantName = (assistantName) => (
@@ -281,11 +257,37 @@ exports.selectStudentIdFromName = (studentName) => (
 );
 
 exports.selectTimeSlotsByStudentName = (studentName) => (
-  TimeSlot.findAll({
-    where: {
-      bookedBy: studentName,
-    },
-    raw: true,
+  new Promise((resolve, reject) => {
+    TimeSlot.findAll({
+      where: {
+        bookedBy: studentName,
+      },
+      include: [{
+        model: User,
+        required: true,
+      }],
+      raw: true,
+    }).then((timeSlots) => {
+      console.log('TIME SLOTS');
+      console.log(timeSlots);
+      const returnTimeSlots = [];
+      for (let i = 0; i < timeSlots.length; i += 1) {
+        console.log('INSIDE LOOP');
+        const timeSlot = timeSlots[i];
+        console.log(timeSlot);
+        const returnTimeSlot = {
+          timeSlotId: timeSlot.id,
+          time: timeSlot.time,
+          assistantName: timeSlot['User.name'],
+        }
+        console.log('returnTimeSlot 1');
+        console.log(returnTimeSlot);
+        returnTimeSlots.push(returnTimeSlot);
+      }
+      console.log('returnTimeSlots 2');
+      console.log(returnTimeSlots);
+      resolve(returnTimeSlots);
+    }).catch(err => reject(err) );
   })
 );
 
