@@ -72,13 +72,16 @@ export default {
     this.socket.connect();
 
     this.courseName = this.$route.params.courseName;
+    // console.log(this.$route.params);
 
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
       // const response = await RoutingService.getTimeSlots();
-      const response = await RoutingService.getTimeSlotsForCourse(courseName);
+      const payload = { courseName: this.courseName };
+      const response = await RoutingService.getTimeSlotsForCourse(payload);
       this.timeSlots = response.timeSlots;
+      console.log(this.timeSlots);
       // "aTS" stands for assistant Time Slots.
       const aTS = {};
       for (let i = 0; i < this.timeSlots.length; i += 1) {
@@ -89,6 +92,7 @@ export default {
         aTS[currName].push(this.timeSlots[i]);
       }
       this.aTS = aTS;
+      console.log(this.aTS);
     }
   },
   // Step 4 in lifecycle hooks.

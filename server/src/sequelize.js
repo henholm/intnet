@@ -276,19 +276,33 @@ exports.getAssistingCourses = (userId) => (
 
 exports.getTimeSlotsForCourse = (courseName) => (
   new Promise((resolve, reject) => {
-    Course.findAll({
+    TimeSlot.findAll({
       include: [{
-        model: AssistsCourse,
+        model: Course,
         required: true,
-        include: [{
-          model: User,
-          required: true,
-          where: { id: userId },
-        }]
+        where: { name: courseName },
+      }, {
+        model: User,
+        required: true,
       }],
       raw: true,
-    }).then((courses) => {
-      resolve(courses);
+    }).then((dirtyTimeSlots) => {
+      const cleanTimeSlots = [];
+      for (let i = 0; i < dirtyTimeSlots.length; i += 1) {
+        const dirtyTimeSlot = dirtyTimeSlots[i];
+        const cleanTimeSlot = {
+          id: dirtyTimeSlot.id,
+          isReserved: dirtyTimeSlot.isReserved,
+          reservedBy: dirtyTimeSlot.reservedBy,
+          isBooked: dirtyTimeSlot.isBooked,
+          bookedBy: dirtyTimeSlot.bookedBy,
+          time: dirtyTimeSlot.time,
+          assistantId: dirtyTimeSlot['User.id'],
+          assistantName: dirtyTimeSlot['User.name'],
+        };
+        cleanTimeSlots.push(cleanTimeSlot);
+      }
+      resolve(cleanTimeSlots);
     }).catch((err) => {
       reject(err);
     });

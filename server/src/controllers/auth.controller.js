@@ -86,11 +86,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
  * @returns {void}
  */
 router.post('/courses/:courseName/timeSlots', userMiddleware.isLoggedIn, (req, res) => {
-  // model.getTimeSlots().then((resolve) => {
-  console.log(req.body);
-  console.log(req.params);
-  console.log(req.params.courseName);
-  model.getTimeSlotsForCourse(req.params.courseName).then((resolve) => {
+  model.getTimeSlotsForCourse(req.body.courseName).then((resolve) => {
     res.status(200).json({
       timeSlots: resolve,
     });
