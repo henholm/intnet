@@ -484,40 +484,34 @@ exports.loginAllegedUser = (username, userPassword, sid, ip) => (
 );
 
 // Add a new TimeSlot for the Assistant specified by the input name.
-exports.addTimeSlot = (assistantName, time) => (
+exports.addTimeSlot = (assistantName, assistantId, time, course) => (
   new Promise((resolve, reject) => {
-    User.findOne({
-      where: {
-        name: assistantName,
-      },
-      raw: true,
-    }).then((assistant) => {
-      TimeSlot.create({
-        userId: assistant.id,
-        isReserved: 0,
-        reservedBy: null,
-        isBooked: 0,
-        bookedBy: null,
-        time,
-      }).then((newTimeSlot) => {
-        resolve(newTimeSlot);
-      }).catch((err) => {
-        reject(err);
-      });
+    TimeSlot.create({
+      userId: assistantId,
+      isReserved: 0,
+      reservedBy: null,
+      isBooked: 0,
+      bookedBy: null,
+      time,
+      courseName: course,
+    }).then((newTimeSlot) => {
+      resolve(newTimeSlot);
     }).catch((err) => {
       reject(err);
     });
+  }).catch((err) => {
+    reject(err);
   })
 );
 
 // Remove TimeSlot corresponding to the input ID.
-exports.removeTimeSlot = (idOfTimeSlot) => (
+exports.removeTimeSlot = (timeSlotId) => (
   TimeSlot.destroy(
     {
-      where: { id: idOfTimeSlot },
+      where: { id: timeSlotId },
       force: true,
     },
-  )
+  ).catch((err) => console.log(err) )
 );
 
 

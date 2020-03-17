@@ -286,17 +286,15 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('addTimeSlot', (message) => {
-    model.addTimeSlot(message.name, message.time).then(() => {
+  socket.on('addTimeSlot', (msg) => {
+    model.addTimeSlot(msg.assistantName, msg.assistantId, msg.time, msg.course).then(() => {
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
         io.emit('update', { timeSlots });
       }).catch((err) => {
-        console.log('Error in on.addTimeSlot in getTimeSlots');
         console.log(err);
       });
     }).catch((err) => {
-      console.log('Error in on.addTimeSlot in removeTimeSlot');
       console.log(err);
     });
   });

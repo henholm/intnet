@@ -137,8 +137,8 @@ exports.getStudentTimeSlots = (studentName) => (
 
 exports.removeTimeSlot = (timeSlotId) => Database.removeTimeSlot(timeSlotId);
 
-exports.addTimeSlot = (assistantName, timeSlotId) => (
-  Database.addTimeSlot(assistantName, timeSlotId)
+exports.addTimeSlot = (assistantName, assistantId, time, course) => (
+  Database.addTimeSlot(assistantName, assistantId, time, course)
 );
 
 exports.userLogOut = (userId) => (

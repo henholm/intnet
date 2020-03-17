@@ -64,13 +64,13 @@ export default {
       this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
     addSlot(slotTime) {
-      this.socket.emit('addTimeSlot',
-      {
+      const payload = {
         assistantName: this.assistantName,
         assistantId: this.assistantId,
         time: slotTime,
         course: this.courseName,
-      });
+      };
+      this.socket.emit('addTimeSlot', payload);
     },
     checkForm(event) {
       if (this.slotTime) {
