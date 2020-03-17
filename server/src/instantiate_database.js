@@ -45,6 +45,10 @@ User.hasMany(AssistsCourse);
 AssistsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
 Course.hasMany(AssistsCourse);
 
+// A student (who is a User) potentially attends several Course (or none).
+AttendsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
+User.hasMany(AttendsCourse);
+
 // One Course is potentially attended by several Students (or none).
 AttendsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
 Course.hasMany(AttendsCourse);

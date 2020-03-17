@@ -83,6 +83,24 @@ exports.findUser = (name) => users[name];
  * Returns all time slots.
  * @returns {TimeSlot[]}
  */
+exports.getCourses = () => Database.getCourses();
+
+/**
+ * Returns all time slots.
+ * @returns {TimeSlot[]}
+ */
+exports.getAssistingCourses = (userId) => Database.getAssistingCourses(userId);
+
+/**
+ * Returns all time slots.
+ * @returns {TimeSlot[]}
+ */
+exports.getAssistingCourses = (userId) => Database.getAssistingCourses(userId);
+
+/**
+ * Returns all time slots.
+ * @returns {TimeSlot[]}
+ */
 exports.getTimeSlots = () => Database.selectAllTimeSlotsClean();
 
 /**

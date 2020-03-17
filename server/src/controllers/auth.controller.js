@@ -12,6 +12,87 @@ const userMiddleware = require('../middleware/users.js');
 const router = express.Router();
 
 /**
+ * Fetch the list of existing courses.
+ * @returns {void}
+ */
+router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
+  const username = req.body.username;
+  const userId = req.body.userId;
+  const isAssistant = req.body.isAssistant;
+  const isAdmin = req.body.isAdmin;
+  console.log(username);
+  console.log(userId);
+  console.log(isAssistant);
+  console.log(isAdmin);
+  const attendsCourses = [];
+  const assistsCourses = [];
+  const administersCourses = [];
+
+  try {
+    if (isAdmin === 1) {
+      // In this case, return all courses.
+      const courses = await model.getCourses();
+      console.log(courses);
+      for (let i = 0; i < courses.length; i += 1) {
+        const course = {
+          id: courses[i].id,
+          name: courses[i].name,
+        }
+        administersCourses.push(course);
+      }
+    } else if (isAssistant === 1) {
+      // In this case, get courses which the assistant attends ...
+      const attendingCourses = await model.getAttendingCourses(userId);
+      console.log(attendingCourses);
+      for (let i = 0; i < attendingCourses.length; i += 1) {
+        const attendingCourse = {
+          id: attendingCourses[i].id,
+          name: attendingCourses[i].name,
+        }
+        attendsCourses.push(attendingCourse);
+      }
+      // ... and assists.
+      const assistingCourses = await model.getAssistingCourses(userId);
+      console.log(assistingCourses);
+      for (let i = 0; i < assistingCourses.length; i += 1) {
+        const assistingCourse = {
+          id: assistingCourses[i].id,
+          name: assistingCourses[i].name,
+        }
+        assistsCourses.push(assistingCourse);
+      }
+    } else {
+      // In this case, get courses which the student attends.
+      const attendingCourses = await model.getAttendingCourses(userId);
+      console.log(attendingCourses);
+      for (let i = 0; i < attendingCourses.length; i += 1) {
+        const attendingCourse = {
+          id: attendingCourses[i].id,
+          name: attendingCourses[i].name,
+        }
+        attendsCourses.push(attendingCourse);
+      }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+
+  console.log(attendsCourses);
+  console.log(assistsCourses);
+  console.log(administersCourses);
+
+  const response = {
+    attendsCourses,
+    assistsCourses,
+    administersCourses,
+  }
+
+  res.status(200).json({
+    response,
+  });
+});
+
+/**
  * Fetch the list of existing time slots.
  * @returns {void}
  */
@@ -54,7 +135,8 @@ router.post('/login', (req, res) => {
       const { userId } = userData;
       const { username } = userData;
       const { isAssistant } = userData;
-      const user = { username, userId, isAssistant };
+      const { isAdmin } = userData;
+      const user = { username, userId, isAssistant, isAdmin };
 
       const token = jwt.sign({
         username,

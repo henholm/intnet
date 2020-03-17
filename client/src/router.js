@@ -2,6 +2,7 @@
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import CoursesView from './views/Courses.vue';
 import TimeSlotsView from './views/TimeSlots.vue';
 import BookTimeSlotView from './views/BookTimeSlot.vue';
 import StudentAdminView from './views/StudentAdmin.vue';
@@ -15,6 +16,7 @@ Vue.use(VueRouter);
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: LoginView, name: 'Login' },
+  { path: '/courses', component: CoursesView, name: 'Courses' },
   { path: '/timeSlots', component: TimeSlotsView, name: 'TimeSlots' },
   { path: '/bookTimeSlot/:timeSlotId', component: BookTimeSlotView, name: 'BookTimeSlot' },
   { path: '/studentAdmin/:studentName', component: StudentAdminView, name: 'StudentAdmin' },

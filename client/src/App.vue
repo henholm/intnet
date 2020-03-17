@@ -27,11 +27,23 @@
             <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
             </li>
-            <li v-on:click="redirectStudent()">
-              <a style="cursor: pointer;">Student Admin</a>
+            <li
+              v-if="this.$store.getters.getUser.isAdmin !== 1"
+              v-on:click="redirectStudent()"
+            >
+              <a style="cursor: pointer;">Student Page</a>
             </li>
-            <li v-on:click="redirectAssistant()">
-              <a style="cursor: pointer;">Assistant Admin</a>
+            <li
+              v-if="this.$store.getters.getUser.isAssistant === 1"
+              v-on:click="redirectAssistant()"
+            >
+              <a style="cursor: pointer;">Assistant Page</a>
+            </li>
+            <li
+              v-if="this.$store.getters.getUser.isAdmin === 1"
+              v-on:click="redirectAdmin()"
+            >
+              <a style="cursor: pointer;">Admin Page</a>
             </li>
             <li v-on:click="logout()">
               <a style="cursor: pointer;">Log Out</a>

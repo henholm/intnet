@@ -44,6 +44,10 @@ User.hasMany(AssistsCourse);
 AssistsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
 Course.hasMany(AssistsCourse);
 
+// A student (who is a User) potentially attends several Course (or none).
+AttendsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
+User.hasMany(AttendsCourse);
+
 // One Course is potentially attended by several Students (or none).
 AttendsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
 Course.hasMany(AttendsCourse);
@@ -73,9 +77,6 @@ function resetReservedTimeSlots() {
     { isReserved: 0, reservedBy: null },
     { where: { isReserved: 1 } },
   )
-  // .catch((err) => {
-  //   throw err;
-  // });
 }
 
 // If the server was shut down before a timeslot booking session was terminated,
@@ -136,7 +137,6 @@ exports.selectAllTimeSlotsClean = () => (
       }],
       raw: true,
     }).then((dirtyTimeSlots) => {
-      // let cleanTimeSlots = new Map();
       const cleanTimeSlots = [];
       for (let i = 0; i < dirtyTimeSlots.length; i += 1) {
         const dirtyTimeSlot = dirtyTimeSlots[i];
@@ -204,14 +204,67 @@ exports.selectTimeSlotByIdClean = (timeSlotId) => (
   })
 );
 
-exports.selectUserIdFromName = (userName) => (
+exports.selectUserIdFromName = (username) => (
   new Promise((resolve, reject) => {
     User.findOne({
       where: {
-        name: userName,
+        name: username,
       },
     }).then((user) => {
       resolve(user.id);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
+exports.getCourses = () => (
+  new Promise((resolve, reject) => {
+    Course.findAll({ raw: true }).then((courses) => {
+      resolve(courses);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
+exports.getAttendingCourses = (userId) => (
+  new Promise((resolve, reject) => {
+    Course.findAll({
+      include: [{
+        model: AttendsCourse,
+        required: true,
+        include: [{
+          model: User,
+          required: true,
+          where: {
+            id: userId,
+          }
+        }]
+      }],
+      raw: true,
+    }).then((courses) => {
+      console.log(courses);
+      resolve(courses);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
+exports.getAssistingCourses = (userId) => (
+  new Promise((resolve, reject) => {
+    Course.findAll({
+      include: [{
+        model: AttendsCourse,
+        required: true,
+        // include: [
+        //   User
+        // ]
+      }],
+      raw: true,
+    }).then((courses) => {
+      resolve(courses);
     }).catch((err) => {
       reject(err);
     });
@@ -291,12 +344,12 @@ exports.selectTimeSlotsByStudentName = (studentName) => (
   })
 );
 
-exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
+exports.loginAllegedUser = (username, userPassword, sid, ip) => (
   new Promise((resolve, reject) => {
     resetLoggedInIfExpired();
     User.findOne({
       where: {
-        name: userName,
+        name: username,
       },
       raw: true,
     }).then((user) => {
@@ -312,20 +365,30 @@ exports.loginAllegedUser = (userName, userPassword, sid, ip) => (
         const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
         if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
-          const response = { userData: null, msg: `${userName} is already logged in` };
+          const response = { userData: null, msg: `${username} is already logged in` };
           resolve(response);
         } else if (res && user.isLoggedIn === 1 && user.sessionId === sid) {
           // In this case, simply renew the sessionExpires attribute.
           setSession(user.id, sid, sessionExpires, ip);
-          const userData = { userId: user.id, username: user.name, isAssistant: user.isAssistant };
-          const response = { userData, msg: `Successfully renewed session for ${userName}` };
+          const userData = {
+            userId: user.id,
+            username: user.name,
+            isAssistant: user.isAssistant,
+            isAdmin: user.isAdmin,
+          };
+          const response = { userData, msg: `Successfully renewed session for ${username}` };
           resolve(response);
         } else if (res && user.isLoggedIn !== 1) {
           // Resolve with userData if passwords matched and user is not logged in.
           setLoggedIn(user.id, 1);
           setSession(user.id, sid, sessionExpires, ip);
-          const userData = { userId: user.id, username: user.name, isAssistant: user.isAssistant };
-          const response = { userData, msg: `${userName} logged in successfully` };
+          const userData = {
+            userId: user.id,
+            username: user.name,
+            isAssistant: user.isAssistant,
+            isAdmin: user.isAdmin,
+          };
+          const response = { userData, msg: `${username} logged in successfully` };
           resolve(response);
         } else {
           // Resolve with false if passwords did not match.
