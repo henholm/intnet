@@ -30,13 +30,13 @@
             <li v-on:click="redirect('/courses')">
               <a style="cursor: pointer;">Courses</a>
             </li>
-            <li
+            <!-- <li
               v-if="this.$store.getters.getUser.isAdmin!==1 && this.$store.getters.getUser.isAdmin"
               v-on:click="redirectStudent()"
             >
               <a style="cursor: pointer;">Student Page</a>
-            </li>
-            <li
+            </li> -->
+            <!-- <li
               v-if="this.$store.getters.getUser.isAssistant === 1"
               v-on:click="redirectAssistant()"
             >
@@ -47,7 +47,7 @@
               v-on:click="redirectAdmin()"
             >
               <a style="cursor: pointer;">Admin Page</a>
-            </li>
+            </li> -->
             <li v-on:click="logout()">
               <a style="cursor: pointer;">Log Out</a>
             </li>

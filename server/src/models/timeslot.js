@@ -30,7 +30,14 @@ module.exports = (sequelize, type, userModel) => sequelize.define('TimeSlot', {
     type: type.STRING,
     allowNull: true,
   },
-  time: type.STRING,
+  time: {
+    type: type.STRING,
+    allowNull: false,
+  },
+  courseName: {
+    type: type.STRING,
+    allowNull: false,
+  },
 }, {
   timestamps: false,
   underscored: true,

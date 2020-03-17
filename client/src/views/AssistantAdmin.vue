@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h2>{{assistantName}}'s Time Slots in course {{courseName}}</h2>
+      <h2>{{assistantName}}'s time slots in {{courseName}}</h2>
       <div class="btn-group">
         <div v-for="TS in timeSlots" v-bind:key="TS.id">
           <button
@@ -64,7 +64,13 @@ export default {
       this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
     addSlot(slotTime) {
-      this.socket.emit('addTimeSlot', { name: this.assistantName, time: slotTime });
+      this.socket.emit('addTimeSlot',
+      {
+        assistantName: this.assistantName,
+        assistantId: this.assistantId,
+        time: slotTime,
+        course: this.courseName,
+      });
     },
     checkForm(event) {
       if (this.slotTime) {

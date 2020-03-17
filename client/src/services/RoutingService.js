@@ -14,12 +14,6 @@ export default {
   getCourses(user) {
     return Axios.post(`${url}courses/`, user).then(response => response.data);
   },
-  getTimeSlotsForCourse(user) {
-    return Axios.post(
-      `${url}courses/:courseName/timeslots`,
-      user,
-    ).then(response => response.data);
-  },
   getTimeSlots() {
     return Axios.post(`${url}timeSlots/`, '').then(response => response.data);
   },

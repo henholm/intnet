@@ -49,7 +49,6 @@ export default {
   components: {},
   data: () => ({
     courseName: '',
-    timeSlots: [],
     aTS: {},
     userId: '',
     username: '',
@@ -72,43 +71,42 @@ export default {
     this.socket.connect();
 
     this.courseName = this.$route.params.courseName;
-    // console.log(this.$route.params);
 
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
-      // const response = await RoutingService.getTimeSlots();
-      const payload = { courseName: this.courseName };
-      const response = await RoutingService.getTimeSlotsForCourse(payload);
+      // const payload = { courseName: this.courseName };
+      // const response = await RoutingService.getTimeSlotsForCourse(payload);
+      const response = await RoutingService.getTimeSlots();
       this.timeSlots = response.timeSlots;
-      console.log(this.timeSlots);
+
       // "aTS" stands for assistant Time Slots.
-      const aTS = {};
-      for (let i = 0; i < this.timeSlots.length; i += 1) {
-        const currName = this.timeSlots[i].assistantName;
-        if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
-          aTS[currName] = [];
+      this.aTS = {};
+      for (let i = 0; i < response.timeSlots.length; i += 1) {
+        if (response.timeSlots[i].courseName === this.courseName) {
+          const currName = response.timeSlots[i].assistantName;
+          if (!(Object.prototype.hasOwnProperty.call(this.aTS, currName))) {
+            this.aTS[currName] = [];
+          }
+          this.aTS[currName].push(response.timeSlots[i]);
         }
-        aTS[currName].push(this.timeSlots[i]);
       }
-      this.aTS = aTS;
-      console.log(this.aTS);
     }
   },
   // Step 4 in lifecycle hooks.
   mounted() {
     this.socket.on('update', (data) => {
-      this.timeSlots = data.timeSlots;
       // aTS = assistantTimeSlots
-      const aTS = {};
-      for (let i = 0; i < this.timeSlots.length; i += 1) {
-        const currName = this.timeSlots[i].assistantName;
-        if (!(Object.prototype.hasOwnProperty.call(aTS, currName))) {
-          aTS[currName] = [];
+      this.aTS = {};
+      for (let i = 0; i < data.timeSlots.length; i += 1) {
+        if (data.timeSlots[i].courseName === this.courseName) {
+          const currName = data.timeSlots[i].assistantName;
+          if (!(Object.prototype.hasOwnProperty.call(this.aTS, currName))) {
+            this.aTS[currName] = [];
+          }
+          this.aTS[currName].push(data.timeSlots[i]);
         }
-        aTS[currName].push(this.timeSlots[i]);
       }
-      this.aTS = aTS;
     });
   },
 };
