@@ -105,6 +105,8 @@ exports.getTimeSlots = () => Database.selectAllTimeSlotsClean();
 
 exports.getTimeSlotsForCourse = (courseName) => Database.getTimeSlotsForCourse(courseName);
 
+exports.getTimeSlotsForAssistant = (username) => Database.getTimeSlotsForAssistant(username);
+
 /**
  * Returns one time slot as dictated by the input timeSlotId.
  * @returns {TimeSlot[]}

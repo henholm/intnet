@@ -5,8 +5,8 @@ import VueRouter from 'vue-router';
 import CoursesView from './views/Courses.vue';
 import TimeSlotsView from './views/TimeSlots.vue';
 import BookTimeSlotView from './views/BookTimeSlot.vue';
-import StudentAdminView from './views/StudentAdmin.vue';
-import AssistantAdminView from './views/AssistantAdmin.vue';
+import StudentPageView from './views/StudentAdmin.vue';
+import AssistantPageView from './views/AssistantAdmin.vue';
 import LoginView from './views/Login.vue';
 import store from './store';
 import RoutingService from '@/services/RoutingService';
@@ -18,10 +18,11 @@ const routes = [
   { path: '/login', component: LoginView, name: 'Login' },
   { path: '/courses', component: CoursesView, name: 'Courses' },
   { path: '/courses/:courseName/timeslots', component: TimeSlotsView, name: 'TimeSlots' },
+  { path: '/courses/:courseName/:username', component: AssistantPageView, name: 'AssistantPage' },
   // { path: '/timeSlots', component: TimeSlotsView, name: 'TimeSlots' },
   { path: '/bookTimeSlot/:timeSlotId', component: BookTimeSlotView, name: 'BookTimeSlot' },
-  { path: '/studentAdmin/:studentName', component: StudentAdminView, name: 'StudentAdmin' },
-  { path: '/assistantAdmin/:assistantId', component: AssistantAdminView, name: 'AssistantAdmin' },
+  { path: '/studentAdmin/:studentName', component: StudentPageView, name: 'StudentPage' },
+  { path: '/assistantAdmin/:assistantId', component: AssistantPageView, name: 'AssistantPage' },
 ];
 
 const router = new VueRouter({

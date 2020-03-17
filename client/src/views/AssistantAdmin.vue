@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h1>{{assistantName}}'s Time Slots</h1>
+      <h2>{{assistantName}}'s Time Slots in course {{courseName}}</h2>
       <div class="btn-group">
         <div v-for="TS in timeSlots" v-bind:key="TS.id">
           <button
@@ -50,9 +50,9 @@ export default {
   components: {},
   data() {
     return {
-      // assistantName: this.$route.params.assistantName,
       assistantId: '',
       assistantName: '',
+      courseName: '',
       timeSlots: [],
       slotTime: '',
       socket: null,
@@ -90,11 +90,15 @@ export default {
     this.assistantId = user.userId;
     this.assistantName = user.username;
 
+    this.courseName = this.$route.params.courseName;
+
     const response = await RoutingService.getTimeSlots();
     this.timeSlots = [];
     for (let i = 0; i < response.timeSlots.length; i += 1) {
       if (response.timeSlots[i].assistantName === this.assistantName) {
-        this.timeSlots.push(response.timeSlots[i]);
+        if (response.timeSlots[i].courseName === this.courseName) {
+          this.timeSlots.push(response.timeSlots[i]);
+        }
       }
     }
   },
@@ -104,7 +108,9 @@ export default {
       this.timeSlots = [];
       for (let i = 0; i < data.timeSlots.length; i += 1) {
         if (data.timeSlots[i].assistantName === this.assistantName) {
-          this.timeSlots.push(data.timeSlots[i]);
+          if (data.timeSlots[i].courseName === this.courseName) {
+            this.timeSlots.push(data.timeSlots[i]);
+          }
         }
       }
     });

@@ -103,8 +103,9 @@ export default {
     async logout() {
       if (this.$store.getters.isLoggedIn) {
         const user = this.$store.getters.getUser;
-        RoutingService.logout(user).then((response) => {
-          console.log(response.msg);
+        // RoutingService.logout(user).then((response) => {
+        RoutingService.logout(user).then(() => {
+          // console.log(response.msg);
           this.$store.dispatch('logout');
           this.$router.push('/login').catch(() => {});
         }).catch((err) => {
@@ -122,13 +123,15 @@ export default {
       if (error.response.status === 403) {
         this.popupData.display = 'block';
         this.$store.dispatch('logout');
-        this.$router.push('/login').catch((err) => { console.log(err); });
+        if (this.$route.path !== '/login') {
+          this.$router.push('/login').catch((err) => { console.log(err); });
+        }
       }
       return Promise.reject(error);
     });
     if (this.$store.getters.isLoggedIn) {
       const user = this.$store.getters.getUser;
-      console.log(`Check validity of session for user ${user.username}`);
+      // console.log(`Check validity of session for user ${user.username}`);
       RoutingService.checkValidSession(user).then((valid) => {
         if (!valid) {
           RoutingService.logout(user).then(() => {
@@ -136,11 +139,11 @@ export default {
           }).catch((err) => {
             this.msg = err.response.data.msg;
           });
-          this.$router.push('/login').catch(() => {});
+          if (this.$route.path !== '/login') {
+            this.$router.push('/login').catch((err) => { console.log(err); });
+          }
         }
-      }).catch((err) => {
-        this.msg = err.response.data.msg;
-      });
+      }).catch(() => {});
     }
   },
   computed: {

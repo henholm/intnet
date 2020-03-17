@@ -9,7 +9,7 @@
         <div
           class="well"
           v-for="course in administersCourses"
-          @click="redirect(course.name)"
+          @click="redirectAdministers(course.name)"
           :key="course.name"
         >
           <div class="row" style="text-align: center;">
@@ -27,7 +27,7 @@
         <div
           class="well"
           v-for="course in assistsCourses"
-          @click="redirect(course.name)"
+          @click="redirectAssists(course.name)"
           :key="course.name"
         >
           <div class="row" style="text-align: center;">
@@ -45,7 +45,7 @@
         <div
           class="well"
           v-for="course in attendsCourses"
-          @click="redirect(course.name)"
+          @click="redirectAttends(course.name)"
           :key="course.name"
         >
           <div class="row" style="text-align: center;">
@@ -75,7 +75,13 @@ export default {
     socket: null,
   }),
   methods: {
-    redirect(courseName) {
+    redirectAttends(courseName) {
+      this.$router.push(`/courses/${courseName}/timeslots`);
+    },
+    redirectAssists(courseName) {
+      this.$router.push(`/courses/${courseName}/${this.username}`);
+    },
+    redirectAdministers(courseName) {
       this.$router.push(`/courses/${courseName}/timeslots`);
     },
   },
@@ -91,6 +97,8 @@ export default {
     this.socket.connect();
 
     const user = this.$store.getters.getUser;
+    this.username = user.username;
+    this.isAssistant = user.isAssistant;
     this.isAssistant = user.isAssistant;
     this.isAdmin = user.isAdmin;
 

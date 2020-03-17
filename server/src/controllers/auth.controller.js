@@ -94,6 +94,18 @@ router.post('/courses/:courseName/timeSlots', userMiddleware.isLoggedIn, (req, r
 });
 
 /**
+ * Fetch the list of existing time slots for the input assistant.
+ * @returns {void}
+ */
+router.post('/courses/:courseName/:username', userMiddleware.isLoggedIn, (req, res) => {
+  model.getTimeSlotsForAssistant(req.body.username).then((resolve) => {
+    res.status(200).json({
+      timeSlots: resolve,
+    });
+  });
+});
+
+/**
  * Fetch the list of existing time slots.
  * @returns {void}
  */

@@ -136,6 +136,9 @@ exports.selectAllTimeSlotsClean = () => (
   new Promise((resolve, reject) => {
     TimeSlot.findAll({
       include: [{
+        model: Course,
+        required: true,
+      }, {
         model: User,
         required: true,
       }],
@@ -153,6 +156,7 @@ exports.selectAllTimeSlotsClean = () => (
           time: dirtyTimeSlot.time,
           assistantId: dirtyTimeSlot['User.id'],
           assistantName: dirtyTimeSlot['User.name'],
+          courseName: dirtyTimeSlot.courseName,
         };
         cleanTimeSlots.push(cleanTimeSlot);
       }
@@ -299,6 +303,43 @@ exports.getTimeSlotsForCourse = (courseName) => (
           time: dirtyTimeSlot.time,
           assistantId: dirtyTimeSlot['User.id'],
           assistantName: dirtyTimeSlot['User.name'],
+          courseName: dirtyTimeSlot.courseName,
+        };
+        cleanTimeSlots.push(cleanTimeSlot);
+      }
+      resolve(cleanTimeSlots);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
+exports.getTimeSlotsForAssistant = (username) => (
+  new Promise((resolve, reject) => {
+    TimeSlot.findAll({
+      include: [{
+        model: Course,
+        required: true,
+        where: { name: courseName },
+      }, {
+        model: User,
+        required: true,
+      }],
+      raw: true,
+    }).then((dirtyTimeSlots) => {
+      const cleanTimeSlots = [];
+      for (let i = 0; i < dirtyTimeSlots.length; i += 1) {
+        const dirtyTimeSlot = dirtyTimeSlots[i];
+        const cleanTimeSlot = {
+          id: dirtyTimeSlot.id,
+          isReserved: dirtyTimeSlot.isReserved,
+          reservedBy: dirtyTimeSlot.reservedBy,
+          isBooked: dirtyTimeSlot.isBooked,
+          bookedBy: dirtyTimeSlot.bookedBy,
+          time: dirtyTimeSlot.time,
+          assistantId: dirtyTimeSlot['User.id'],
+          assistantName: dirtyTimeSlot['User.name'],
+          courseName: dirtyTimeSlot.courseName,
         };
         cleanTimeSlots.push(cleanTimeSlot);
       }
@@ -400,7 +441,7 @@ exports.loginAllegedUser = (username, userPassword, sid, ip) => (
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
         const nowTimeStamp = Date.now();
-        const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
+        const sessionExpires = nowTimeStamp + (15 * 1000); // Valid for 30 seconds.
         if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
           const response = { userData: null, msg: `${username} is already logged in` };
@@ -502,7 +543,7 @@ exports.extendSessionIfValid = (username, sid, ip) => (
       // In this case, the session is still valid. Refresh it and resolve with true.
       if (user.isLoggedIn === 1) {
         const nowTimeStamp = Date.now();
-        const sessionExpires = nowTimeStamp + (30 * 1000); // Valid for 30 seconds.
+        const sessionExpires = nowTimeStamp + (15 * 1000); // Valid for 30 seconds.
         setSession(user.id, sid, sessionExpires);
         resolve(true);
       }
