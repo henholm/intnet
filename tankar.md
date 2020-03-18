@@ -31,22 +31,12 @@ TimeSlots
 - timeSlotId, assistantId (foreignKey), isReserved, isBooked, bookedBy, time,
   courseName
 
-
-
 Login -> Courses, either Administers or Assists/Attends or Attends
 Courses/courseName/timeSlots
 
 
 Student -> Courses
 Assistant -> Courses
-Admin -> three buttons
-  (1) Users (create and remove users)
+Admin -> two buttons
+  (1) Courses (add and remove courses)
   (2) Privileges (grant and revoke privileges)
-  (3) Courses (add and remove courses)
-
-!!! Use sockets to send session invalidation
-
-!!! Vid login, starta en timer på klientsidan som startas om varje gång något
-händer
-
-!!! Sätt socket som lyssnar på userId: socket.on(userId, )
