@@ -6,7 +6,8 @@
 .btn-group button {
   display: block;
   padding: 10px 24px;
-  width: 100%;
+  /* width: 100%; */
+  width: 300px;
 }
 
 
@@ -19,6 +20,10 @@
   content: "Remove?";
   font-size: 0px;
 } */
+
+button {
+  width: 300px;
+}
 
 .btn-group button:hover {
   background-color: #A9A9A9;
@@ -36,7 +41,8 @@
 
  .timeslot-container > * {
    filter: brightness(1.00);
-   width: auto;
+   /* width: auto; */
+   width: 300px;
  }
 
 .ts-container {

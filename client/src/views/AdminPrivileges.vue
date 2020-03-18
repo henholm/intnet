@@ -6,31 +6,33 @@
       <div v-for="courseName in Object.keys(coursesUsers)" v-bind:key="courseName">
         <h4><span>{{ courseName }}</span></h4>
         <div class="row" style="text-align: center;">
-          <div class="ts-container" v-for="role in Object.keys(coursesUsers[courseName])"
-               v-bind:key="role">
-            <h4><span>{{ role }}</span></h4>
-            <div class="timeslot-container"
-                 v-for="user in coursesUsers[courseName][role]" v-bind:key="user">
-              <button
-                type="button"
-                class="booked"
-                ref="user.id"
-                v-if="user.isAdmin===1"
-              ><h4>{{user.name}}</h4></button>
-              <button
-                type="button"
-                class="reservedByMe"
-                ref="user.id"
-                v-else-if="role==='assistants' && user.isAssistant===1"
-                v-on:click="revokePrivilege($event, user.name)"
-              ><h4>{{user.name}}</h4></button>
-              <button
-                type="button"
-                class="open"
-                ref="user.id"
-                v-else
-                v-on:click="grantPrivilege($event, user.name)"
-              ><h4>{{user.name}}</h4></button>
+          <div class="assistant-container">
+            <div class="ts-container" v-for="role in Object.keys(coursesUsers[courseName])"
+                 v-bind:key="role">
+              <h4><span>{{ role }}</span></h4>
+              <div class="timeslot-container"
+                   v-for="user in coursesUsers[courseName][role]" v-bind:key="user">
+                <button
+                  type="button"
+                  class="booked"
+                  ref="user.id"
+                  v-if="user.isAdmin===1"
+                ><h4>{{user.name}}</h4></button>
+                <button
+                  type="button"
+                  class="reservedByMe"
+                  ref="user.id"
+                  v-else-if="role==='assistants' && user.isAssistant===1"
+                  v-on:click="revokePrivilege($event, user.name, courseName)"
+                ><h4>{{user.name}}</h4></button>
+                <button
+                  type="button"
+                  class="open"
+                  ref="user.id"
+                  v-else
+                  v-on:click="grantPrivilege($event, user.name, courseName)"
+                ><h4>{{user.name}}</h4></button>
+              </div>
             </div>
           </div>
         </div>
@@ -55,15 +57,17 @@ export default {
     };
   },
   methods: {
-    revokePrivilege(event, username) {
+    revokePrivilege(event, username, courseName) {
       console.log(username);
+      console.log(courseName);
       event.preventDefault();
-      // this.socket.emit('removeTimeSlot', { id: timeSlotId });
+      this.socket.emit('revokePrivilege', { username, courseName });
     },
-    grantPrivilege(event, username) {
+    grantPrivilege(event, username, courseName) {
       console.log(username);
+      console.log(courseName);
       event.preventDefault();
-      // this.socket.emit('removeTimeSlot', { id: timeSlotId });
+      this.socket.emit('grantPrivilege', { username, courseName });
     },
     async updateCoursesUsers() {
       try {
@@ -90,42 +94,9 @@ export default {
             students,
           };
         }
-
-        console.log(this.coursesUsers);
       } catch (err) {
         console.log(err);
       }
-
-      // for (let i = 0; i < usersForCourses.length; i += 1) {
-      //
-      // }
-      //
-      //
-      // for (let i = 0; i < this.courses.length; i += 1) {
-      //   const courseName = this.course[i].name;
-      //   console.log(courseName);
-      //   const response = await RoutingService.getUsersForCourse(this.courseName);
-      //   console.log(response);
-      //   console.log(response.response);
-      //   const users = {};
-      //   for (let j = 0; j < response.users.length; j += 1) {
-      //     if (response.users[j].courseName === this.courseName) {
-      //       let currentRole;
-      //       if (response.users[j].isAssistant === 1) {
-      //         currentRole = 'assistant';
-      //       } else if (response.users[j].isAdmin === 1) {
-      //         currentRole = 'admin';
-      //       } else {
-      //         currentRole = 'student';
-      //       }
-      //       if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
-      //         users[currentRole] = [];
-      //       }
-      //       users[currentRole].push(response.users[j]);
-      //     }
-      //   }
-      //   this.coursesUsers[courseName] = users;
-      // }
     },
   },
   // Step 2 in lifecycle hooks.

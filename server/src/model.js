@@ -93,6 +93,10 @@ exports.getStudentsForCourse = (courseName) => Database.getStudentsForCourse(cou
 
 exports.getAssistantsForCourse = (courseName) => Database.getAssistantsForCourse(courseName);
 
+exports.revokePrivilegeForCourse = (username, courseName) => (
+  Database.revokePrivilegeForCourse(username, courseName)
+);
+
 /**
 * Returns all time slots.
 * @returns {TimeSlot[]}

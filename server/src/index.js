@@ -324,6 +324,16 @@ io.on('connection', (socket) => {
       console.log(err);
     });
   });
+
+  socket.on('revokePrivilege', (msg) => {
+    const { username } = msg;
+    const { courseName } = msg;
+    model.revokePrivilegeForCourse(username, courseName).then(() => {
+      io.emit('updateCourses');
+    }).catch((err) => {
+      console.log(err);
+    });
+  });
 });
 
 // Start server.

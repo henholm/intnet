@@ -649,6 +649,35 @@ exports.removeCourse = (courseName) => (
   ).catch((err) => console.log(err) )
 );
 
+exports.revokePrivilegeForCourse = (username, courseName) => (
+  AssistsCourse.destroy({
+    include: [{
+      model: Course,
+      required: true,
+      where: { name: courseName },
+    },
+    {
+      model: User,
+      required: true,
+      where: { name: username },
+    }],
+    where: { user_id: '$User.id', course_id: '$Course.id' },
+    force: true,
+  }).then((numDeletedRows) => {
+    console.log(username);
+    console.log(courseName);
+    console.log('numDeletedRows');
+    console.log(numDeletedRows);
+    resolve(numDeletedRows);
+  }).catch((err) => {
+    throw err;
+    console.log('err');
+    console.log(err);
+    console.log(err.msg);
+    reject(err);
+  })
+);
+
 exports.extendSessionIfValid = (username, sid, ip) => (
   new Promise((resolve, reject) => {
     // Set the isLoggedIn attribute of all expired sessions to 0.
