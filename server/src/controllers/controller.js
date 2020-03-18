@@ -233,18 +233,4 @@ router.post('/checkValidSession', (req, res) => {
   });
 });
 
-router.post('/checkIfStudentTakesCourse', (req, res) => {
-  const { userId } = req.body;
-  const { courseName } = req.body;
-  console.log(userId);
-  console.log(courseName);
-  model.checkIfStudentTakesCourse(userId, courseName).then((takesCourse) => {
-    return res.status(200).send({
-      takesCourse,
-    });
-  }).catch((err) => {
-    console.log(err);
-  });
-});
-
 module.exports = { router };
