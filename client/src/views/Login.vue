@@ -64,8 +64,11 @@ export default {
         const { token } = response;
         const { user } = response;
         this.$store.dispatch('login', { token, user });
-        // this.$router.push('/timeSlots');
-        this.$router.push('/courses');
+        if (user.isAdmin === 1) {
+          this.$router.push(`/admin/${user.username}`);
+        } else {
+          this.$router.push('/courses');
+        }
       }).catch((err) => {
         this.msg = err.response.data.msg;
       });

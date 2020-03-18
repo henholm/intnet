@@ -3,7 +3,7 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h1>Time Slots</h1>
+      <h2>Time slots for {{this.courseName}}</h2>
       <div class="assistant-container">
         <div
           class="ts-container"
@@ -71,7 +71,8 @@ export default {
   methods: {
     redirect(event, timeSlotId) {
       event.preventDefault();
-      this.$router.push(`/bookTimeSlot/${timeSlotId}`).catch(() => {});
+      /* eslint-disable-next-line max-len */
+      this.$router.push(`/courses/${this.courseName}/timeslots/booktimeslot/${timeSlotId}`).catch(() => {});
     },
     remove(event, timeSlotId) {
       event.preventDefault();
@@ -83,13 +84,6 @@ export default {
         bookedBy: null,
       };
       this.socket.emit('changeState', payload);
-      // const newTimeSlots = [];
-      // for (let i = 0; i < this.timeSlots.length; i += 1) {
-      //   if (this.timeSlots[i].id !== timeSlotId) {
-      //     newTimeSlots.push(this.timeSlots[i]);
-      //   }
-      // }
-      // this.timeSlots = newTimeSlots;
     },
   },
   // Step 2 in lifecycle hooks.
@@ -107,13 +101,10 @@ export default {
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
-      // const payload = { courseName: this.courseName };
-      // const response = await RoutingService.getTimeSlotsForCourse(payload);
       const response = await RoutingService.getTimeSlots();
       this.timeSlots = response.timeSlots;
 
-      // "aTS" stands for assistant Time Slots.
-      this.aTS = {};
+      this.aTS = {}; // "aTS" stands for assistant Time Slots.
       for (let i = 0; i < response.timeSlots.length; i += 1) {
         if (response.timeSlots[i].courseName === this.courseName) {
           const currName = response.timeSlots[i].assistantName;
@@ -128,8 +119,7 @@ export default {
   // Step 4 in lifecycle hooks.
   mounted() {
     this.socket.on('update', (data) => {
-      // aTS = assistantTimeSlots
-      this.aTS = {};
+      this.aTS = {}; // aTS = assistantTimeSlots
       for (let i = 0; i < data.timeSlots.length; i += 1) {
         if (data.timeSlots[i].courseName === this.courseName) {
           const currName = data.timeSlots[i].assistantName;

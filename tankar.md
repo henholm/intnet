@@ -37,8 +37,12 @@ Login -> Courses, either Administers or Assists/Attends or Attends
 Courses/courseName/timeSlots
 
 
-
-!!! Add reservedBy to fix refresh bug in bookTimeSlot view.
+Student -> Courses
+Assistant -> Courses
+Admin -> three buttons
+  (1) Users (create and remove users)
+  (2) Privileges (grant and revoke privileges)
+  (3) Courses (add and remove courses)
 
 !!! Use sockets to send session invalidation
 
