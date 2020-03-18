@@ -87,6 +87,12 @@ exports.getCourses = () => Database.getCourses();
 
 exports.getUsers = () => Database.getUsers();
 
+exports.getAdmins = () => Database.getAdmins();
+
+exports.getStudentsForCourse = (courseName) => Database.getStudentsForCourse(courseName);
+
+exports.getAssistantsForCourse = (courseName) => Database.getAssistantsForCourse(courseName);
+
 /**
 * Returns all time slots.
 * @returns {TimeSlot[]}

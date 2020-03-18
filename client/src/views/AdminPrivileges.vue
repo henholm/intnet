@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h2>Users and roles which {{username}}</h2>
+      <h3>Users and roles which {{username}} administers</h3>
       <div class="assistant-container">
         <div
           class="ts-container"
@@ -24,14 +24,14 @@
               class="reservedByMe"
               ref="user.id"
               v-else-if="user.isAssistant===1"
-              v-on:click="enterAssistant($event, user.id)"
+              v-on:click="revokePrivilege($event, user.id)"
             ><h4>{{user.name}}</h4></button>
             <button
               type="button"
               class="open"
               ref="user.id"
               v-else
-              v-on:click="enterStudent($event, user.id)"
+              v-on:click="grantPrivilege($event, user.id)"
             ><h4>{{user.name}}</h4></button>
           </div>
         </div>
@@ -49,6 +49,7 @@ export default {
   data() {
     return {
       userId: '',
+      user: '', // remove
       username: '',
       courses: [],
       coursesUsers: {},
@@ -56,40 +57,95 @@ export default {
     };
   },
   methods: {
-    remove(event, timeSlotId) {
+    revokePrivilege(event, userId) {
+      console.log(userId);
       event.preventDefault();
-      this.socket.emit('removeTimeSlot', { id: timeSlotId });
+      // this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
-    updateCoursesUsers() {
-      const res = await RoutingService.getCourses(this.user);
-      this.courses = res.response.administersCourses;
-      this.coursesUsers = {};
+    grantPrivilege(event, userId) {
+      console.log(userId);
+      event.preventDefault();
+      // this.socket.emit('removeTimeSlot', { id: timeSlotId });
+    },
+    async updateCoursesUsers() {
+      try {
+        const res = await RoutingService.getCourses(this.user);
+        this.courses = res.response.administersCourses;
+        this.coursesUsers = {};
 
-      for (let i = 0; i < this.courses.length; i += 1) {
-        const courseName = this.course[i].name;
-        console.log(courseName);
-        const response = await RoutingService.getUsersForCourse(this.courseName);
-        console.log(response);
-        console.log(response.response);
-        const users = {};
-        for (let i = 0; i < response.users.length; i += 1) {
-          if (response.users[i].courseName === this.courseName) {
-            let currentRole;
-            if (response.users[i].isAssistant === 1) {
-              currentRole = 'assistant';
-            } else if (response.users[i].isAdmin === 1) {
-              currentRole = 'admin';
-            } else {
-              currentRole = 'student';
-            }
-            if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
-              users[currentRole] = [];
-            }
-            users[currentRole].push(response.users[i]);
-          }
+        const promises = [];
+        for (let i = 0; i < this.courses.length; i += 1) {
+          const courseName = this.courses[i].name;
+          promises.push(RoutingService.getUsersForCourse({ courseName }));
         }
-        this.coursesUsers[courseName] = users;
+
+        const usersForCourses = await Promise.all(promises);
+
+        console.log(usersForCourses);
+
+        const coursesUsers = {};
+        for (let i = 0; i < usersForCourses.length; i += 1) {
+          const users = [];
+          console.log(usersForCourses[i]);
+          users.push(...usersForCourses[i].admins);
+          users.push(...usersForCourses[i].assistants);
+          users.push(...usersForCourses[i].students);
+          coursesUsers[usersForCourses[i].courseName] = users;
+        }
+
+        console.log(coursesUsers);
+
+        // for (let j = 0; j < response.users.length; j += 1) {
+        //   if (response.users[j].courseName === this.courseName) {
+        //     let currentRole;
+        //     if (response.users[j].isAssistant === 1) {
+        //       currentRole = 'assistant';
+        //     } else if (response.users[j].isAdmin === 1) {
+        //       currentRole = 'admin';
+        //     } else {
+        //       currentRole = 'student';
+        //     }
+        //     if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
+        //       users[currentRole] = [];
+        //     }
+        //     users[currentRole].push(response.users[j]);
+        //   }
+        // }
+        // this.coursesUsers[courseName] = users;
+      } catch (err) {
+        console.log(err);
       }
+
+      // for (let i = 0; i < usersForCourses.length; i += 1) {
+      //
+      // }
+      //
+      //
+      // for (let i = 0; i < this.courses.length; i += 1) {
+      //   const courseName = this.course[i].name;
+      //   console.log(courseName);
+      //   const response = await RoutingService.getUsersForCourse(this.courseName);
+      //   console.log(response);
+      //   console.log(response.response);
+      //   const users = {};
+      //   for (let j = 0; j < response.users.length; j += 1) {
+      //     if (response.users[j].courseName === this.courseName) {
+      //       let currentRole;
+      //       if (response.users[j].isAssistant === 1) {
+      //         currentRole = 'assistant';
+      //       } else if (response.users[j].isAdmin === 1) {
+      //         currentRole = 'admin';
+      //       } else {
+      //         currentRole = 'student';
+      //       }
+      //       if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
+      //         users[currentRole] = [];
+      //       }
+      //       users[currentRole].push(response.users[j]);
+      //     }
+      //   }
+      //   this.coursesUsers[courseName] = users;
+      // }
     },
   },
   // Step 2 in lifecycle hooks.
@@ -102,18 +158,19 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
+    this.user = this.$store.getters.getUser;
     this.userId = this.$store.getters.getUser.userId;
     this.username = this.$store.getters.getUser.username;
 
-    updateCoursesUsers();
+    this.updateCoursesUsers();
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {
-    this.socket.on('updateCourses', (data) => {
-      updateCoursesUsers();
+    this.socket.on('updateCourses', () => {
+      this.updateCoursesUsers();
     });
     this.socket.on('updateUsers', () => {
-      updateCoursesUsers();
+      this.updateCoursesUsers();
     });
   },
   // Step 5 in lifecycle hooks.

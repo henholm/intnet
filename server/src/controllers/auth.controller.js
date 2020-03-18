@@ -80,12 +80,26 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
   });
 });
 
-router.post('/users', userMiddleware.isLoggedIn, (req, res) => {
-  model.getUsersForCourse(req.body.courseName).then((resolve) => {
-    res.status(200).json({
-      users: resolve,
-    });
-  });
+router.post('/users', userMiddleware.isLoggedIn, async (req, res) => {
+  let admins = [];
+  let assistants = [];
+  let students = [];
+
+  try {
+    admins = await model.getAdmins();
+    assistants = await model.getAssistantsForCourse(req.body.courseName);
+    students = await model.getStudentsForCourse(req.body.courseName);
+  } catch(err) {
+    console.log(err);
+  }
+
+  res.status(200).json({
+    courseName: req.body.courseName,
+    admins,
+    assistants,
+    students,
+  })
+
 });
 
 /**
