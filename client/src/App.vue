@@ -48,12 +48,12 @@
             >
               <a style="cursor: pointer;">Courses</a>
             </li>
-            <li
+            <!-- <li
               v-if="this.$store.getters.getUser.isAdmin === 1"
               v-on:click="redirectAdminUsers()"
             >
               <a style="cursor: pointer;">Users</a>
-            </li>
+            </li> -->
             <li
               v-if="this.$store.getters.getUser.isAdmin === 1"
               v-on:click="redirectAdminPrivileges()"
