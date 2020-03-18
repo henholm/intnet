@@ -5,6 +5,19 @@
       <div class="row">
         <div
           class="well"
+          @click="redirectCourses()"
+        >
+          <div class="row" style="text-align: center;">
+            <h4>
+              <span>Administer courses</span>
+            </h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div
+          class="well"
           @click="redirectUsers()"
         >
           <div class="row" style="text-align: center;">
@@ -23,19 +36,6 @@
           <div class="row" style="text-align: center;">
             <h4>
               <span>Administer privileges</span>
-            </h4>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div
-          class="well"
-          @click="redirectCourses()"
-        >
-          <div class="row" style="text-align: center;">
-            <h4>
-              <span>Administer courses</span>
             </h4>
           </div>
         </div>
@@ -73,8 +73,7 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
-    const user = this.$store.getters.getUser;
-    this.username = user.username;
+    this.username = this.$store.getters.getUser.username;
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {

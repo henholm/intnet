@@ -22,5 +22,5 @@ export default {
 </script>
 
 <style>
-  @import './assets/popup.css';
+  @import '../assets/popup.css';
 </style>

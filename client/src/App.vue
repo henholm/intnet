@@ -16,9 +16,18 @@
             <span class="icon-bar"></span>
           </button>
 
+          <!-- class="navbar-brand navbar-brand-centered-name" -->
           <div
-          class="navbar-brand navbar-brand-centered-name"
+          v-if="this.$store.getters.getUser.isAdmin !== 1"
+          class="navbar-brand navbar-brand-centered"
+          style="line-height: 1em; cursor: pointer; pointer-events: none;"
+        >{{currentUser}}</div>
+
+          <div
+          v-else
+          class="navbar-brand navbar-brand-centered"
           style="line-height: 1em; cursor: pointer;"
+          v-on:click="redirectAdmin()"
         >{{currentUser}}</div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -27,9 +36,31 @@
             <!-- <li v-on:click="redirect('/timeSlots')">
               <a style="cursor: pointer;">Time Slots</a>
             </li> -->
-            <li v-on:click="redirect('/courses')">
+            <li
+              v-if="this.$store.getters.getUser.isAdmin !== 1"
+              v-on:click="redirect('/courses')"
+            >
               <a style="cursor: pointer;">Courses</a>
             </li>
+            <li
+              v-if="this.$store.getters.getUser.isAdmin === 1"
+              v-on:click="redirectAdminCourses()"
+            >
+              <a style="cursor: pointer;">Courses</a>
+            </li>
+            <li
+              v-if="this.$store.getters.getUser.isAdmin === 1"
+              v-on:click="redirectAdminUsers()"
+            >
+              <a style="cursor: pointer;">Users</a>
+            </li>
+            <li
+              v-if="this.$store.getters.getUser.isAdmin === 1"
+              v-on:click="redirectAdminPrivileges()"
+            >
+              <a style="cursor: pointer;">Privileges</a>
+            </li> -->
+
             <!-- <li
               v-if="this.$store.getters.getUser.isAdmin!==1 && this.$store.getters.getUser.isAdmin"
               v-on:click="redirectStudent()"
@@ -66,7 +97,7 @@
 <script>
 import Axios from 'axios';
 import RoutingService from '@/services/RoutingService';
-import Popup from './Popup.vue';
+import Popup from './views/Popup.vue';
 
 export default {
   components: {
@@ -74,6 +105,7 @@ export default {
   },
   data() {
     return {
+      username: '',
       popupData: {
         header: 'Response 403 - Forbidden',
         body: 'Your session has expired. Please close this message and log in again.',
@@ -100,6 +132,18 @@ export default {
           .catch(() => {});
       }
     },
+    redirectAdmin() {
+      this.$router.push(`/admin/${this.username}`).catch(() => {});
+    },
+    redirectAdminUsers() {
+      this.$router.push(`/admin/${this.username}/users`).catch(() => {});
+    },
+    redirectAdminPrivileges() {
+      this.$router.push(`/admin/${this.username}/privileges`).catch(() => {});
+    },
+    redirectAdminCourses() {
+      this.$router.push(`/admin/${this.username}/courses`).catch(() => {});
+    },
     async logout() {
       if (this.$store.getters.isLoggedIn) {
         const user = this.$store.getters.getUser;
@@ -118,6 +162,7 @@ export default {
     },
   },
   async created() {
+    this.username = this.$store.getters.getUser.username;
     Axios.interceptors.response.use(response => response, (error) => {
       // if (error.response.status === 403 || error.response.status === 401) {
       if (error.response.status === 403) {
