@@ -80,7 +80,7 @@ function resetReservedTimeSlots() {
   TimeSlot.update(
     { isReserved: 0, reservedBy: null },
     { where: { isReserved: 1 } },
-  )
+  );
 }
 
 // If the server was shut down before a timeslot booking session was terminated,
@@ -112,7 +112,7 @@ function setSession(userId, sid, sessionExpires, ip) {
       lastIpAddress: ip,
     },
     { where: { id: userId } },
-  )
+  );
 }
 
 exports.setLoggedIn = setLoggedIn;
@@ -240,8 +240,7 @@ exports.getCourses = () => (
 
 exports.getUsers = () => (
   new Promise((resolve, reject) => {
-    User.findAll({ raw: true }).then((dirtyUsers) =>
-    {
+    User.findAll({ raw: true }).then((dirtyUsers) => {
       const cleanUsers = [];
       for (let i = 0; i < dirtyUsers.length; i += 1) {
         const dirtyUser = dirtyUsers[i];
@@ -358,7 +357,7 @@ exports.getAttendingCourses = (userId) => (
           model: User,
           required: true,
           where: { id: userId },
-        }]
+        }],
       }],
       raw: true,
     }).then((courses) => {
@@ -379,7 +378,7 @@ exports.getAssistingCourses = (userId) => (
           model: User,
           required: true,
           where: { id: userId },
-        }]
+        }],
       }],
       raw: true,
     }).then((courses) => {
@@ -432,10 +431,10 @@ exports.getTimeSlotsForAssistant = (username) => (
       include: [{
         model: Course,
         required: true,
-        where: { name: courseName },
       }, {
         model: User,
         required: true,
+        where: { name: username },
       }],
       raw: true,
     }).then((dirtyTimeSlots) => {
@@ -512,26 +511,18 @@ exports.selectTimeSlotsByStudentName = (studentName) => (
       }],
       raw: true,
     }).then((timeSlots) => {
-      console.log('TIME SLOTS');
-      console.log(timeSlots);
       const returnTimeSlots = [];
       for (let i = 0; i < timeSlots.length; i += 1) {
-        console.log('INSIDE LOOP');
         const timeSlot = timeSlots[i];
-        console.log(timeSlot);
         const returnTimeSlot = {
           timeSlotId: timeSlot.id,
           time: timeSlot.time,
           assistantName: timeSlot['User.name'],
-        }
-        console.log('returnTimeSlot 1');
-        console.log(returnTimeSlot);
+        };
         returnTimeSlots.push(returnTimeSlot);
       }
-      console.log('returnTimeSlots 2');
-      console.log(returnTimeSlots);
       resolve(returnTimeSlots);
-    }).catch(err => reject(err) );
+    }).catch((err) => reject(err));
   })
 );
 
@@ -611,8 +602,6 @@ exports.addTimeSlot = (assistantName, assistantId, time, course) => (
     }).catch((err) => {
       reject(err);
     });
-  }).catch((err) => {
-    reject(err);
   })
 );
 
@@ -623,7 +612,7 @@ exports.removeTimeSlot = (timeSlotId) => (
       where: { id: timeSlotId },
       force: true,
     },
-  ).catch((err) => console.log(err) )
+  ).catch((err) => console.log(err))
 );
 
 exports.addCourse = (courseName) => (
@@ -635,8 +624,6 @@ exports.addCourse = (courseName) => (
     }).catch((err) => {
       reject(err);
     });
-  }).catch((err) => {
-    reject(err);
   })
 );
 
@@ -646,55 +633,62 @@ exports.removeCourse = (courseName) => (
       where: { name: courseName },
       force: true,
     },
-  ).catch((err) => console.log(err) )
+  ).catch((err) => console.log(err))
 );
 
 exports.revokePrivilegeForCourse = (username, courseName) => (
-  User.findOne({ where: { name: username }}).then((user) => {
-    Course.findOne({ where: { name: courseName }}).then((course) => {
-      AssistsCourse.destroy({
-        where: { userId: user.id, courseId: course.id },
-        force: true,
-      }).then((numDeletedRows) => {
-        TimeSlot.destroy({
-          where: { userId: user.id, courseName: courseName },
+  new Promise((resolve, reject) => {
+    User.findOne({ where: { name: username } }).then((user) => {
+      Course.findOne({ where: { name: courseName } }).then((course) => {
+        AssistsCourse.destroy({
+          where: { userId: user.id, courseId: course.id },
           force: true,
-        }).then((numDeletedRows) => {
-          resolve(numDeletedRows);
-        }).catch((err) => console.log(err) );
-      }).catch((err) => console.log(err) );
-    }).catch((err) => console.log(err) );
-  }).catch((err) => console.log(err) )
+        }).then(() => {
+          TimeSlot.destroy({
+            where: { userId: user.id, courseName },
+            force: true,
+          }).then((numDeletedRows) => {
+            resolve(numDeletedRows);
+          }).catch((err) => reject(err));
+        }).catch((err) => reject(err));
+      }).catch((err) => reject(err));
+    }).catch((err) => reject(err));
+  })
 );
 
 function removeStudentAttributes(studentName, studentId, courseId) {
-  TimeSlot.update(
-    { isBooked: 0, bookedBy: null },
-    { where: { bookedBy: studentName } },
-  ).then(() => {
-    AttendsCourse.destroy({
-      where: { userId: studentId, courseId: courseId },
-      force: true,
-    }).then((numDeletedRows) => {
-      resolve(numDeletedRows);
-    }).catch((err) => console.log(err) );
-  })
+  return new Promise((resolve, reject) => {
+    TimeSlot.update(
+      { isBooked: 0, bookedBy: null },
+      { where: { bookedBy: studentName } },
+    ).then(() => {
+      AttendsCourse.destroy({
+        where: { userId: studentId, courseId },
+        force: true,
+      }).then((numDeletedRows) => {
+        resolve(numDeletedRows);
+      }).catch((err) => reject(err));
+    });
+  });
 }
 
 exports.grantPrivilegeForCourse = (username, courseName) => (
-  User.update({ isAssistant: 1 },
-    { returning: true, where: { name: username } },
-  ).then(() => {
-    User.findOne({ where: { name: username } }).then((user) => {
-      Course.findOne({ where: { name: courseName }}).then((course) => {
-        AssistsCourse.create({ userId: user.id, courseId: course.id }).then((res) => {
-          removeStudentAttributes(user.name, user.id, course.id).then(() => {
-            resolve();
-          }).catch((err) => console.log(err) );
-        }).catch((err) => console.log(err) );
-      }).catch((err) => console.log(err) );
-    }).catch((err) => console.log(err) );
-  }).catch((err) => console.log(err) )
+  new Promise((resolve, reject) => {
+    User.update(
+      { isAssistant: 1 },
+      { returning: true, where: { name: username } },
+    ).then(() => {
+      User.findOne({ where: { name: username } }).then((user) => {
+        Course.findOne({ where: { name: courseName } }).then((course) => {
+          AssistsCourse.create({ userId: user.id, courseId: course.id }).then((res) => {
+            removeStudentAttributes(user.name, user.id, course.id).then(() => {
+              resolve(res);
+            }).catch((err) => reject(err));
+          }).catch((err) => reject(err));
+        }).catch((err) => reject(err));
+      }).catch((err) => reject(err));
+    }).catch((err) => reject(err));
+  })
 );
 
 exports.extendSessionIfValid = (username, sid, ip) => (
