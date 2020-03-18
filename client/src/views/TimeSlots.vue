@@ -17,9 +17,23 @@
           >
             <button
               type="button"
+              class="bookedByMe"
+              ref="TS.id"
+              v-if="TS.isBooked===1 && TS.bookedBy===username"
+              v-on:click="remove($event, TS.id)"
+            ><h4>{{TS.time}}</h4></button>
+            <button
+              type="button"
               class="booked"
               ref="TS.id"
-              v-if="TS.isBooked===1"
+              v-else-if="TS.isBooked===1"
+            ><h4>{{TS.time}}</h4></button>
+            <button
+              type="button"
+              class="reservedByMe"
+              ref="TS.id"
+              v-else-if="TS.isReserved===1 && TS.reservedBy===username"
+              v-on:click="remove($event, TS.id)"
             ><h4>{{TS.time}}</h4></button>
             <button
               type="button"
@@ -58,6 +72,24 @@ export default {
     redirect(event, timeSlotId) {
       event.preventDefault();
       this.$router.push(`/bookTimeSlot/${timeSlotId}`).catch(() => {});
+    },
+    remove(event, timeSlotId) {
+      event.preventDefault();
+      const payload = {
+        timeSlotId,
+        isReserved: 0,
+        reservedBy: null,
+        isBooked: 0,
+        bookedBy: null,
+      };
+      this.socket.emit('changeState', payload);
+      // const newTimeSlots = [];
+      // for (let i = 0; i < this.timeSlots.length; i += 1) {
+      //   if (this.timeSlots[i].id !== timeSlotId) {
+      //     newTimeSlots.push(this.timeSlots[i]);
+      //   }
+      // }
+      // this.timeSlots = newTimeSlots;
     },
   },
   // Step 2 in lifecycle hooks.

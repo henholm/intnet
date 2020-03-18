@@ -49,9 +49,17 @@ button:hover {
   filter: brightness(1.20);
 }
 
+.bookedByMe {
+  background-color: #FFCCCB;
+}
+
 .booked {
   background-color: #FFCCCB;
   pointer-events: none;
+}
+
+.reservedByMe {
+  background-color: #FFED83;
 }
 
 .reserved {
