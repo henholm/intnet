@@ -26,4 +26,8 @@ export default {
   checkValidSession(user) {
     return Axios.post(`${url}checkValidSession/`, user).then(response => response.data);
   },
+  checkIfStudentTakesCourse(userId, courseName) {
+    /* eslint-disable-next-line max-len */
+    return Axios.post(`${url}checkIfStudentTakesCourse/`, userId, courseName).then(response => response.data);
+  },
 };

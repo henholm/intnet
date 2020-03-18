@@ -117,11 +117,17 @@ router.post('/courses/:courseName/timeSlots', userMiddleware.isLoggedIn, (req, r
  * @returns {void}
  */
 router.post('/courses/:courseName/:username', userMiddleware.isLoggedIn, (req, res) => {
-  model.getTimeSlotsForAssistant(req.body.username).then((resolve) => {
-    res.status(200).json({
-      timeSlots: resolve,
+  if (req.body.isAssistant) {
+    res.status(401).send({
+      msg: 'You do not have the rights to access this page',
     });
-  });
+  } else {
+    model.getTimeSlotsForAssistant(req.body.username).then((resolve) => {
+      res.status(200).json({
+        timeSlots: resolve,
+      });
+    });
+  }
 });
 
 /**
@@ -221,6 +227,20 @@ router.post('/checkValidSession', (req, res) => {
     }
     return res.status(403).send({
       msg: 'Your session has expired. Please log in again',
+    });
+  }).catch((err) => {
+    console.log(err);
+  });
+});
+
+router.post('/checkIfStudentTakesCourse', (req, res) => {
+  const { userId } = req.body;
+  const { courseName } = req.body;
+  console.log(userId);
+  console.log(courseName);
+  model.checkIfStudentTakesCourse(userId, courseName).then((takesCourse) => {
+    return res.status(200).send({
+      takesCourse,
     });
   }).catch((err) => {
     console.log(err);

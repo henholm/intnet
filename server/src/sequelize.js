@@ -722,3 +722,20 @@ exports.extendSessionIfValid = (username, sid, ip) => (
     });
   })
 );
+
+exports.checkIfStudentTakesCourse = (userId, courseName) => (
+  new Promise((resolve, reject) => {
+    console.log(usedId);
+    console.log(courseName);
+    Course.findOne({ where: { name: courseName }}).then((course) => {
+      AttendsCourse.findOne({ where: { userId, courseId: course.id }}).then((res) => {
+        console.log(res);
+        if (res) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      }).catch((err) => reject(err));
+    }).catch((err) => reject(err));
+  })
+);

@@ -51,6 +51,8 @@ router.beforeEach((to, from, next) => {
   // If not logged in but trying to access non-login route, redirect to login.
   if (to.name !== 'Login' && !store.getters.isLoggedIn) {
     next({ name: 'Login' });
+  } else if (to.name === 'AssistantPage' && store.getters.getUser.isAssistant !== 1) {
+    next({ name: 'Login' });
   // If logged in and trying to access any route, check validity.
   } else if (store.getters.isLoggedIn) {
     const user = store.getters.getUser;

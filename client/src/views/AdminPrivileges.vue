@@ -58,14 +58,10 @@ export default {
   },
   methods: {
     revokePrivilege(event, username, courseName) {
-      console.log(username);
-      console.log(courseName);
       event.preventDefault();
       this.socket.emit('revokePrivilege', { username, courseName });
     },
     grantPrivilege(event, username, courseName) {
-      console.log(username);
-      console.log(courseName);
       event.preventDefault();
       this.socket.emit('grantPrivilege', { username, courseName });
     },

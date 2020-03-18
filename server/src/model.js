@@ -170,3 +170,7 @@ exports.userLogOut = (userId) => (
 exports.extendSessionIfValid = (username, sid, ip) => (
   Database.extendSessionIfValid(username, sid, ip)
 );
+
+exports.checkIfStudentTakesCourse = (userId, courseName) => (
+  Database.checkIfStudentTakesCourse(userId, courseName)
+);
