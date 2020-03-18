@@ -16,10 +16,9 @@ const router = express.Router();
  * @returns {void}
  */
 router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
-  const username = req.body.username;
-  const userId = req.body.userId;
-  const isAssistant = req.body.isAssistant;
-  const isAdmin = req.body.isAdmin;
+  const { userId } = req.body;
+  const { isAssistant } = req.body;
+  const { isAdmin } = req.body;
 
   const attendsCourses = [];
   const assistsCourses = [];
@@ -32,7 +31,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
         const course = {
           id: courses[i].id,
           name: courses[i].name,
-        }
+        };
         administersCourses.push(course);
       }
     } else if (isAssistant === 1) {
@@ -42,7 +41,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
         const attendingCourse = {
           id: attendingCourses[i].id,
           name: attendingCourses[i].name,
-        }
+        };
         attendsCourses.push(attendingCourse);
       }
       // ... and assists.
@@ -51,7 +50,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
         const assistingCourse = {
           id: assistingCourses[i].id,
           name: assistingCourses[i].name,
-        }
+        };
         assistsCourses.push(assistingCourse);
       }
     } else {
@@ -61,11 +60,11 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
         const attendingCourse = {
           id: attendingCourses[i].id,
           name: attendingCourses[i].name,
-        }
+        };
         attendsCourses.push(attendingCourse);
       }
     }
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 
@@ -73,7 +72,7 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
     attendsCourses,
     assistsCourses,
     administersCourses,
-  }
+  };
 
   res.status(200).json({
     response,
@@ -89,7 +88,7 @@ router.post('/users', userMiddleware.isLoggedIn, async (req, res) => {
     admins = await model.getAdmins();
     assistants = await model.getAssistantsForCourse(req.body.courseName);
     students = await model.getStudentsForCourse(req.body.courseName);
-  } catch(err) {
+  } catch (err) {
     console.log(err);
   }
 
@@ -98,8 +97,7 @@ router.post('/users', userMiddleware.isLoggedIn, async (req, res) => {
     admins,
     assistants,
     students,
-  })
-
+  });
 });
 
 /**
@@ -150,6 +148,7 @@ router.post('/timeSlotData', userMiddleware.isLoggedIn, (req, res) => {
     });
   // A non-existent time slot was requested.
   }).catch((err) => {
+    console.log(err);
     return res.status(401).send({
       msg: '',
     });
@@ -165,42 +164,32 @@ router.post('/login', (req, res) => {
     const { userData } = response;
     const { msg } = response;
     if (userData) {
-      console.log(userData);
-      console.log(userData.userId);
-      model.getAttendingCourses(userData.userId).then((attendingCourses) => {
-        console.log(attendingCourses);
-        model.getAssistingCourses(userData.userId).then((assistingCourses) => {
-          console.log(attendingCourses);
-          console.log(assistingCourses);
-          const { userId } = userData;
-          const { username } = userData;
-          const { isAssistant } = userData;
-          const { isAdmin } = userData;
-          const user = {
-            username,
-            userId,
-            isAssistant,
-            isAdmin,
-            attendingCourses,
-            assistingCourses
-          };
+      const { userId } = userData;
+      const { username } = userData;
+      const { isAssistant } = userData;
+      const { isAdmin } = userData;
+      const user = {
+        username,
+        userId,
+        isAssistant,
+        isAdmin,
+      };
 
-          const token = jwt.sign({
-            username,
-            userId,
-            isAssistant,
-          },
-          'SECRETKEY', {
-            expiresIn: '30m',
-          });
+      const token = jwt.sign({
+        username,
+        userId,
+        isAssistant,
+        isAdmin,
+      },
+      'SECRETKEY', {
+        expiresIn: '30m',
+      });
 
-          return res.status(200).send({
-            msg,
-            token,
-            user,
-          });
-        }).catch((err) => console.log(err) );
-      }).catch((err) => console.log(err) );
+      return res.status(200).send({
+        msg,
+        token,
+        user,
+      });
     }
     return res.status(401).send({
       msg,

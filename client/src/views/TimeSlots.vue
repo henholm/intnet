@@ -122,19 +122,6 @@ export default {
 
     this.courseName = this.$route.params.courseName;
 
-    let attends = true;
-    const { attendingCourses } = user;
-    console.log('attendsCourses');
-    console.log(attendingCourses);
-    for (let i = 0; i < attendingCourses.length; i += 1) {
-      if (attendingCourses[i].name === this.courseName) {
-        attends = false;
-      }
-    }
-    if (!attends) {
-      this.router.go(-1);
-    }
-
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {

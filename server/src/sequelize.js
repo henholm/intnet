@@ -553,7 +553,7 @@ exports.loginAllegedUser = (username, userPassword, sid, ip) => (
       const hashedTruePassword = user.password;
       bcrypt.compare(userPassword, hashedTruePassword).then((res) => {
         const nowTimeStamp = Date.now();
-        const sessionExpires = nowTimeStamp + (60 * 60 * 1000); // Valid for 30 seconds.
+        const sessionExpires = nowTimeStamp + (60 * 1000); // Valid for 60 seconds.
         if (res && user.isLoggedIn === 1 && user.sessionId !== sid) {
           // Passwords matched, but user is already logged in elsewhere.
           const response = { userData: null, msg: `${username} is already logged in` };
@@ -719,7 +719,7 @@ exports.extendSessionIfValid = (username, sid, ip) => (
       // In this case, the session is still valid. Refresh it and resolve with true.
       if (user.isLoggedIn === 1) {
         const nowTimeStamp = Date.now();
-        const sessionExpires = nowTimeStamp + (60 * 60 * 1000); // Valid for 30 seconds.
+        const sessionExpires = nowTimeStamp + (60 * 1000); // Valid for 60 seconds.
         setSession(user.id, sid, sessionExpires);
         resolve(true);
       }
