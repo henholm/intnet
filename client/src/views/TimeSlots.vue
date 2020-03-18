@@ -85,6 +85,30 @@ export default {
       };
       this.socket.emit('changeState', payload);
     },
+    async updateTimeSlots(data) {
+      this.timeSlots = data.timeSlots;
+
+      this.aTS = {}; // aTS = assistantTimeSlots
+      for (let i = 0; i < data.timeSlots.length; i += 1) {
+        if (data.timeSlots[i].courseName === this.courseName) {
+          const currName = data.timeSlots[i].assistantName;
+          if (!(Object.prototype.hasOwnProperty.call(this.aTS, currName))) {
+            this.aTS[currName] = [];
+          }
+          this.aTS[currName].push(data.timeSlots[i]);
+        }
+      }
+    },
+    logout() {
+      if (this.$store.getters.isLoggedIn) {
+        const user = this.$store.getters.getUser;
+        RoutingService.logout(user).then(() => {
+          this.$store.dispatch('logout');
+        }).catch((err) => {
+          this.msg = err.response.data.msg;
+        });
+      }
+    },
   },
   // Step 2 in lifecycle hooks.
   async created() {
@@ -98,37 +122,30 @@ export default {
 
     this.courseName = this.$route.params.courseName;
 
+    let attends = true;
+    const { attendingCourses } = user;
+    console.log('attendsCourses');
+    console.log(attendingCourses);
+    for (let i = 0; i < attendingCourses.length; i += 1) {
+      if (attendingCourses[i].name === this.courseName) {
+        attends = false;
+      }
+    }
+    if (!attends) {
+      this.router.go(-1);
+    }
+
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
       const response = await RoutingService.getTimeSlots();
-      this.timeSlots = response.timeSlots;
-
-      this.aTS = {}; // "aTS" stands for assistant Time Slots.
-      for (let i = 0; i < response.timeSlots.length; i += 1) {
-        if (response.timeSlots[i].courseName === this.courseName) {
-          const currName = response.timeSlots[i].assistantName;
-          if (!(Object.prototype.hasOwnProperty.call(this.aTS, currName))) {
-            this.aTS[currName] = [];
-          }
-          this.aTS[currName].push(response.timeSlots[i]);
-        }
-      }
+      this.updateTimeSlots(response);
     }
   },
   // Step 4 in lifecycle hooks.
   mounted() {
-    this.socket.on('update', (data) => {
-      this.aTS = {}; // aTS = assistantTimeSlots
-      for (let i = 0; i < data.timeSlots.length; i += 1) {
-        if (data.timeSlots[i].courseName === this.courseName) {
-          const currName = data.timeSlots[i].assistantName;
-          if (!(Object.prototype.hasOwnProperty.call(this.aTS, currName))) {
-            this.aTS[currName] = [];
-          }
-          this.aTS[currName].push(data.timeSlots[i]);
-        }
-      }
+    this.socket.on('updateTimeSlots', (data) => {
+      this.updateTimeSlots(data);
     });
     this.socket.on('updateCourses', (data) => {
       let exists = false;
@@ -141,6 +158,15 @@ export default {
         // The course was removed.
         this.$router.push('/courses').catch(() => {});
       }
+    });
+    this.socket.on('updatePrivileges', async (username) => {
+      if (this.$store.getters.getUser.username === username) {
+        this.logout();
+        // Prompt re-login if your privileges changed.
+        this.$router.push('/login').catch(() => {});
+      }
+      const response = await RoutingService.getTimeSlots();
+      this.updateTimeSlots(response);
     });
   },
   // Step 5 in lifecycle hooks.

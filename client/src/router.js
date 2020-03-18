@@ -31,11 +31,6 @@ const routes = [
   { path: '/admin/:adminName', component: AdminPageView, name: 'AdminPage' },
   { path: '/admin/:adminName/users', component: AdminUsersView, name: 'AdminUsers' },
   { path: '/admin/:adminName/privileges', component: AdminPrivilegesView, name: 'AdminPrivileges' },
-  // {
-  //   path: '/admin/:adminName/privileges/:courseName',
-  //   component: AdminPrivilegesForCourseView,
-  //   name: 'AdminPrivilegesForCourse'
-  // },
   { path: '/admin/:adminName/courses', component: AdminCoursesView, name: 'AdminCourses' },
 ];
 

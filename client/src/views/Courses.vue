@@ -84,6 +84,27 @@ export default {
     redirectAdministers(courseName) {
       this.$router.push(`/courses/${courseName}/timeslots`);
     },
+    async updateCourses() {
+      try {
+        const response = await RoutingService.getCourses(this.user);
+        const courseLists = response.response;
+        this.attendsCourses = courseLists.attendsCourses;
+        this.assistsCourses = courseLists.assistsCourses;
+        this.administersCourses = courseLists.administersCourses;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    logout() {
+      if (this.$store.getters.isLoggedIn) {
+        const user = this.$store.getters.getUser;
+        RoutingService.logout(user).then(() => {
+          this.$store.dispatch('logout');
+        }).catch((err) => {
+          this.msg = err.response.data.msg;
+        });
+      }
+    },
   },
   async created() {
     // If not authenticated , redirect to login page.
@@ -94,32 +115,26 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
-    const user = this.$store.getters.getUser;
-    this.username = user.username;
-    this.isAssistant = user.isAssistant;
-    this.isAdmin = user.isAdmin;
+    this.user = this.$store.getters.getUser;
+    this.username = this.user.username;
+    this.isAssistant = this.user.isAssistant;
+    this.isAdmin = this.user.isAdmin;
 
-    try {
-      const response = await RoutingService.getCourses(user);
-      const courseLists = response.response;
-      this.attendsCourses = courseLists.attendsCourses;
-      this.assistsCourses = courseLists.assistsCourses;
-      this.administersCourses = courseLists.administersCourses;
-    } catch (err) {
-      console.log(err);
-    }
+    this.updateCourses();
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {
     this.socket.on('updateCourses', async () => {
-      try {
-        const response = await RoutingService.getCourses(this.$store.getters.getUser);
-        const courseLists = response.response;
-        this.attendsCourses = courseLists.attendsCourses;
-        this.assistsCourses = courseLists.assistsCourses;
-        this.administersCourses = courseLists.administersCourses;
-      } catch (err) {
-        console.log(err);
+      if (!this.$store.getters.isLoggedIn) {
+        this.$router.push('/login').catch(() => {});
+      }
+      this.updateCourses();
+    });
+    this.socket.on('updatePrivileges', async (username) => {
+      if (this.$store.getters.getUser.username === username) {
+        this.logout();
+        // Prompt re-login if your privileges changed.
+        this.$router.push('/login').catch(() => {});
       }
     });
   },

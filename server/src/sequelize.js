@@ -649,7 +649,6 @@ exports.removeCourse = (courseName) => (
   ).catch((err) => console.log(err) )
 );
 
-// CAMEL CASE=???
 exports.revokePrivilegeForCourse = (username, courseName) => (
   User.findOne({ where: { name: username }}).then((user) => {
     Course.findOne({ where: { name: courseName }}).then((course) => {
@@ -673,13 +672,10 @@ function removeStudentAttributes(studentName, studentId, courseId) {
     { isBooked: 0, bookedBy: null },
     { where: { bookedBy: studentName } },
   ).then(() => {
-    console.log(studentName, studentId, courseId);
     AttendsCourse.destroy({
       where: { userId: studentId, courseId: courseId },
       force: true,
     }).then((numDeletedRows) => {
-      console.log('numDeletedRows');
-      console.log(numDeletedRows);
       resolve(numDeletedRows);
     }).catch((err) => console.log(err) );
   })
@@ -690,16 +686,9 @@ exports.grantPrivilegeForCourse = (username, courseName) => (
     { returning: true, where: { name: username } },
   ).then(() => {
     User.findOne({ where: { name: username } }).then((user) => {
-      console.log('DUMBLEDORE');
-      console.log(user);
-      console.log(user.id);
       Course.findOne({ where: { name: courseName }}).then((course) => {
-        console.log(course);
-        console.log(course.id);
         AssistsCourse.create({ userId: user.id, courseId: course.id }).then((res) => {
-          console.log(res);
           removeStudentAttributes(user.name, user.id, course.id).then(() => {
-            console.log(res);
             resolve();
           }).catch((err) => console.log(err) );
         }).catch((err) => console.log(err) );

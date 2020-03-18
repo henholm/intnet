@@ -165,26 +165,42 @@ router.post('/login', (req, res) => {
     const { userData } = response;
     const { msg } = response;
     if (userData) {
-      const { userId } = userData;
-      const { username } = userData;
-      const { isAssistant } = userData;
-      const { isAdmin } = userData;
-      const user = { username, userId, isAssistant, isAdmin };
+      console.log(userData);
+      console.log(userData.userId);
+      model.getAttendingCourses(userData.userId).then((attendingCourses) => {
+        console.log(attendingCourses);
+        model.getAssistingCourses(userData.userId).then((assistingCourses) => {
+          console.log(attendingCourses);
+          console.log(assistingCourses);
+          const { userId } = userData;
+          const { username } = userData;
+          const { isAssistant } = userData;
+          const { isAdmin } = userData;
+          const user = {
+            username,
+            userId,
+            isAssistant,
+            isAdmin,
+            attendingCourses,
+            assistingCourses
+          };
 
-      const token = jwt.sign({
-        username,
-        userId,
-        isAssistant,
-      },
-      'SECRETKEY', {
-        expiresIn: '30m',
-      });
+          const token = jwt.sign({
+            username,
+            userId,
+            isAssistant,
+          },
+          'SECRETKEY', {
+            expiresIn: '30m',
+          });
 
-      return res.status(200).send({
-        msg,
-        token,
-        user,
-      });
+          return res.status(200).send({
+            msg,
+            token,
+            user,
+          });
+        }).catch((err) => console.log(err) );
+      }).catch((err) => console.log(err) );
     }
     return res.status(401).send({
       msg,

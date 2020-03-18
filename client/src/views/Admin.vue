@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div
           class="well"
           @click="redirectUsers()"
@@ -26,7 +26,7 @@
             </h4>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="row">
         <div
@@ -54,9 +54,9 @@ export default {
     socket: null,
   }),
   methods: {
-    redirectUsers() {
-      this.$router.push(`/admin/${this.username}/users`);
-    },
+    // redirectUsers() {
+    //   this.$router.push(`/admin/${this.username}/users`);
+    // },
     redirectPrivileges() {
       this.$router.push(`/admin/${this.username}/privileges`);
     },

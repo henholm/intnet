@@ -213,7 +213,7 @@ function resetTimeSlot(msg) {
       model.setTimeSlotAttributes(timeSlotId, 0, null, 0, null).then(() => {
         // Broadcast to others after the update has been recognized server-wise.
         model.getTimeSlots().then((timeSlots) => {
-          io.emit('update', { timeSlots });
+          io.emit('updateTimeSlots', { timeSlots });
         }).catch((err) => {
           console.log(err);
         });
@@ -243,6 +243,7 @@ io.on('connection', (socket) => {
       else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
     });
   }
+
   socket.on('changeState', (msg) => {
     const { timeSlotId } = msg;
     const { isReserved } = msg;
@@ -262,12 +263,12 @@ io.on('connection', (socket) => {
     model.setTimeSlotAttributes(timeSlotId, isReserved, reservedBy, isBooked, bookedBy).then(() => {
       // Broadcast to others after the update has been recognized server-wise.
       model.getTimeSlots().then((timeSlots) => {
-        // socket.broadcast.emit('update', { timeSlots });
-        io.emit('update', { timeSlots });
+        // socket.broadcast.emit('updateTimeSlots', { timeSlots });
+        io.emit('updateTimeSlots', { timeSlots });
       }).catch((err) => {
         console.log(err);
       });
-      // socket.broadcast.emit('update', { msg });
+      // socket.broadcast.emit('updateTimeSlots', { msg });
     }).catch((err) => {
       console.log(err);
     });
@@ -276,8 +277,8 @@ io.on('connection', (socket) => {
   socket.on('removeTimeSlot', (msg) => {
     model.removeTimeSlot(msg.id).then(() => {
       model.getTimeSlots().then((timeSlots) => {
-        // socket.broadcast.emit('update', { timeSlots });
-        io.emit('update', { timeSlots });
+        // socket.broadcast.emit('updateTimeSlots', { timeSlots });
+        io.emit('updateTimeSlots', { timeSlots });
       }).catch((err) => {
         console.log(err);
       });
@@ -289,8 +290,8 @@ io.on('connection', (socket) => {
   socket.on('addTimeSlot', (msg) => {
     model.addTimeSlot(msg.assistantName, msg.assistantId, msg.time, msg.course).then(() => {
       model.getTimeSlots().then((timeSlots) => {
-        // socket.broadcast.emit('update', { timeSlots });
-        io.emit('update', { timeSlots });
+        // socket.broadcast.emit('updateTimeSlots', { timeSlots });
+        io.emit('updateTimeSlots', { timeSlots });
       }).catch((err) => {
         console.log(err);
       });
@@ -302,7 +303,6 @@ io.on('connection', (socket) => {
   socket.on('removeCourse', (msg) => {
     model.removeCourse(msg.courseName).then(() => {
       model.getCourses().then((courses) => {
-        // socket.broadcast.emit('update', { timeSlots });
         io.emit('updateCourses', { courses });
       }).catch((err) => {
         console.log(err);
@@ -315,7 +315,6 @@ io.on('connection', (socket) => {
   socket.on('addCourse', (msg) => {
     model.addCourse(msg.courseName).then(() => {
       model.getCourses().then((courses) => {
-        // socket.broadcast.emit('update', { timeSlots });
         io.emit('updateCourses', { courses });
       }).catch((err) => {
         console.log(err);
@@ -329,7 +328,7 @@ io.on('connection', (socket) => {
     const { username } = msg;
     const { courseName } = msg;
     model.revokePrivilegeForCourse(username, courseName).then(() => {
-      io.emit('updateCourses');
+      io.emit('updatePrivileges', username);
     }).catch((err) => {
       console.log(err);
     });
@@ -339,7 +338,7 @@ io.on('connection', (socket) => {
     const { username } = msg;
     const { courseName } = msg;
     model.grantPrivilegeForCourse(username, courseName).then(() => {
-      io.emit('updateCourses');
+      io.emit('updatePrivileges', username);
     }).catch((err) => {
       console.log(err);
     });

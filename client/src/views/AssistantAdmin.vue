@@ -78,36 +78,7 @@ export default {
       }
       event.preventDefault();
     },
-  },
-  // Step 2 in lifecycle hooks.
-  async created() {
-    // If not authenticated or if not assistant, redirect to login page.
-    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAssistant !== 1) {
-      this.$router.push('/login').catch(err => console.log(err));
-    }
-
-    this.socket = this.$root.socket;
-    this.socket.connect();
-
-    const user = this.$store.getters.getUser;
-    this.assistantId = user.userId;
-    this.assistantName = user.username;
-
-    this.courseName = this.$route.params.courseName;
-
-    const response = await RoutingService.getTimeSlots();
-    this.timeSlots = [];
-    for (let i = 0; i < response.timeSlots.length; i += 1) {
-      if (response.timeSlots[i].assistantName === this.assistantName) {
-        if (response.timeSlots[i].courseName === this.courseName) {
-          this.timeSlots.push(response.timeSlots[i]);
-        }
-      }
-    }
-  },
-  // Step 4 in the lifecycle hooks.
-  async mounted() {
-    this.socket.on('update', (data) => {
+    async setupTimeSlots(data) {
       this.timeSlots = [];
       for (let i = 0; i < data.timeSlots.length; i += 1) {
         if (data.timeSlots[i].assistantName === this.assistantName) {
@@ -116,6 +87,39 @@ export default {
           }
         }
       }
+    },
+    logout() {
+      if (this.$store.getters.isLoggedIn) {
+        const user = this.$store.getters.getUser;
+        RoutingService.logout(user).then(() => {
+          this.$store.dispatch('logout');
+        }).catch((err) => {
+          this.msg = err.response.data.msg;
+        });
+      }
+    },
+  },
+  // Step 2 in lifecycle hooks.
+  async created() {
+    // If not authenticated or if not assistant, redirect to login page.
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAssistant !== 1) {
+      this.$router.push('/login').catch(err => console.log(err));
+    }
+    this.socket = this.$root.socket;
+    this.socket.connect();
+
+    const user = this.$store.getters.getUser;
+    this.assistantId = user.userId;
+    this.assistantName = user.username;
+    this.courseName = this.$route.params.courseName;
+
+    const response = await RoutingService.getTimeSlots();
+    this.setupTimeSlots(response);
+  },
+  // Step 4 in the lifecycle hooks.
+  async mounted() {
+    this.socket.on('updateTimeSlots', (data) => {
+      this.setupTimeSlots(data);
     });
     this.socket.on('updateCourses', (data) => {
       let exists = false;
@@ -127,6 +131,13 @@ export default {
       if (!exists) {
         // The course was removed.
         this.$router.push('/courses').catch(() => {});
+      }
+    });
+    this.socket.on('updatePrivileges', async (username) => {
+      if (this.$store.getters.getUser.username === username) {
+        this.logout();
+        // Prompt re-login if your privileges changed.
+        this.$router.push('/login').catch(() => {});
       }
     });
   },

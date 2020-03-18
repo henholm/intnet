@@ -71,13 +71,7 @@ export default {
         }
       }, 1000);
     },
-  },
-  // Step 2 in lifecycle hooks.
-  created() {
-    this.socket = this.$root.socket;
-    if (!this.$store.getters.isLoggedIn) {
-      this.$router.push('/login').catch(() => {});
-    } else {
+    setupData() {
       const payload = {
         timeSlotId: this.timeSlotId,
         isReserved: 1,
@@ -99,10 +93,42 @@ export default {
         console.log(err);
         this.$router.go(-1);
       });
+    },
+    logout() {
+      if (this.$store.getters.isLoggedIn) {
+        const user = this.$store.getters.getUser;
+        RoutingService.logout(user).then(() => {
+          this.$store.dispatch('logout');
+        }).catch((err) => {
+          this.msg = err.response.data.msg;
+        });
+      }
+    },
+  },
+  // Step 2 in lifecycle hooks.
+  created() {
+    this.socket = this.$root.socket;
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login').catch(() => {});
+    } else {
+      this.setupData();
     }
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {
+    this.socket.on('updateTimeSlots', (data) => {
+      let exists = false;
+      for (let i = 0; i < data.timeSlots.length; i += 1) {
+        if (data.timeSlots[i].id === this.timeSlotId) {
+          exists = true;
+        }
+      }
+      if (!exists) {
+        // The time slot was removed.
+        // this.$router.go(-2);
+        this.$router.push(`/courses/${this.courseName}/timeslots`).catch(() => {});
+      }
+    });
     this.socket.on('updateCourses', (data) => {
       let exists = false;
       for (let i = 0; i < data.courses.length; i += 1) {
@@ -115,6 +141,14 @@ export default {
         // this.$router.go(-2);
         this.$router.push('/courses/').catch(() => {});
       }
+    });
+    this.socket.on('updatePrivileges', async (username) => {
+      if (this.$store.getters.getUser.username === username) {
+        // Prompt re-login if your privileges changed.
+        this.logout();
+        this.$router.push('/login').catch(() => {});
+      }
+      this.setupData();
     });
   },
   // Step 6 in lifecycle hooks.
