@@ -198,9 +198,9 @@ app.use(express.static(publicPath));
 
 // #region additional middleware
 // Bind REST controllers to /api/*
-const authController = require('./controllers/auth.controller.js');
+const controller = require('./controllers/controller.js');
 
-app.use('/api', authController.router);
+app.use('/api', controller.router);
 
 // #endregion
 
