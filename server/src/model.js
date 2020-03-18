@@ -97,6 +97,10 @@ exports.revokePrivilegeForCourse = (username, courseName) => (
   Database.revokePrivilegeForCourse(username, courseName)
 );
 
+exports.grantPrivilegeForCourse = (username, courseName) => (
+  Database.grantPrivilegeForCourse(username, courseName)
+);
+
 /**
 * Returns all time slots.
 * @returns {TimeSlot[]}
