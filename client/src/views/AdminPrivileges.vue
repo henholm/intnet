@@ -4,14 +4,13 @@
       <h3>Users and roles which {{username}} administers</h3>
 
       <div v-for="courseName in Object.keys(coursesUsers)" v-bind:key="courseName">
-        <h4>
-          <span>{{ courseName }}</span>
-        </h4>
+        <h4><span>{{ courseName }}</span></h4>
         <div class="row" style="text-align: center;">
-          <div class="ts-container" v-for="users in coursesUsers[courseName]"
-            v-bind:key="users">
-            <div class="timeslot-container" v-for="user in users" v-bind:key="user">
-              <h3>{{user.name}}</h3>
+          <div class="ts-container" v-for="role in Object.keys(coursesUsers[courseName])"
+               v-bind:key="role">
+            <h4><span>{{ role }}</span></h4>
+            <div class="timeslot-container"
+                 v-for="user in coursesUsers[courseName][role]" v-bind:key="user">
               <button
                 type="button"
                 class="booked"
@@ -22,56 +21,20 @@
                 type="button"
                 class="reservedByMe"
                 ref="user.id"
-                v-else-if="user.isAssistant===1"
-                v-on:click="revokePrivilege($event, user.id)"
+                v-else-if="role==='assistants' && user.isAssistant===1"
+                v-on:click="revokePrivilege($event, user.name)"
               ><h4>{{user.name}}</h4></button>
               <button
                 type="button"
                 class="open"
                 ref="user.id"
                 v-else
-                v-on:click="grantPrivilege($event, user.id)"
+                v-on:click="grantPrivilege($event, user.name)"
               ><h4>{{user.name}}</h4></button>
             </div>
           </div>
         </div>
       </div>
-      <!-- </div> -->
-
-
-        <!-- <div
-          class="ts-container"
-          v-for="role in Object.keys(users)"
-          v-bind:key="role"
-        ><h3>{{role}}</h3>
-          <div
-            class="timeslot-container"
-            v-for="user in users[role]"
-            v-bind:key="user.id"
-          >
-            <button
-              type="button"
-              class="booked"
-              ref="user.id"
-              v-if="user.isAdmin===1"
-            ><h4>{{user.name}}</h4></button>
-            <button
-              type="button"
-              class="reservedByMe"
-              ref="user.id"
-              v-else-if="user.isAssistant===1"
-              v-on:click="revokePrivilege($event, user.id)"
-            ><h4>{{user.name}}</h4></button>
-            <button
-              type="button"
-              class="open"
-              ref="user.id"
-              v-else
-              v-on:click="grantPrivilege($event, user.id)"
-            ><h4>{{user.name}}</h4></button>
-          </div>
-        </div> -->
-      <!-- </div> -->
     </section>
   </div>
 </template>
@@ -92,13 +55,13 @@ export default {
     };
   },
   methods: {
-    revokePrivilege(event, userId) {
-      console.log(userId);
+    revokePrivilege(event, username) {
+      console.log(username);
       event.preventDefault();
       // this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
-    grantPrivilege(event, userId) {
-      console.log(userId);
+    grantPrivilege(event, username) {
+      console.log(username);
       event.preventDefault();
       // this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
@@ -116,16 +79,16 @@ export default {
 
         const usersForCourses = await Promise.all(promises);
 
-        console.log(usersForCourses);
-
         this.coursesUsers = {};
         for (let i = 0; i < usersForCourses.length; i += 1) {
-          const users = [];
-          console.log(usersForCourses[i]);
-          users.push(...usersForCourses[i].admins);
-          users.push(...usersForCourses[i].assistants);
-          users.push(...usersForCourses[i].students);
-          this.coursesUsers[usersForCourses[i].courseName] = users;
+          const { admins } = usersForCourses[i];
+          const { assistants } = usersForCourses[i];
+          const { students } = usersForCourses[i];
+          this.coursesUsers[usersForCourses[i].courseName] = {
+            admins,
+            assistants,
+            students,
+          };
         }
 
         console.log(this.coursesUsers);
