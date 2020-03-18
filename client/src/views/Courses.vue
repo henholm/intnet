@@ -109,6 +109,20 @@ export default {
       console.log(err);
     }
   },
+  // Step 4 in the lifecycle hooks.
+  async mounted() {
+    this.socket.on('updateCourses', async () => {
+      try {
+        const response = await RoutingService.getCourses(this.$store.getters.getUser);
+        const courseLists = response.response;
+        this.attendsCourses = courseLists.attendsCourses;
+        this.assistsCourses = courseLists.assistsCourses;
+        this.administersCourses = courseLists.administersCourses;
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  },
   // Step 5 in lifecycle hooks.
   onUpdate() {
     if (!this.$store.getters.isLoggedIn) {

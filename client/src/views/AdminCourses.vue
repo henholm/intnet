@@ -1,42 +1,31 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h2>{{assistantName}}'s time slots in {{courseName}}</h2>
+      <h2>Courses {{user.username}} can administer</h2>
       <div class="btn-group">
-        <div v-for="TS in timeSlots" v-bind:key="TS.id">
+        <div v-for="course in courses" v-bind:key="course.name">
           <button
             type="button"
-            v-if="TS.isBooked===1"
-            v-on:click="remove($event, TS.id)"
-            class="a-booked"
-            ref="TS.id"
-          >{{TS.time}}: booked by {{TS.bookedBy}}</button>
-          <button
-            type="button"
-            v-else-if="TS.isReserved===1"
-            v-on:click="remove($event, TS.id)"
-            class="a-reserved"
-            ref="TS.id"
-          >{{TS.time}}: reserved by {{TS.reservedBy}}</button>
-          <button
-            type="button"
-            v-else
-            v-on:click="remove($event, TS.id)"
+            v-on:click="remove($event, course.name)"
             class="a-open"
             ref="TS.id"
-          >{{TS.time}}: open time slot</button>
+          >{{course.name}}</button>
         </div>
       </div>
       <div>
         <br>
-        <h5>To add a new time slot, please input the desired time.</h5>
+        <h5>To add a new course, please input the desired course name.</h5>
         <form @submit="checkForm">
           <p>
-            <label for="slotTime">E.g. "12:00 - 13:00"</label>
-            <input type="text" id="slotTime" v-model="slotTime" required />
+            <label for="courseName">E.g. "course6"</label>
+            <input type="text" id="courseName" v-model="courseName" required />
           </p>
           <input class="btn btn-default" type="submit" value="OK"/>
         </form>
+      </div>
+      <div>
+        <br>
+        <h4>{{this.msg}}</h4>
       </div>
     </section>
   </div>
@@ -46,35 +35,29 @@
 import RoutingService from '@/services/RoutingService';
 
 export default {
-  name: 'AssistantAdmin',
+  name: 'AdminCourses',
   components: {},
   data() {
     return {
-      assistantId: '',
-      assistantName: '',
-      courseName: '',
-      timeSlots: [],
-      slotTime: '',
+      msg: '',
+      courseName: null,
+      user: null,
+      courses: [],
       socket: null,
     };
   },
   methods: {
-    remove(event, timeSlotId) {
+    remove(event, courseName) {
       event.preventDefault();
-      this.socket.emit('removeTimeSlot', { id: timeSlotId });
+      this.socket.emit('removeCourse', { courseName });
     },
-    addSlot(slotTime) {
-      const payload = {
-        assistantName: this.assistantName,
-        assistantId: this.assistantId,
-        time: slotTime,
-        course: this.courseName,
-      };
-      this.socket.emit('addTimeSlot', payload);
+    addCourse(courseName) {
+      const payload = { courseName };
+      this.socket.emit('addCourse', payload);
     },
     checkForm(event) {
-      if (this.slotTime) {
-        this.addSlot(this.slotTime);
+      if (this.courseName) {
+        this.addCourse(this.courseName);
       }
       event.preventDefault();
     },
@@ -89,38 +72,27 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
-    const user = this.$store.getters.getUser;
-    this.assistantId = user.userId;
-    this.assistantName = user.username;
+    this.user = this.$store.getters.getUser;
 
-    this.courseName = this.$route.params.courseName;
-
-    const response = await RoutingService.getTimeSlots();
-    this.timeSlots = [];
-    for (let i = 0; i < response.timeSlots.length; i += 1) {
-      if (response.timeSlots[i].assistantName === this.assistantName) {
-        if (response.timeSlots[i].courseName === this.courseName) {
-          this.timeSlots.push(response.timeSlots[i]);
-        }
-      }
-    }
+    const res = await RoutingService.getCourses(this.user);
+    this.courses = res.response.administersCourses;
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {
-    this.socket.on('update', (data) => {
-      this.timeSlots = [];
-      for (let i = 0; i < data.timeSlots.length; i += 1) {
-        if (data.timeSlots[i].assistantName === this.assistantName) {
-          if (data.timeSlots[i].courseName === this.courseName) {
-            this.timeSlots.push(data.timeSlots[i]);
-          }
-        }
+    this.socket.on('updateCourses', (data) => {
+      this.courses = [];
+      for (let i = 0; i < data.courses.length; i += 1) {
+        const course = {
+          id: data.courses[i].id,
+          name: data.courses[i].name,
+        };
+        this.courses.push(course);
       }
     });
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {
-    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
   },

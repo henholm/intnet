@@ -143,6 +143,10 @@ exports.addTimeSlot = (assistantName, assistantId, time, course) => (
   Database.addTimeSlot(assistantName, assistantId, time, course)
 );
 
+exports.removeCourse = (courseName) => Database.removeCourse(courseName);
+
+exports.addCourse = (courseName) => Database.addCourse(courseName);
+
 exports.userLogOut = (userId) => (
   Database.setLoggedIn(userId, 0)
 );

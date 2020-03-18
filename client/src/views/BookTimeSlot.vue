@@ -101,6 +101,22 @@ export default {
       });
     }
   },
+  // Step 4 in the lifecycle hooks.
+  async mounted() {
+    this.socket.on('updateCourses', (data) => {
+      let exists = false;
+      for (let i = 0; i < data.courses.length; i += 1) {
+        if (data.courses.name === this.courseName) {
+          exists = true;
+        }
+      }
+      if (!exists) {
+        // The course was removed.
+        // this.$router.go(-2);
+        this.$router.push('/courses/').catch(() => {});
+      }
+    });
+  },
   // Step 6 in lifecycle hooks.
   updated() {
     if (!this.$store.getters.isLoggedIn) {

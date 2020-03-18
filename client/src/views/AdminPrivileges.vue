@@ -46,7 +46,7 @@
 import RoutingService from '@/services/RoutingService';
 
 export default {
-  name: 'AssistantAdmin',
+  name: 'AdminPrivileges',
   components: {},
   data() {
     return {
@@ -120,7 +120,7 @@ export default {
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {
-    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
   },

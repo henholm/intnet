@@ -39,14 +39,14 @@ TimeSlot.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 
 // One Course potentially has several TimeSlots (or none).
 Course.hasMany(TimeSlot);
-TimeSlot.belongsTo(Course, { foreignKey: 'courseName', targetKey: 'name' });
+TimeSlot.belongsTo(Course, { foreignKey: 'courseName', targetKey: 'name', onDelete: 'CASCADE' });
 
 // One Assistant (who is a User) potentially assists several Course (or none).
 AssistsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 User.hasMany(AssistsCourse);
 
 // One Course is potentially assisted by several Assistants (or none).
-AssistsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
+AssistsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id', onDelete: 'CASCADE' });
 Course.hasMany(AssistsCourse);
 
 // A student (who is a User) potentially attends several Course (or none).
@@ -54,7 +54,7 @@ AttendsCourse.belongsTo(User, { foreignKey: 'userId', targetKey: 'id' });
 User.hasMany(AttendsCourse);
 
 // One Course is potentially attended by several Students (or none).
-AttendsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id' });
+AttendsCourse.belongsTo(Course, { foreignKey: 'courseId', targetKey: 'id', onDelete: 'CASCADE' });
 Course.hasMany(AttendsCourse);
 
 // Force drop tables and re-instantiate them.

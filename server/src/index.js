@@ -204,8 +204,8 @@ app.use('/api', authController.router);
 
 // #endregion
 
-function resetTimeSlot(message) {
-  const { timeSlotId } = message;
+function resetTimeSlot(msg) {
+  const { timeSlotId } = msg;
   model.selectTimeSlotByIdDirty(timeSlotId).then((timeSlot) => {
     // If the timeSlot is still reserved after 20 seconds, reset it.
     if (timeSlot.isReserved === 1) {
@@ -243,12 +243,12 @@ io.on('connection', (socket) => {
       else console.debug(`Saved socketID: ${socket.handshake.session.socketID}`);
     });
   }
-  socket.on('changeState', (message) => {
-    const { timeSlotId } = message;
-    const { isReserved } = message;
-    const { reservedBy } = message;
-    const { isBooked } = message;
-    const { bookedBy } = message;
+  socket.on('changeState', (msg) => {
+    const { timeSlotId } = msg;
+    const { isReserved } = msg;
+    const { reservedBy } = msg;
+    const { isBooked } = msg;
+    const { bookedBy } = msg;
     if (isReserved === 1) {
       // If the Timeout object already exists, clear it.
       if (timeoutHandlesMap.has(timeSlotId)) {
@@ -256,7 +256,7 @@ io.on('connection', (socket) => {
         clearTimeout(timeoutHandle);
       }
       // Instantiate a new Timeout object.
-      const timeoutHandle = setTimeout(resetTimeSlot, 20000, message);
+      const timeoutHandle = setTimeout(resetTimeSlot, 20000, msg);
       timeoutHandlesMap.set(timeSlotId, timeoutHandle);
     }
     model.setTimeSlotAttributes(timeSlotId, isReserved, reservedBy, isBooked, bookedBy).then(() => {
@@ -267,14 +267,14 @@ io.on('connection', (socket) => {
       }).catch((err) => {
         console.log(err);
       });
-      // socket.broadcast.emit('update', { message });
+      // socket.broadcast.emit('update', { msg });
     }).catch((err) => {
       console.log(err);
     });
   });
 
-  socket.on('removeTimeSlot', (message) => {
-    model.removeTimeSlot(message.id).then(() => {
+  socket.on('removeTimeSlot', (msg) => {
+    model.removeTimeSlot(msg.id).then(() => {
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
         io.emit('update', { timeSlots });
@@ -291,6 +291,32 @@ io.on('connection', (socket) => {
       model.getTimeSlots().then((timeSlots) => {
         // socket.broadcast.emit('update', { timeSlots });
         io.emit('update', { timeSlots });
+      }).catch((err) => {
+        console.log(err);
+      });
+    }).catch((err) => {
+      console.log(err);
+    });
+  });
+
+  socket.on('removeCourse', (msg) => {
+    model.removeCourse(msg.courseName).then(() => {
+      model.getCourses().then((courses) => {
+        // socket.broadcast.emit('update', { timeSlots });
+        io.emit('updateCourses', { courses });
+      }).catch((err) => {
+        console.log(err);
+      });
+    }).catch((err) => {
+      console.log(err);
+    });
+  });
+
+  socket.on('addCourse', (msg) => {
+    model.addCourse(msg.courseName).then(() => {
+      model.getCourses().then((courses) => {
+        // socket.broadcast.emit('update', { timeSlots });
+        io.emit('updateCourses', { courses });
       }).catch((err) => {
         console.log(err);
       });

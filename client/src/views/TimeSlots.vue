@@ -130,6 +130,18 @@ export default {
         }
       }
     });
+    this.socket.on('updateCourses', (data) => {
+      let exists = false;
+      for (let i = 0; i < data.courses.length; i += 1) {
+        if (data.courses.name === this.courseName) {
+          exists = true;
+        }
+      }
+      if (!exists) {
+        // The course was removed.
+        this.$router.push('/courses').catch(() => {});
+      }
+    });
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {

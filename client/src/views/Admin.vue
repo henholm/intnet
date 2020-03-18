@@ -66,7 +66,7 @@ export default {
   },
   async created() {
     // If not authenticated , redirect to login page.
-    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
 
@@ -78,7 +78,7 @@ export default {
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {
-    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
   },

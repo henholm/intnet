@@ -24,7 +24,6 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
   const attendsCourses = [];
   const assistsCourses = [];
   const administersCourses = [];
-
   try {
     if (isAdmin === 1) {
       // In this case, return all courses.
