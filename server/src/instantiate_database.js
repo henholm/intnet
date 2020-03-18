@@ -155,17 +155,17 @@ Course.hasMany(AttendsCourse);
   await Course.create(
     {
       name: 'course1',
-    }
+    },
   );
   await Course.create(
     {
       name: 'course2',
-    }
+    },
   );
   await Course.create(
     {
       name: 'course3',
-    }
+    },
   );
 
   /* eslint-disable object-curly-newline */
@@ -197,7 +197,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -208,7 +208,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -219,7 +219,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -230,7 +230,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course2',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -241,7 +241,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course2',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -252,7 +252,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course2',
-    }
+    },
   );
 
   // 6 time slots for assistant2: 3 in course 1 and 3 in course 3.
@@ -265,7 +265,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -276,7 +276,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -287,7 +287,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course1',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -298,7 +298,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course3',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -309,7 +309,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course3',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -320,7 +320,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course3',
-    }
+    },
   );
 
   // 6 time slots for assistant3: 3 in course 2 and 3 in course 3.
@@ -333,7 +333,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course2',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -344,7 +344,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course2',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -355,7 +355,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course2',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -366,7 +366,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:00 - 13:20',
       courseName: 'course3',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -377,7 +377,7 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:20 - 13:40',
       courseName: 'course3',
-    }
+    },
   );
   await TimeSlot.create(
     {
@@ -388,6 +388,6 @@ Course.hasMany(AttendsCourse);
       bookedBy: null,
       time: '13:40 - 14:00',
       courseName: 'course3',
-    }
+    },
   );
 })();
