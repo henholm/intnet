@@ -122,12 +122,6 @@ export default {
 
     this.courseName = this.$route.params.courseName;
 
-    /* eslint-disable-next-line max-len */
-    const takesCourse = await RoutingService.checkIfStudentTakesCourse(this.userId, this.courseName);
-    if (!takesCourse) {
-      this.$router.go(-1);
-    }
-
     if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     } else {
