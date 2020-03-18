@@ -123,6 +123,9 @@ export default {
     this.socket.on('updateUsers', () => {
       this.updateCoursesUsers();
     });
+    this.socket.on('updatePrivileges', () => {
+      this.updateCoursesUsers();
+    });
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {
