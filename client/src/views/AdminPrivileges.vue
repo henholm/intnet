@@ -2,8 +2,44 @@
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
       <h3>Users and roles which {{username}} administers</h3>
-      <div class="assistant-container">
-        <div
+
+      <div v-for="courseName in Object.keys(coursesUsers)" v-bind:key="courseName">
+        <h4>
+          <span>{{ courseName }}</span>
+        </h4>
+        <div class="row" style="text-align: center;">
+          <div class="ts-container" v-for="users in coursesUsers[courseName]"
+            v-bind:key="users">
+            <div class="timeslot-container" v-for="user in users" v-bind:key="user">
+              <h3>{{user.name}}</h3>
+              <button
+                type="button"
+                class="booked"
+                ref="user.id"
+                v-if="user.isAdmin===1"
+              ><h4>{{user.name}}</h4></button>
+              <button
+                type="button"
+                class="reservedByMe"
+                ref="user.id"
+                v-else-if="user.isAssistant===1"
+                v-on:click="revokePrivilege($event, user.id)"
+              ><h4>{{user.name}}</h4></button>
+              <button
+                type="button"
+                class="open"
+                ref="user.id"
+                v-else
+                v-on:click="grantPrivilege($event, user.id)"
+              ><h4>{{user.name}}</h4></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- </div> -->
+
+
+        <!-- <div
           class="ts-container"
           v-for="role in Object.keys(users)"
           v-bind:key="role"
@@ -34,8 +70,8 @@
               v-on:click="grantPrivilege($event, user.id)"
             ><h4>{{user.name}}</h4></button>
           </div>
-        </div>
-      </div>
+        </div> -->
+      <!-- </div> -->
     </section>
   </div>
 </template>
@@ -49,7 +85,6 @@ export default {
   data() {
     return {
       userId: '',
-      user: '', // remove
       username: '',
       courses: [],
       coursesUsers: {},
@@ -83,35 +118,17 @@ export default {
 
         console.log(usersForCourses);
 
-        const coursesUsers = {};
+        this.coursesUsers = {};
         for (let i = 0; i < usersForCourses.length; i += 1) {
           const users = [];
           console.log(usersForCourses[i]);
           users.push(...usersForCourses[i].admins);
           users.push(...usersForCourses[i].assistants);
           users.push(...usersForCourses[i].students);
-          coursesUsers[usersForCourses[i].courseName] = users;
+          this.coursesUsers[usersForCourses[i].courseName] = users;
         }
 
-        console.log(coursesUsers);
-
-        // for (let j = 0; j < response.users.length; j += 1) {
-        //   if (response.users[j].courseName === this.courseName) {
-        //     let currentRole;
-        //     if (response.users[j].isAssistant === 1) {
-        //       currentRole = 'assistant';
-        //     } else if (response.users[j].isAdmin === 1) {
-        //       currentRole = 'admin';
-        //     } else {
-        //       currentRole = 'student';
-        //     }
-        //     if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
-        //       users[currentRole] = [];
-        //     }
-        //     users[currentRole].push(response.users[j]);
-        //   }
-        // }
-        // this.coursesUsers[courseName] = users;
+        console.log(this.coursesUsers);
       } catch (err) {
         console.log(err);
       }
