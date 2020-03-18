@@ -1,42 +1,40 @@
 <template>
   <div class="container">
     <section class="col-md-10 col-md-offset-1" style="text-align: center">
-      <h2>{{assistantName}}'s time slots in {{courseName}}</h2>
-      <div class="btn-group">
-        <div v-for="TS in timeSlots" v-bind:key="TS.id">
-          <button
-            type="button"
-            v-if="TS.isBooked===1"
-            v-on:click="remove($event, TS.id)"
-            class="a-booked"
-            ref="TS.id"
-          >{{TS.time}}: booked by {{TS.bookedBy}}</button>
-          <button
-            type="button"
-            v-else-if="TS.isReserved===1"
-            v-on:click="remove($event, TS.id)"
-            class="a-reserved"
-            ref="TS.id"
-          >{{TS.time}}: reserved by {{TS.reservedBy}}</button>
-          <button
-            type="button"
-            v-else
-            v-on:click="remove($event, TS.id)"
-            class="a-open"
-            ref="TS.id"
-          >{{TS.time}}: open time slot</button>
+      <h2>Users and roles which {{username}}</h2>
+      <div class="assistant-container">
+        <div
+          class="ts-container"
+          v-for="role in Object.keys(users)"
+          v-bind:key="role"
+        ><h3>{{role}}</h3>
+          <div
+            class="timeslot-container"
+            v-for="user in users[role]"
+            v-bind:key="user.id"
+          >
+            <button
+              type="button"
+              class="booked"
+              ref="user.id"
+              v-if="user.isAdmin===1"
+            ><h4>{{user.name}}</h4></button>
+            <button
+              type="button"
+              class="reservedByMe"
+              ref="user.id"
+              v-else-if="user.isAssistant===1"
+              v-on:click="enterAssistant($event, user.id)"
+            ><h4>{{user.name}}</h4></button>
+            <button
+              type="button"
+              class="open"
+              ref="user.id"
+              v-else
+              v-on:click="enterStudent($event, user.id)"
+            ><h4>{{user.name}}</h4></button>
+          </div>
         </div>
-      </div>
-      <div>
-        <br>
-        <h5>To add a new time slot, please input the desired time.</h5>
-        <form @submit="checkForm">
-          <p>
-            <label for="slotTime">E.g. "12:00 - 13:00"</label>
-            <input type="text" id="slotTime" v-model="slotTime" required />
-          </p>
-          <input class="btn btn-default" type="submit" value="OK"/>
-        </form>
       </div>
     </section>
   </div>
@@ -50,11 +48,10 @@ export default {
   components: {},
   data() {
     return {
-      assistantId: '',
-      assistantName: '',
-      courseName: '',
-      timeSlots: [],
-      slotTime: '',
+      userId: '',
+      username: '',
+      courses: [],
+      coursesUsers: {},
       socket: null,
     };
   },
@@ -63,20 +60,36 @@ export default {
       event.preventDefault();
       this.socket.emit('removeTimeSlot', { id: timeSlotId });
     },
-    addSlot(slotTime) {
-      const payload = {
-        assistantName: this.assistantName,
-        assistantId: this.assistantId,
-        time: slotTime,
-        course: this.courseName,
-      };
-      this.socket.emit('addTimeSlot', payload);
-    },
-    checkForm(event) {
-      if (this.slotTime) {
-        this.addSlot(this.slotTime);
+    updateCoursesUsers() {
+      const res = await RoutingService.getCourses(this.user);
+      this.courses = res.response.administersCourses;
+      this.coursesUsers = {};
+
+      for (let i = 0; i < this.courses.length; i += 1) {
+        const courseName = this.course[i].name;
+        console.log(courseName);
+        const response = await RoutingService.getUsersForCourse(this.courseName);
+        console.log(response);
+        console.log(response.response);
+        const users = {};
+        for (let i = 0; i < response.users.length; i += 1) {
+          if (response.users[i].courseName === this.courseName) {
+            let currentRole;
+            if (response.users[i].isAssistant === 1) {
+              currentRole = 'assistant';
+            } else if (response.users[i].isAdmin === 1) {
+              currentRole = 'admin';
+            } else {
+              currentRole = 'student';
+            }
+            if (!(Object.prototype.hasOwnProperty.call(users, currentRole))) {
+              users[currentRole] = [];
+            }
+            users[currentRole].push(response.users[i]);
+          }
+        }
+        this.coursesUsers[courseName] = users;
       }
-      event.preventDefault();
     },
   },
   // Step 2 in lifecycle hooks.
@@ -89,33 +102,18 @@ export default {
     this.socket = this.$root.socket;
     this.socket.connect();
 
-    const user = this.$store.getters.getUser;
-    this.assistantId = user.userId;
-    this.assistantName = user.username;
+    this.userId = this.$store.getters.getUser.userId;
+    this.username = this.$store.getters.getUser.username;
 
-    this.courseName = this.$route.params.courseName;
-
-    const response = await RoutingService.getTimeSlots();
-    this.timeSlots = [];
-    for (let i = 0; i < response.timeSlots.length; i += 1) {
-      if (response.timeSlots[i].assistantName === this.assistantName) {
-        if (response.timeSlots[i].courseName === this.courseName) {
-          this.timeSlots.push(response.timeSlots[i]);
-        }
-      }
-    }
+    updateCoursesUsers();
   },
   // Step 4 in the lifecycle hooks.
   async mounted() {
-    this.socket.on('update', (data) => {
-      this.timeSlots = [];
-      for (let i = 0; i < data.timeSlots.length; i += 1) {
-        if (data.timeSlots[i].assistantName === this.assistantName) {
-          if (data.timeSlots[i].courseName === this.courseName) {
-            this.timeSlots.push(data.timeSlots[i]);
-          }
-        }
-      }
+    this.socket.on('updateCourses', (data) => {
+      updateCoursesUsers();
+    });
+    this.socket.on('updateUsers', () => {
+      updateCoursesUsers();
     });
   },
   // Step 5 in lifecycle hooks.

@@ -238,6 +238,28 @@ exports.getCourses = () => (
   })
 );
 
+exports.getUsers = () => (
+  new Promise((resolve, reject) => {
+    User.findAll({ raw: true }).then((dirtyUsers) =>
+    {
+      const cleanUsers = [];
+      for (let i = 0; i < dirtyUsers.length; i += 1) {
+        const dirtyUser = dirtyUsers[i];
+        const cleanUser = {
+          id: dirtyUser.id,
+          name: dirtyUser.name,
+          isAssistant: dirtyUser.isAssistant,
+          isAdmin: dirtyUser.isAdmin,
+        };
+        cleanUsers.push(cleanUser);
+      }
+      resolve(cleanUsers);
+    }).catch((err) => {
+      reject(err);
+    });
+  })
+);
+
 exports.getAttendingCourses = (userId) => (
   new Promise((resolve, reject) => {
     Course.findAll({

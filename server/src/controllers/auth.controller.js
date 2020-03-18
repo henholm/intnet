@@ -80,6 +80,14 @@ router.post('/courses', userMiddleware.isLoggedIn, async (req, res) => {
   });
 });
 
+router.post('/users', userMiddleware.isLoggedIn, (req, res) => {
+  model.getUsersForCourse(req.body.courseName).then((resolve) => {
+    res.status(200).json({
+      users: resolve,
+    });
+  });
+});
+
 /**
  * Fetch the list of existing time slots for the specified course.
  * @returns {void}

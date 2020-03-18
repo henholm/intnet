@@ -10,6 +10,7 @@ import AssistantPageView from './views/AssistantAdmin.vue';
 import AdminPageView from './views/Admin.vue';
 import AdminUsersView from './views/AdminUsers.vue';
 import AdminPrivilegesView from './views/AdminPrivileges.vue';
+// import AdminPrivilegesForCourseView from './views/AdminPrivilegesForCourse.vue';
 import AdminCoursesView from './views/AdminCourses.vue';
 import store from './store';
 import RoutingService from '@/services/RoutingService';
@@ -30,6 +31,11 @@ const routes = [
   { path: '/admin/:adminName', component: AdminPageView, name: 'AdminPage' },
   { path: '/admin/:adminName/users', component: AdminUsersView, name: 'AdminUsers' },
   { path: '/admin/:adminName/privileges', component: AdminPrivilegesView, name: 'AdminPrivileges' },
+  // {
+  //   path: '/admin/:adminName/privileges/:courseName',
+  //   component: AdminPrivilegesForCourseView,
+  //   name: 'AdminPrivilegesForCourse'
+  // },
   { path: '/admin/:adminName/courses', component: AdminCoursesView, name: 'AdminCourses' },
 ];
 

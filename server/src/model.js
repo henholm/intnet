@@ -85,6 +85,8 @@ exports.findUser = (name) => users[name];
  */
 exports.getCourses = () => Database.getCourses();
 
+exports.getUsers = () => Database.getUsers();
+
 /**
 * Returns all time slots.
 * @returns {TimeSlot[]}
