@@ -101,5 +101,11 @@ export default {
       });
     }
   },
+  // Step 6 in lifecycle hooks.
+  updated() {
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login').catch(() => {});
+    }
+  },
 };
 </script>

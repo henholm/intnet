@@ -82,7 +82,7 @@ export default {
   // Step 2 in lifecycle hooks.
   async created() {
     // If not authenticated or if not assistant, redirect to login page.
-    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAssistant !== 1) {
+    if (!this.$store.getters.isLoggedIn || this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(err => console.log(err));
     }
 
@@ -120,7 +120,7 @@ export default {
   },
   // Step 5 in lifecycle hooks.
   onUpdate() {
-    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAssistant !== 1) {
+    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
   },

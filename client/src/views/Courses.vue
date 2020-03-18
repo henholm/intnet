@@ -87,9 +87,7 @@ export default {
   },
   async created() {
     // If not authenticated , redirect to login page.
-    const { isLoggedIn } = this.$store.getters;
-
-    if (!isLoggedIn) {
+    if (!this.$store.getters.isLoggedIn) {
       this.$router.push('/login').catch(() => {});
     }
 
@@ -109,6 +107,12 @@ export default {
       this.administersCourses = courseLists.administersCourses;
     } catch (err) {
       console.log(err);
+    }
+  },
+  // Step 5 in lifecycle hooks.
+  onUpdate() {
+    if (!this.$store.getters.isLoggedIn) {
+      this.$router.push('/login').catch(() => {});
     }
   },
 };

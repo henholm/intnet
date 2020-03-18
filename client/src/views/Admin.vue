@@ -2,55 +2,40 @@
   <div class="container">
     <section class="col-md-10 col-md-offset-1">
 
-      <div v-if="this.isAdmin===1" class="row">
-        <div class="row" style="text-align: center;">
-          <h2>Courses you administer</h2>
-        </div>
+      <div class="row">
         <div
           class="well"
-          v-for="course in administersCourses"
-          @click="redirectAdministers(course.name)"
-          :key="course.name"
+          @click="redirectUsers()"
         >
           <div class="row" style="text-align: center;">
             <h4>
-              <span>{{ course.name }}</span>
+              <span>Administer users</span>
             </h4>
           </div>
         </div>
       </div>
 
-      <div v-if="this.isAssistant===1" class="row">
-        <div class="row" style="text-align: center;">
-          <h2>Courses you assist</h2>
-        </div>
+      <div class="row">
         <div
           class="well"
-          v-for="course in assistsCourses"
-          @click="redirectAssists(course.name)"
-          :key="course.name"
+          @click="redirectPrivileges()"
         >
           <div class="row" style="text-align: center;">
             <h4>
-              <span>{{ course.name }}</span>
+              <span>Administer privileges</span>
             </h4>
           </div>
         </div>
       </div>
 
-      <div v-if="this.isAdmin!==1" class="row">
-        <div class="row" style="text-align: center;">
-          <h2>Courses you attend</h2>
-        </div>
+      <div class="row">
         <div
           class="well"
-          v-for="course in attendsCourses"
-          @click="redirectAttends(course.name)"
-          :key="course.name"
+          @click="redirectCourses()"
         >
           <div class="row" style="text-align: center;">
             <h4>
-              <span>{{ course.name }}</span>
+              <span>Administer courses</span>
             </h4>
           </div>
         </div>
@@ -61,35 +46,27 @@
 </template>
 
 <script>
-import RoutingService from '@/services/RoutingService';
-
 export default {
-  name: 'Courses',
+  name: 'AdminPage',
   components: {},
   data: () => ({
-    attendsCourses: [],
-    assistsCourses: [],
-    administersCourses: [],
-    isAssistant: 0,
-    isAdmin: 0,
+    username: '',
     socket: null,
   }),
   methods: {
-    redirectAttends(courseName) {
-      this.$router.push(`/courses/${courseName}/timeslots`);
+    redirectUsers() {
+      this.$router.push(`/admin/${this.username}/users`);
     },
-    redirectAssists(courseName) {
-      this.$router.push(`/courses/${courseName}/${this.username}`);
+    redirectPrivileges() {
+      this.$router.push(`/admin/${this.username}/privileges`);
     },
-    redirectAdministers(courseName) {
-      this.$router.push(`/courses/${courseName}/timeslots`);
+    redirectCourses() {
+      this.$router.push(`/admin/${this.username}/courses`);
     },
   },
   async created() {
     // If not authenticated , redirect to login page.
-    const { isLoggedIn } = this.$store.getters;
-
-    if (!isLoggedIn) {
+    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
       this.$router.push('/login').catch(() => {});
     }
 
@@ -98,17 +75,11 @@ export default {
 
     const user = this.$store.getters.getUser;
     this.username = user.username;
-    this.isAssistant = user.isAssistant;
-    this.isAdmin = user.isAdmin;
-
-    try {
-      const response = await RoutingService.getCourses(user);
-      const courseLists = response.response;
-      this.attendsCourses = courseLists.attendsCourses;
-      this.assistsCourses = courseLists.assistsCourses;
-      this.administersCourses = courseLists.administersCourses;
-    } catch (err) {
-      console.log(err);
+  },
+  // Step 5 in lifecycle hooks.
+  onUpdate() {
+    if (!this.$store.getters.isLoggedIn || !this.$store.getters.getUser.isAdmin !== 1) {
+      this.$router.push('/login').catch(() => {});
     }
   },
 };
