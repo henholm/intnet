@@ -28,6 +28,6 @@
     "helmet": "^3.21.3",
     "jsonwebtoken": "^8.5.1",
     "sequelize": "^5.21.4",
-    "socket.io": "^1.7.4"
+    "socket.io": "^2.4.0"
   }
 }
